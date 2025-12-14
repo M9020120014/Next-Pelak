@@ -1,6 +1,6 @@
 {
   "name": "next-pelak",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Best design system for your next project.",
   "homepage": "https://Next-Pelak.com",
   "license": "MIT",
@@ -19,7 +19,8 @@
     "start": "next start",
     "lint": "eslint",
     "check:types": "tsc --noEmit --pretty",
-    "preview": "next build && next dev -p 3131"
+    "preview": "next build && next dev -p 3131",
+    "push": "git push --tags"
   },
   "dependencies": {
     "next": "16.0.10",
