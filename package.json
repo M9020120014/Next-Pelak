@@ -1,6 +1,6 @@
 {
   "name": "next-pelak",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Best design system for your next project.",
   "homepage": "https://Next-Pelak.com",
   "license": "MIT",
@@ -44,5 +44,3 @@
     "typescript": "^5"
   }
 }
-
-
