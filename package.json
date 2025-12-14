@@ -1,0 +1,39 @@
+{
+  "name": "next-pelak",
+  "version": "0.1.0",
+  "description": "Best design system for your next project.",
+  "homepage": "https://Next-Pelak.com",
+  "license": "MIT",
+  "author": {
+    "name": "Mahdi Goodini",
+    "email": "m9020120014@gmail.com",
+    "url": "https://github.com/M9020120014"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/M9020120014/Next-Pelak"
+  },
+  "scripts": {
+    "dev": "next dev -p 3131",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "check:types": "tsc --noEmit --pretty",
+    "preview": "next build && next dev -p 3131"
+  },
+  "dependencies": {
+    "next": "16.0.10",
+    "react": "19.2.1",
+    "react-dom": "19.2.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.10",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
