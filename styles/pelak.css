@@ -1,0 +1,210 @@
+:root {
+  /* --- Exact Sizes ---------------- */
+  --Unit: 0.25rem /* 4px */;
+  --Radius: 0.75rem /* 12px */;
+
+  /* --- Text ----------------------- */
+  --Text-H1: 1.8rem;
+  --Text-H2: 1.4rem;
+  --Text-H3: 1.2rem;
+  --Text-H4: 1rem;
+  --Text-H5: 0.9rem;
+  --Text-H6: 0.8rem;
+  --Text-G: 0.75rem;
+  --Text-P: 1rem;
+}
+
+.light {
+  /* --- Background ----------------- */
+  --Background: oklch(0.95 0.018 80);
+  --Panel: oklch(0.9 0.014 80);
+  --Border: oklch(0.8 0.008 80);
+  --Mid: oklch(0.56 0 0);
+  --Shadow: oklch(0.34 0.008 200);
+  --Text: oklch(0.24 0.014 200);
+  --Foreground: oklch(0.18 0.018 200);
+  /* --- Colors --------------------- */
+  --Primary: oklch(0.72 0.14 205);
+  --PrimaryForeground: oklch(0.98 0.018 205);
+  --Secondary: oklch(0.72 0.14 85);
+  --SecondaryForeground: oklch(0.98 0.018 85);
+  --Third: oklch(0.4 0.08 325);
+  --ThirdForeground: oklch(0.98 0.018 325);
+  --Success: oklch(0.56 0.14 145);
+  --SuccessForeground: oklch(0.98 0.018 145);
+  --Error: oklch(0.4 0.12 25);
+  --ErrorForeground: oklch(0.98 0.018 25);
+  --Warning: oklch(0.72 0.14 75);
+  --WarningForeground: oklch(0.98 0.018 75);
+}
+
+.dark {
+  /* --- Background ----------------- */
+  --Background: oklch(0.18 0.018 200);
+  --Panel: oklch(0.24 0.014 200);
+  --Border: oklch(0.34 0.008 200);
+  --Mid: oklch(0.5762 0 0);
+  --Shadow: oklch(0.8 0.008 80);
+  --Text: oklch(0.9 0.014 80);
+  --Foreground: oklch(0.95 0.018 80);
+  /* --- Colors --------------------- */
+  --Primary: oklch(0.72 0.14 205);
+  --PrimaryForeground: oklch(0.98 0.018 205);
+  --Secondary: oklch(0.72 0.14 85);
+  --SecondaryForeground: oklch(0.98 0.018 85);
+  --Third: oklch(0.4 0.08 325);
+  --ThirdForeground: oklch(0.98 0.018 325);
+  --Success: oklch(0.56 0.14 145);
+  --SuccessForeground: oklch(0.98 0.018 145);
+  --Error: oklch(0.4 0.12 25);
+  --ErrorForeground: oklch(0.98 0.018 25);
+  --Warning: oklch(0.72 0.14 75);
+  --WarningForeground: oklch(0.98 0.018 75);
+}
+
+@theme inline {
+  /* --- Units ------------------------------------------------------ */
+  /* --- Spacing -------------------- */
+  --spacing-000-0: calc(var(--Unit) * 0) /* 0px */;
+  --spacing-001-O: calc(var(--Unit) * 0.25) /* 1px */;
+  --spacing-002-T: calc(var(--Unit) * 0.5) /* 2px */;
+  --spacing-004-1: calc(var(--Unit) * 1) /* 4px */;
+  --spacing-008-2: calc(var(--Unit) * 2) /* 8px */;
+  --spacing-010-D: calc(var(--Unit) * 2.5) /* 10px */;
+  --spacing-012-3: calc(var(--Unit) * 3) /* 12px */;
+  --spacing-014-Z: calc(var(--Unit) * 3.5) /* 14px */;
+  --spacing-016-H: calc(var(--Unit) * 4) /* 16px */;
+  --spacing-018-4: calc(var(--Unit) * 4.5) /* 18px */;
+  --spacing-024-5: calc(var(--Unit) * 6) /* 24px */;
+  --spacing-028-6: calc(var(--Unit) * 7) /* 28px */;
+  --spacing-034-7: calc(var(--Unit) * 8.5) /* 34px */;
+  --spacing-040-8: calc(var(--Unit) * 10) /* 40px */;
+  --spacing-048-N: calc(var(--Unit) * 12) /* 48px */;
+  --spacing-056-M: calc(var(--Unit) * 14) /* 56px */;
+  --spacing-072-9: calc(var(--Unit) * 18) /* 72px */;
+  --spacing-080-A: calc(var(--Unit) * 20) /* 80px */;
+  --spacing-100-B: calc(var(--Unit) * 25) /* 100px */;
+  --spacing-110-C: calc(var(--Unit) * 27.5) /* 110px */;
+  --spacing-144-D: calc(var(--Unit) * 36) /* 144px */;
+  --spacing-180-E: calc(var(--Unit) * 45) /* 180px */;
+  --spacing-240-F: calc(var(--Unit) * 60) /* 240px */;
+  --spacing-280-G: calc(var(--Unit) * 70) /* 280px */;
+  --spacing-340-H: calc(var(--Unit) * 85) /* 340px */;
+  --spacing-400-I: calc(var(--Unit) * 100) /* 400px */;
+  --spacing-720-J: calc(var(--Unit) * 180) /* 720px */;
+  --spacing-800-K: calc(var(--Unit) * 200) /* 800px */;
+  /* --- Theme ------------------------------------------------------ */
+  /* --- Exact Colors --------------- */
+  --color-White: oklch(1 0 0);
+  --color-WhiteA: oklch(0.95 0 0);
+  --color-WhiteB: oklch(0.9 0 0);
+  --color-BlackB: oklch(0.1 0 0);
+  --color-BlackA: oklch(0.05 0 0);
+  --color-Black: oklch(0 0 0);
+  /* --- Backgrounds ---------------- */
+  --color-Background: var(--Background);
+  --color-Panel: var(--Panel);
+  --color-Border: var(--Border);
+  --color-Mid: var(--Mid);
+  --color-Shadow: var(--Shadow);
+  --color-Text: var(--Text);
+  --color-Foreground: var(--Foreground);
+  /* --- Colors --------------------- */
+  --color-Primary: var(--Primary);
+  --color-PrimaryForeground: var(--PrimaryForeground);
+  --color-PrimaryDark: color-mix(
+    in oklch,
+    var(--Primary),
+    var(--Foreground) 14%
+  );
+  --color-PrimaryLight: color-mix(
+    in oklch,
+    var(--Primary),
+    var(--Background) 14%
+  );
+  --color-Secondary: var(--Secondary);
+  --color-SecondaryForeground: var(--SecondaryForeground);
+  --color-SecondaryDark: color-mix(
+    in oklch,
+    var(--Secondary),
+    var(--Foreground) 14%
+  );
+  --color-SecondaryLight: color-mix(
+    in oklch,
+    var(--Secondary),
+    var(--Background) 14%
+  );
+  --color-Third: var(--Third);
+  --color-ThirdForeground: var(--ThirdForeground);
+  --color-ThirdDark: color-mix(in oklch, var(--Third), var(--Foreground) 14%);
+  --color-ThirdLight: color-mix(in oklch, var(--Third), var(--Background) 14%);
+  --color-Success: var(--Success);
+  --color-SuccessForeground: var(--SuccessForeground);
+  --color-SuccessDark: color-mix(
+    in oklch,
+    var(--Success),
+    var(--Foreground) 14%
+  );
+  --color-SuccessLight: color-mix(
+    in oklch,
+    var(--Success),
+    var(--Background) 14%
+  );
+  --color-Error: var(--Error);
+  --color-ErrorForeground: var(--ErrorForeground);
+  --color-ErrorDark: color-mix(in oklch, var(--Error), var(--Foreground) 14%);
+  --color-ErrorLight: color-mix(in oklch, var(--Error), var(--Background) 14%);
+  --color-Warning: var(--Warning);
+  --color-WarningForeground: var(--WarningForeground);
+  --color-WarningDark: color-mix(
+    in oklch,
+    var(--Warning),
+    var(--Foreground) 14%
+  );
+  --color-WarningLight: color-mix(
+    in oklch,
+    var(--Warning),
+    var(--Background) 14%
+  );
+  /* --- Radius --------------------- */
+  --radius-xs: calc(var(--Radius) - calc(var(--Unit) * 2));
+  --radius-sm: calc(var(--Radius) - var(--Unit));
+  --radius-md: var(--Radius);
+  --radius-lg: calc(var(--Radius) + var(--Unit));
+  --radius-xl: calc(var(--Radius) + calc(var(--Unit) * 2));
+  /* --- Border Width --------------- */
+  --border-width-0: calc(var(--Unit) * 0) /* 0px */;
+  --border-width-sm: calc(var(--Unit) * 0.25) /* 1px */;
+  --border-width-md: calc(var(--Unit) * 0.5) /* 2px */;
+  --border-width-lg: calc(var(--Unit) * 1) /* 4px */;
+  /* --- Shadow --------------------- */
+  --shadow-0: 0 0 0 0;
+  --shadow-1: 0 2px 1px 0;
+  --shadow-2: 0 4px 1px 0;
+  --shadow-1b: 0 0 4px 0;
+  --shadow-2b: 0 0 8px 0;
+  /* --- Text Shadow ---------------- */
+  --text-shadow-0: 0 0 0 var(--Foreground) / 0%;
+  --text-shadow-1: 0 1px 1px var(--Foreground);
+  --text-shadow-2: 0 2px 1px var(--Foreground);
+  --text-shadow-1b: 0 1px 4px var(--Foreground);
+  --text-shadow-2b: 0 2px 4px var(--Foreground);
+  /* --- Font ----------------------- */
+  --font-text: var(--font-text);
+  --font-title: var(--font-title);
+  /* --- Text ----------------------- */
+  --text-P-A: var(--Text-H1);
+  --text-P-B: var(--Text-H2);
+  --text-P-C: var(--Text-H3);
+  --text-P-D: var(--Text-H4);
+  --text-P-E: var(--Text-H5);
+  --text-P-F: var(--Text-H6);
+  --text-P-G: var(--Text-G);
+  --text-P-P: var(--Text-P);
+  /* --- Ring ----------------------- */
+  --ring-0: 0 0 0 0;
+  --ring-1: 0 1px 1px 0;
+  --ring-2: 0 2px 1px 0;
+  --ring-1b: 0 1px 4px 0;
+  --ring-2b: 0 2px 4px 0;
+}
