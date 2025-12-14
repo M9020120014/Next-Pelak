@@ -20,7 +20,9 @@
     "lint": "eslint",
     "check:types": "tsc --noEmit --pretty",
     "preview": "next build && next dev -p 3131",
-    "push": "git push --tags"
+    "v:001": "npm version patch && git push --tags",
+    "v:010": "npm version minor && git push --tags",
+    "v:100": "npm version major && git push --tags"
   },
   "dependencies": {
     "next": "16.0.10",
