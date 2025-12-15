@@ -1,0 +1,73 @@
+{
+  "todo-tree.filtering.useBuiltInExcludes": "file and search excludes",
+  "todo-tree.filtering.includeHiddenFiles": true,
+  "editor.dropIntoEditor.preferences": [],
+  "todo-tree.highlights.defaultHighlight": {
+    "foreground": "#FA0",
+    "background": "#000",
+    "type": "text-and-comment",
+    "borderRadius": "3px"
+  },
+  "todo-tree.highlights.customHighlight": {
+    "BUG": {
+      "icon": "bug",
+      "foreground": "#F30",
+      "type": "whole-line",
+      "opacity": 72
+    },
+    "HACK": {
+      "icon": "alert",
+      "foreground": "#F50",
+      "type": "whole-line",
+      "opacity": 40
+    },
+    "DOIT": {
+      "type": "whole-line",
+      "opacity": 40
+    },
+    "TODO": {
+      "opacity": 18
+    },
+    "DEBUG": {
+      "opacity": 72
+    },
+    "FIX": {
+      "icon": "beaker",
+      "foreground": "#FD0",
+      "opacity": 18
+    },
+    "[ ]": {
+      "icon": "x",
+      "foreground": "#0F5",
+      "opacity": 40
+    },
+    "[x]": {
+      "icon": "checkbox",
+      "foreground": "#0AF",
+      "opacity": 40
+    },
+    "XXX": {
+      "icon": "x",
+      "foreground": "#FDA",
+      "type": "text-and-comment",
+      "opacity": 72
+    },
+    "DEBUG <": {
+      "type": "whole-line",
+      "opacity": 40
+    }
+  },
+  "todo-tree.regex.regex": "(//|#|<!--|;|/\\*|^|^\\s*(-|\\d+.))\\s*($TAGS)",
+  "todo-tree.general.tags": [
+    "TODO",
+    "DOIT",
+    "BUG",
+    "HACK",
+    "FIX",
+    "XXX",
+    "[ ]",
+    "[x]",
+    "DEBUG",
+    "DEBUG <"
+  ]
+}

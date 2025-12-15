@@ -2,16 +2,7 @@
   /* --- Exact Sizes ---------------- */
   --Unit: 0.25rem /* 4px */;
   --Radius: 0.75rem /* 12px */;
-
-  /* --- Text ----------------------- */
-  --Text-H1: 1.8rem;
-  --Text-H2: 1.4rem;
-  --Text-H3: 1.2rem;
-  --Text-H4: 1rem;
-  --Text-H5: 0.9rem;
-  --Text-H6: 0.8rem;
-  --Text-G: 0.75rem;
-  --Text-P: 1rem;
+  --FontSize: 1rem;
 }
 
 .light {
@@ -193,14 +184,20 @@
   --font-text: var(--font-text);
   --font-title: var(--font-title);
   /* --- Text ----------------------- */
-  --text-P-A: var(--Text-H1);
-  --text-P-B: var(--Text-H2);
-  --text-P-C: var(--Text-H3);
-  --text-P-D: var(--Text-H4);
-  --text-P-E: var(--Text-H5);
-  --text-P-F: var(--Text-H6);
-  --text-P-G: var(--Text-G);
-  --text-P-P: var(--Text-P);
+  --text-H1: calc(var(--FontSize) * 1.8);
+  --text-H2: calc(var(--FontSize) * 1.4);
+  --text-H3: calc(var(--FontSize) * 1.2);
+  --text-H4: calc(var(--FontSize) * 1);
+  --text-H5: calc(var(--FontSize) * 0.9);
+  --text-H6: calc(var(--FontSize) * 0.8);
+  --text-A: calc(var(--FontSize) * 0.65);
+  --text-B: calc(var(--FontSize) * 0.75);
+  --text-C: calc(var(--FontSize) * 0.85);
+  --text-D: calc(var(--FontSize) * 0.95);
+  --text-E: calc(var(--FontSize) * 1.1);
+  --text-F: calc(var(--FontSize) * 1.3);
+  --text-G: calc(var(--FontSize) * 1.5);
+  --text-P: calc(var(--FontSize) * 1);
   /* --- Ring ----------------------- */
   --ring-0: 0 0 0 0;
   --ring-1: 0 1px 1px 0;
@@ -208,3 +205,4 @@
   --ring-1b: 0 1px 4px 0;
   --ring-2b: 0 2px 4px 0;
 }
+
