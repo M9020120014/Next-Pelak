@@ -5,27 +5,40 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.5] - 2025-12-14
 
-- add assets folder
-  - Fonts
-  - Media - svg
-- edit Css Pelak
+- Add assets directory  
+  - Fonts  
+  - Media  
+  - SVGs  
+- Edit Pelak CSS  
+  - Units  
+  - Border radius  
+  - Font sizes  
+- Add font libraries  
+- Add site configuration  
+- Add site types  
+- Change layout structure
+- Add seo data
+- Add favicons
+- Add schema seo
+- Add manifest
+- Add robots
 
 ## [0.1.4] - 2025-12-14
 
-- remove globals.css and update import path in layout.tsx
+- Eemove globals.css and update import path in layout.tsx
 
 ## [0.1.3] - 2025-12-14
 
-- version and push
+- Version and push
 
 ## [0.1.2] - 2025-12-14
 
-- tag and version and push
+- Tag and version and push
 
 ## [0.1.1] - 2025-12-14
 
 ### Added
-- tag and version
+- Tag and version
 
 ## [0.1.0] - 2025-12-14
 
