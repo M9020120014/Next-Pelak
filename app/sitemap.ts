@@ -2,7 +2,7 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { MetadataRoute } from "next";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { HOME_PAGE, MAIN_PAGE ,SITE_MAP } from "@/configs/map";
+import { HOME_PAGE, MAIN_PAGE ,SITE_MAP } from "@/config/map";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Sitemap ------------------------------------------------------- */
 export default function sitemap(): MetadataRoute.Sitemap {

@@ -1,5 +1,5 @@
 
-/* --- Site Config Type ------------------------------------------------------------------------- */
+/* --- Type Map --------------------------------------------------------------------------------- */
 type StringMap = Record<string, string>
 type NumberMap = Record<string, number>
 type DateMap = Record<string, Date>
@@ -8,21 +8,27 @@ type PersonObject = Record<string, {
   "@type": "Person";
   "name": string;
 }[]>
-export type LanguageMap = StringMap
-export type LanguageObject<LanguageMap> = {
-  list: LanguageMap;
-  default: keyof LanguageMap;
-  data: Record<string, Record<keyof LanguageMap, string>>;
+/* --- Language --------------------------------------------------------------------------------- */
+export type LanguageMap = {
+  default: keyof StringMap;
+  list: StringMap;
 }
-/* --- Site Config ------------------------------------------------------------------------------ */
-export type ConfigSiteObject = {
-  Theme: StringMap;
-  Media: StringMap;
+export type LanguageObject<StringMap> = Record<string, Record<keyof StringMap, string>>
+/* --- Config Site Lang ------------------------------------------------------------------------- */
+type ConfigSiteLangMap = {
   Data: StringMap;
-  Number: NumberMap;
-  Date: DateMap;
   Check: BooleanMap;
   Person: PersonObject;
   Keywords: string[];
   Tag: string[];
 }
+export type ConfigSiteLangObject<StringMap> = Record<keyof StringMap, ConfigSiteLangMap>
+/* --- Config Site ------------------------------------------------------------------------------ */
+type ConfigSiteMap = {
+  Theme: StringMap;
+  Media: StringMap;
+  Data: StringMap;
+  Date: DateMap;
+  Number: NumberMap;
+}
+export type ConfigSiteObject = ConfigSiteMap

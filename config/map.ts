@@ -2,14 +2,16 @@
 /* --- Types ------------------------------------------------------------------------------------ */
 import type { PageObjectType, PageMapType } from "@/types/page";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { SITE } from "@/configs/site";
+import { SITE_LANG, LANGUAGE } from "@/config/site";
+/* --- Constants -------------------------------------------------------------------------------- */
+const defaultLang = LANGUAGE.default
 /* --- Constants -------------------------------------------------------------------------------- */
 /* --- Home Page ---------------------------------------------------- */
 export const HOME_PAGE = [
   {
-    title: SITE.Data.title,
-    short: SITE.Data.shortName,
-    description: SITE.Data.description,
+    title: SITE_LANG[defaultLang].Data.title,
+    short: SITE_LANG[defaultLang].Data.shortName,
+    description: SITE_LANG[defaultLang].Data.description,
     icon: "home",
     sitemap: {
       url: "/",
@@ -25,9 +27,9 @@ export const HOME_PAGE = [
 /* --- Home Page ---------------------------------------------------- */
 export const MAIN_PAGE = [
   {
-    title: "SITE.Data.title",
-    short: "SITE.Data.shortName",
-    description: "SITE.Data.description",
+    title: "SITE_LANG[defaultLang].Data.title",
+    short: "SITE[defaultLang].Data.shortName",
+    description: "SITE[defaultLang].Data.description",
     icon: "default",
     sitemap: {
       url: "/",
@@ -49,7 +51,7 @@ export const SITE_MAP = [
     priority: 0.9,
   },
   {
-    url: "/en",
+    url: "/site",
     lastModified: new Date().toISOString(),
     changeFrequency: "weekly",
     priority: 0.9,

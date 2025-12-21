@@ -2,14 +2,16 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { MetadataRoute } from "next";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { SITE } from "@/configs/site";
+import { SITE, SITE_LANG, LANGUAGE } from "@/config/site";
+/* --- Constants -------------------------------------------------------------------------------- */
+const defaultLang = LANGUAGE.default
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Manifest ----------------------------------------------------- */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    short_name: SITE.Data.shortName,
-    name: SITE.Data.name,
-    description: SITE.Data.description,
+    short_name: SITE_LANG[defaultLang].Data.shortName,
+    name: SITE_LANG[defaultLang].Data.name,
+    description: SITE_LANG[defaultLang].Data.description,
     icons: [
       {
         src: "/favicon.svg",
@@ -40,7 +42,7 @@ export default function manifest(): MetadataRoute.Manifest {
       {
         src: "/image.webp",
         type: "image/webp",
-        sizes: "1280x720",
+        sizes: (SITE.Number.imageWidth).toString() + "x" + (SITE.Number.imageHeight).toString(),
         form_factor: "wide",
       },
     ],

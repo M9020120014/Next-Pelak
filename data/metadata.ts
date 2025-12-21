@@ -1,12 +1,8 @@
 
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { Metadata, Viewport } from "next";
-/* --- Types ------------------------------------------------------------------------------------ */
-import type { SeoWebsiteType } from "@/types/seo";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { SITE } from "@/configs/site";
-/* --- Constants -------------------------------------------------------------------------------- */
-const pageTitle = (SITE.Check.absoluteTitle ? { absolute: SITE.Data.title } : SITE.Data.title);
+import { SITE, SITE_LANG, LANGUAGE_TYPE, LANGUAGE_DATA, LANGUAGE_LIST, LANGUAGE } from "@/config/site";
 /* --- Robots ------------------------------------------------------- */
 /* --- Robots On -------------------- */
 export const ROBOTS_ON: Metadata = {
@@ -40,7 +36,7 @@ export const ROBOTS_OFF: Metadata = {
     },
   },
 }
-/* --- Base Layout Metadata ----------------------------------------- */
+/* --- Base Metadata ------------------------------------------------ */
 /* --- Viewport --------------------- */
 export const SITE_VIEWPORT: Viewport = {
   width: "device-width",
@@ -51,14 +47,6 @@ export const SITE_VIEWPORT: Viewport = {
 /* --- Metadata --------------------- */
 export const BACE_SEO: Metadata = {
   metadataBase: new URL(SITE.Data.url),
-  title: {
-    template: "%s | " + SITE.Data.name,
-    default: SITE.Data.name,
-  },
-  applicationName: SITE.Data.name,
-  authors: [{ name: SITE.Data.name, url: SITE.Data.url }],
-  creator: SITE.Data.name,
-  publisher: SITE.Data.name,
   icons: {
     icon: [
       {
@@ -79,19 +67,14 @@ export const BACE_SEO: Metadata = {
       }
     ]
   },
-  manifest: SITE.Data.url + "/manifest.json",
   appleWebApp: {
     capable: true,
-    title: SITE.Data.name,
+    title: SITE.Data.appName,
     statusBarStyle: "default",
     startupImage: [SITE.Data.logo],
   },
   verification: {
     google: SITE.Data.googleVerification,
-  },
-  openGraph: {
-    siteName: SITE.Data.name,
-    locale: SITE.Data.locale,
   },
   twitter: {
     card: "summary_large_image",
@@ -99,55 +82,87 @@ export const BACE_SEO: Metadata = {
   },
   other: {
     "og:logo": SITE.Data.logo,
-  },
-  ...ROBOTS_OFF,
+  }
 };
-/* --- Home Page Metadata ------------------------------------------- */
-/* --- Metadata --------------------- */
-export const HOME_SEO: SeoWebsiteType = {
-  title: pageTitle,
-  description: SITE.Data.description,
-  keywords: SITE.Keywords,
-  openGraph: {
-    type: 'website',
-    title: SITE.Data.title,
-    description: SITE.Data.description,
-    url: SITE.Data.url,
-    images: [
-      {
-        url: SITE.Data.image,
-        width: 1280,
-        height: 720,
-        alt: SITE.Data.alt,
-      },
-    ],
-    videos: [
-      {
-        url: SITE.Data.video,
-        width: 1280,
-        height: 720,
-      },
-    ],
-    audio: [
-      {
-        url: SITE.Data.audio,
-      },
-    ],
-    /* --- If Article ----------------------------------------------- */
-    // publishedTime: new Date("2025-11-04").toISOString(),
-    // modifiedTime: new Date("2025-11-13").toISOString(),
-    // authors: [
-    //   SITE.data.name
-    // ],
-    // section: SITE.data.section,
-    // tags: SITE.tag,
-  },
-  twitter: {
-    title: SITE.Data.title,
-    description: SITE.Data.description,
-    images: [SITE.Data.image],
-  },
-  alternates: {
-    canonical: SITE.Data.url,
-  },
-};
+/* --- Functions -------------------------------------------------------------------------------- */
+/* --- Create Bace Metadata From Lang ------------------------------- */
+export function BACE_SEO_LANG(lang: LANGUAGE_TYPE): Metadata {
+  return {
+    title: {
+      template: "%s | " + SITE_LANG[lang].Data.name,
+      default: SITE_LANG[lang].Data.name,
+    },
+    applicationName: SITE_LANG[lang].Data.name,
+    authors: [{ name: SITE_LANG[lang].Data.name, url: SITE.Data.url }],
+    creator: SITE_LANG[lang].Data.name,
+    publisher: SITE_LANG[lang].Data.name,
+    openGraph: {
+      siteName: SITE_LANG[lang].Data.name,
+      locale: SITE_LANG[lang].Data.locale,
+    }
+  };
+}
+/* --- Create Home Metadata From Lang ------------------------------- */
+export function HOME_SEO_LANG(lang: LANGUAGE_TYPE): Metadata {
+  /* --- Constants ------------------ */
+  const pageTitle = (SITE_LANG[lang].Check.absoluteTitle ? { absolute: SITE_LANG[lang].Data.title } : SITE_LANG[lang].Data.title);
+  const langList = Object.fromEntries(
+    LANGUAGE_LIST.map((list) => [
+      LANGUAGE_DATA.standard[list as LANGUAGE_TYPE],
+      SITE.Data.url + "/" + (list !== LANGUAGE.default ? list : ""),
+    ])
+  );
+  const alternates ={
+    canonical: SITE.Data.url + "/" + (lang !== LANGUAGE.default ? lang : ""),
+    languages: {
+      "x-default": SITE.Data.url + "/",
+      ...langList
+    }
+  }
+  /* --- Metadata ------------------- */
+  return {
+    title: pageTitle,
+    description: SITE_LANG[lang].Data.description,
+    keywords: SITE_LANG[lang].Keywords,
+    openGraph: {
+      type: 'website',
+      title: SITE_LANG[lang].Data.title,
+      description: SITE_LANG[lang].Data.description,
+      url: SITE.Data.url,
+      images: [
+        {
+          url: SITE_LANG[lang].Data.image,
+          width: SITE.Number.imageWidth,
+          height: SITE.Number.imageHeight,
+          alt: SITE_LANG[lang].Data.alt,
+        },
+      ],
+      videos: [
+        {
+          url: SITE_LANG[lang].Data.video,
+          width: SITE.Number.imageWidth,
+          height: SITE.Number.imageHeight,
+        },
+      ],
+      audio: [
+        {
+          url: SITE_LANG[lang].Data.audio,
+        },
+      ],
+      /* --- If Article ----------------------------------------------- */
+      // publishedTime: new Date("2025-11-04").toISOString(),
+      // modifiedTime: new Date("2025-11-13").toISOString(),
+      // authors: [
+      //   SITE_LANG[lang].Data.name
+      // ],
+      // section: SITE_LANG[lang].Data.section,
+      // tags: SITE_LANG[lang].tag,
+    },
+    twitter: {
+      title: SITE_LANG[lang].Data.title,
+      description: SITE_LANG[lang].Data.description,
+      images: [SITE_LANG[lang].Data.image],
+    },
+    alternates: alternates
+  };
+}

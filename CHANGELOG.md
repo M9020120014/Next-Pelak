@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file.
 - Add schema seo
 - Add manifest
 - Add robots
+- Add Multilingual
 
 ## [0.1.4] - 2025-12-14
 

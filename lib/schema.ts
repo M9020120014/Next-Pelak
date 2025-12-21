@@ -1,7 +1,9 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { WithContext, WebSite, ImageObject } from "schema-dts";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { SITE } from "@/configs/site";
+import { SITE, SITE_LANG, LANGUAGE } from "@/config/site";
+/* --- Constants -------------------------------------------------------------------------------- */
+const defaultLang = LANGUAGE.default
 /* --- Functions -------------------------------------------------------------------------------- */
 export function getJsonLd(): WithContext<WebSite> {
   /* --- Constants -------------------------------------------------- */
@@ -22,13 +24,13 @@ export function getJsonLd(): WithContext<WebSite> {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: SITE.Data.name,
+    name: SITE_LANG[defaultLang].Data.name,
     url: SITE.Data.url,
     image: logo,
     sameAs: Object.values(SITE.Media),
-    creator: SITE.Person.founders,
-    keywords: SITE.Keywords,
+    creator: SITE_LANG[defaultLang].Person.founders,
+    keywords: SITE_LANG[defaultLang].Keywords,
     dateCreated: SITE.Date.foundingDate.toISOString(),
-    description: SITE.Data.description,
+    description: SITE_LANG[defaultLang].Data.description,
   };
 }
