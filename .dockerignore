@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.github
+.vscode
+*.md
+.env*.local
+.DS_Store
+Dockerfile
+.dockerignore
+docker-compose.yml
+terminals/
+.copy/
+*.log

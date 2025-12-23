@@ -1,13 +1,16 @@
 
+/* --- Base ------------------------------------------------------------------------------------- */
+import { notFound } from "next/navigation";
 /* --- Types ------------------------------------------------------------------------------------ */
 import type { LanguageMap, LanguageObject, ConfigSiteLangObject, ConfigSiteObject } from "@/types/configs/site";
 /* --- Constants -------------------------------------------------------------------------------- */
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
 /* --- Language ----------------------------------------------------- */
 export const LANGUAGE = {
   default: "fa",
   list: {
     fa: "فارسی",
-    en: "English"
+    en: "English",
   },
 } as const satisfies LanguageMap;
 export type LANGUAGE_TYPE = keyof typeof LANGUAGE.list;
@@ -25,10 +28,21 @@ export const LANGUAGE_DATA = {
     fa: "rtl",
     en: "ltr"
   }
-} as const satisfies LanguageObject<typeof LANGUAGE.list> // RootLayout 
-/* --- Functions ---------------------------------------------------- */
+} as const satisfies LanguageObject<typeof LANGUAGE.list>
 export function LANG_CHECK(lang: unknown): lang is LANGUAGE_TYPE {
-  return typeof lang == 'string' && LANGUAGE_LIST.includes(lang as LANGUAGE_TYPE);
+  return typeof lang == 'string' && LANGUAGE_LIST.includes(lang as LANGUAGE_TYPE)
+}
+export type LANG_PARAMS = Readonly<{ params: Promise<{ lang: string }> }>
+export type LANG_CHILDREN_PARAMS = Readonly<{ children: React.ReactNode; params: Promise<{ lang: string }> }>
+export async function LANG(params: Promise<{ lang: string }>) {
+  const { lang } = await params;
+  if (!LANG_CHECK(lang)) {
+    notFound();
+  }
+  return {
+    lang: lang as LANGUAGE_TYPE,
+    otherLanguages: LANGUAGE_LIST.filter((l) => l !== lang)
+  };
 }
 /* --- Data --------------------------------------------------------- */
 export const SITE_LANG = {
@@ -121,7 +135,7 @@ export const SITE = {
   }, // libs.schema.getJsonLd
   Data: {
     appName: "PELAK Design System", // data.metadata.BACE_SEO
-    url: "http://localhost:3131", // data.metadata.BACE_SEO // data.metadata.BACE_SEO_LANG // data.metadata.HOME_SEO_LANG // libs.schema.getJsonLd // robots // manifest
+    url: baseURL, // data.metadata.BACE_SEO // data.metadata.BACE_SEO_LANG // data.metadata.HOME_SEO_LANG // libs.schema.getJsonLd // robots // manifest
     logo: "/logo.png", // data.metadata.BACE_SEO // libs.schema.getJsonLd
     googleVerification: "1234567890123456789012345678901234567890123", // data.metadata.BACE_SEO
     twitter: "@MahdiGoodini", // data.metadata.BACE_SEO

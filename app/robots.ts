@@ -3,28 +3,31 @@
 import type { MetadataRoute } from "next";
 /* --- Data ------------------------------------------------------------------------------------- */
 import { SITE } from "@/config/site";
-/* --- Constants -------------------------------------------------------------------------------- */
-const disallowedPaths = [
-  "/api",
-];
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Robots ------------------------------------------------------- */
 export default function robots(): MetadataRoute.Robots {
-  const base = SITE.Data.url;
+  /* --- Constants ------------------ */
+  const baseURL = SITE.Data.url;
+  const disallowedPaths = [
+    "/api/",
+    "/admin/",
+    "/_next/static/",
+    "/private/",
+    "/*.json$"
+  ];
+  /* --- Run ------------------------ */
   return {
     rules: [
       {
         userAgent: "*",
-        allow: ["/"],
         disallow: disallowedPaths,
       },
       {
         userAgent: "Googlebot",
-        allow: ["/"],
         disallow: disallowedPaths,
       },
     ],
-    sitemap: base + "/sitemap.xml",
-    host: base,
+    sitemap: baseURL + "/sitemap.xml",
+    host: baseURL
   };
 };

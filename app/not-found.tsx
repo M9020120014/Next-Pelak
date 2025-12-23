@@ -1,12 +1,13 @@
+"use client";
 /* --- Base ------------------------------------------------------------------------------------- */
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { headers } from "next/headers";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANGUAGE, LANGUAGE_LIST } from "@/config/site";
+import { LANGUAGE } from "@/config/site";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Root NotFound ------------------------------------------------ */
-export default async function NotFound() {
-  console.log("---n-f---");
+export default function NotFound() {
+  const router = useRouter();
   return (
     <html>
       <body>
@@ -15,7 +16,10 @@ export default async function NotFound() {
           <p>Page not found</p>
           <Link href={"/"+LANGUAGE.default+"/404"}>Go to localized 404 page</Link>
           <p>--------------------------------</p>
-          <Link href={"/"}>Go to home</Link>
+          <button onClick={() => router.back()}>Back</button>
+          <p>--------------------------------</p>
+          <Link href={"/"+LANGUAGE.default}>Go to home</Link>
+          <p>--------------------------------</p>
         </main>
       </body>
     </html>

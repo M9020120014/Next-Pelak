@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file.
 - Add manifest
 - Add robots
 - Add Multilingual
+- Improve site security
 
 ## [0.1.4] - 2025-12-14
 

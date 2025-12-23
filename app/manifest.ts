@@ -32,7 +32,7 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "maskable",
       },
     ],
-    start_url: SITE.Data.url,
+    start_url: SITE.Data.url || "/",
     display: "standalone",
     background_color: SITE.Theme.light,
     theme_color: SITE.Theme.dark,

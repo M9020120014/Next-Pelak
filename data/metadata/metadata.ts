@@ -50,18 +50,18 @@ export const BACE_SEO: Metadata = {
   icons: {
     icon: [
       {
-        url: "favicon.ico",
+        url: "/favicon.ico",
         type: "image/x-icon"
       },
       {
-        url: "favicon.svg",
+        url: "/favicon.svg",
         type: "image/svg+xml",
         sizes: "any"
       }
     ],
     apple: [
       {
-        url: "favicon.png",
+        url: "/favicon.png",
         type: "image/png",
         sizes: "180x180"
       }

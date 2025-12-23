@@ -1,6 +1,6 @@
 
 /* --- Types ------------------------------------------------------------------------------------ */
-import type { PageObjectType, PageMapType } from "@/types/page";
+import type { PageObjectType, PageMapType } from "@/types/configs/map";
 /* --- Data ------------------------------------------------------------------------------------- */
 import { SITE_LANG, LANGUAGE } from "@/config/site";
 /* --- Constants -------------------------------------------------------------------------------- */

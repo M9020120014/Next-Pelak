@@ -1,53 +1,34 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { Metadata } from "next";
-import { textFont, titleFont } from "@/lib/fonts";
-import { notFound } from "next/navigation";
+import { defaultTextFont, defaultTitleFont } from "@/lib/asset/fonts";
 /* --- Components ------------------------------------------------------------------------------- */
-import Providers from "@/components/Providers";
+import Security from "@/components/provider/Security";
+import Providers from "@/components/provider/Provider";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANGUAGE, LANGUAGE_DATA, LANG_CHECK } from "@/config/site";
-import { BACE_SEO_LANG } from "@/data/metadata";
+import { LANGUAGE_DATA, LANG_PARAMS, LANG_CHILDREN_PARAMS, LANG } from "@/config/site";
+import { BACE_SEO_LANG } from "@/data/metadata/metadata";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Locale Layout Metadata --------------------------------------- */
-export async function generateMetadata({
-  params
-}: Readonly<{
-  params: Promise<{ lang: string }>;
-}>): Promise<Metadata> {
-  const { lang } = await params;
-  console.log("---LAYOUT_M---",lang);
-  if (LANG_CHECK(lang)) {
-    return BACE_SEO_LANG(lang);
-  }else{
-    return BACE_SEO_LANG(LANGUAGE.default);
-  }
+export async function generateMetadata({ params }: LANG_PARAMS): Promise<Metadata> {
+  const { lang } = await LANG(params);
+  return BACE_SEO_LANG(lang);
 };
 /* --- Locale Layout ------------------------------------------------ */
-export default async function LocaleLayout({
-  children,
-  params
-}: Readonly<{
-  children: React.ReactNode;
-  params: Promise<{ lang: string }>;
-}>) {
-  const { lang } = await params;
-  console.log("---LAYOUT_P:0---",lang);
-  if (!LANG_CHECK(lang)) {
-    console.log("---LAYOUT_P:nf---",lang);
-    notFound();
-  }
-  console.log("---LAYOUT_P:1---",lang);
+export default async function LocaleLayout({ children, params }: LANG_CHILDREN_PARAMS) {
+  const { lang } = await LANG(params);
   return (
     <html
       lang={LANGUAGE_DATA.lang[lang]}
       dir={LANGUAGE_DATA.direction[lang]}
-      className={textFont.variable + " " + titleFont.variable}
+      className={defaultTextFont.variable + " " + defaultTitleFont.variable}
       suppressHydrationWarning
     >
       <body className="antialiased">
-        <Providers LANG={lang}>
-          {children}
-        </Providers>
+        <Security>
+          <Providers>
+            {children}
+          </Providers>
+        </Security>
       </body>
     </html>
   );

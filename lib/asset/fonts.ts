@@ -3,13 +3,13 @@
 import localFont from "next/font/local";
 /* --- Constants -------------------------------------------------------------------------------- */
 /* --- title Font --------------------------------------------------- */
-export const titleFont = localFont({
+export const defaultTitleFont = localFont({
   src: [
     {
-      path: "../assets/fonts/title.woff2",
+      path: "../../asset/fonts/defaultTitle.woff2",
     },
     {
-      path: "../assets/fonts/title.woff",
+      path: "../../asset/fonts/defaultTitle.woff",
     }
   ],
   weight: "900",
@@ -20,13 +20,13 @@ export const titleFont = localFont({
   fallback: ["Georgia", "serif"],
 });
 /* --- text Font ---------------------------------------------------- */
-export const textFont = localFont({
+export const defaultTextFont = localFont({
   src: [
     {
-      path: "../assets/fonts/text.woff2",
+      path: "../../asset/fonts/defaultText.woff2",
     },
     {
-      path: "../assets/fonts/text.woff",
+      path: "../../asset/fonts/defaultText.woff",
     }
   ],
   weight: "600",

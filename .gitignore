@@ -40,3 +40,4 @@ next-env.d.ts
 #development
 package-lock.json
 .cursor
+.env*

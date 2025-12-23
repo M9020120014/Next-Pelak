@@ -206,3 +206,8 @@
   --ring-2b: 0 2px 4px 0;
 }
 
+@layer base {
+  .URL {
+    direction: ltr;
+  }
+}
