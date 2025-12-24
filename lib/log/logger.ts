@@ -1,22 +1,24 @@
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || ''
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Client ------------------------------------------------------- */
-export async function SubmitLogClient(type: string, location: string, message: string, error: Error) {
+export async function SubmitLogClient(
+  type: string,
+  location: string,
+  message: string,
+  details: Record<string, string>
+) {
   try {
-    await fetch('/api/logger', {
+    await fetch(BASE_URL + '/api/logger', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        type: type,
-        location: location,
-        message: message,
-        error: error instanceof Error ? {
-          message: error.message,
-          name: error.name,
-          stack: error.stack
-        } : String(error),
+        type,
+        location,
+        message,
+        details,
       }),
     })
   } catch (error) {
@@ -25,15 +27,17 @@ export async function SubmitLogClient(type: string, location: string, message: s
 }
 
 /* --- Server ------------------------------------------------------- */
-export async function SubmitLogServer(type: string, location: string, message: string, error: Error) {
+export async function SubmitLogServer(
+  type: string,
+  location: string,
+  message: string,
+  details: Record<string, string>
+) {
+  const detailsArray = Object.entries(details)
   try {
-    console.log(`
- ⎛ --- ${type} | ${location || 'server'} | ${message || 'Unknown error'} |:./ 
- ├─ Error: ${error instanceof Error ? error.message : String(error)}
- ├─ Error Name: ${error instanceof Error ? error.name : 'N/A'}
- ├─ Stack Trace: ${error instanceof Error ? error.stack : 'N/A'}
- └─ Timestamp: ${new Date().toISOString()}
-    `)
+    console.log("┌─ --- " + type + " | " + (location || "server") + " | " + (message || "Unknown error") + " |:./ " + new Date().toISOString())
+    detailsArray.map(([key, value]) => console.log(`├─ ${key}: ${value}`))
+    console.log("└─ ---")
   } catch (error) {
     console.log("error: " + error);
   }

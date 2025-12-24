@@ -1,6 +1,4 @@
 
-/* --- Lib -------------------------------------------------------------------------------------- */
-import { SubmitLogClient, SubmitLogServer } from '@/lib/log/logger'
 /* --- Constants -------------------------------------------------------------------------------- */
 export type SecurityEventType =
   | 'suspicious_request'
@@ -28,57 +26,62 @@ const SUSPICIOUS_PATTERNS = [
 
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Detect Suspicious Activity ------------------------------------ */
-export function detectSuspiciousActivity(request: Request): boolean {
+export function detectSuspiciousActivity(request: Request): Readonly<{ 
+  check: boolean, 
+  ip: string, 
+  userAgent: string, 
+  referer: string, 
+  url: string 
+}> {
+  
+  // Get IP from headers
+  const forwardedFor = request.headers.get('x-forwarded-for')
+  const realIp = request.headers.get('x-real-ip')
+  const cfConnectingIp = request.headers.get('cf-connecting-ip')
+  const ip = forwardedFor?.split(',')[0].trim() || realIp || cfConnectingIp || 'unknown'
+
   const userAgent = request.headers.get('user-agent') || ''
   const referer = request.headers.get('referer') || ''
   const url = request.url || ''
 
   // Check user agent
   if (SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(userAgent))) {
-    return true
+    return {
+      check: true,
+      ip,
+      userAgent,
+      referer,
+      url,
+    }
   }
 
   // Check referer
   if (SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(referer))) {
-    return true
+    return {
+      check: true,
+      ip,
+      userAgent,
+      referer,
+      url,
+    }
   }
 
   // Check URL
   if (SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(url))) {
-    return true
+    return {
+      check: true,
+      ip,
+      userAgent,
+      referer,
+      url,
+    }
   }
 
-  return false
-}
-
-/* --- Client ------------------------------------------------------- */
-export async function SubmitSecurityClient(
-  type: SecurityEventType,
-  location: string,
-  message: string,
-  details: Record<string, unknown>
-) {
-  // Create Error object with details in stack
-  const securityError = new Error(message)
-  securityError.name = 'SecurityEvent'
-  securityError.stack = JSON.stringify(details, null, 2)
-
-  // Use SubmitLogClient from logger.ts
-  await SubmitLogClient(type, location, message, securityError)
-}
-
-/* --- Server ------------------------------------------------------- */
-export async function SubmitSecurityServer(
-  type: SecurityEventType,
-  location: string,
-  message: string,
-  details: Record<string, unknown>
-) {
-  // Create Error object with details in stack
-  const securityError = new Error(message)
-  securityError.name = 'SecurityEvent'
-  securityError.stack = JSON.stringify(details, null, 2)
-
-  // Use SubmitLogServer from logger.ts
-  await SubmitLogServer(type, location, message, securityError)
+  return {
+    check: false,
+    ip,
+    userAgent,
+    referer,
+    url,
+  }
 }

@@ -25,31 +25,21 @@
 // console.log(" --- alert | api/auth/[...] | response of fetch ------------------ o.:| ")
 // console.log(" --- debug | api/auth/[...] | response of fetch ------------------ |:./ ") // DEBUG < 
 
-// SubmitErrorsClient(
-//   "(auth)/verification",
-//   "handleMobileSubmit TRY",
-//   error instanceof Error ? error : new Error(String(error))
-// );
-// SubmitErrorsStringClient(
-//   "page/[slug]",
-//   "response is not ok",
-//   response.statusText
-// );
-// SubmitErrorsStringServer(
-//   "page/[slug]",
-//   "response is not ok",
-//   response.statusText
-// );
-// SubmitErrorsServer(
-//   "(auth)/verification",
-//   "handleMobileSubmit TRY",
-//   error instanceof Error ? error : new Error(String(error))
-// );
-// SubmitErrorsStringServer(
-//   "page/[slug]",
-//   "response is not ok",
-//   response.statusText
-// );
+// await SubmitLogClient(
+//   'error',
+//   'api/logger',
+//   error instanceof Error ? error.name : 'Failed to log error',
+//   {
+//     idevice: await getIDeviceToken(),
+//     details: error instanceof Error ? error.message || 'No message available' : String(error) || 'Unknown error' 
+//   }
+// )
+// await SubmitLogServer(
+//   'error',
+//   'api/logger',
+//   error instanceof Error ? error.name : 'Failed to log error',
+//   { details: error instanceof Error ? error.message || 'No message available' : String(error) || 'Unknown error' }
+// )
 // encodeURIComponent(slug)
 
 

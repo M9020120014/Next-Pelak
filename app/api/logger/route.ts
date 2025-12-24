@@ -20,26 +20,14 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-
-    // Extract data from request (sent from SubmitLogClient)
-    const { type, location, message, error } = body
-
-    // Parse error object (can be Error object or string)
-    let errorObj: Error
-    if (error) {
-      if (typeof error === 'object' && error !== null) {
-        errorObj = new Error(error.message || String(error) || 'Unknown error')
-        errorObj.name = error.name || 'Error'
-        errorObj.stack = error.stack || 'No stack trace'
-      } else {
-        errorObj = new Error(String(error))
-      }
-    } else {
-      errorObj = new Error(message || 'Unknown error')
-    }
-
-    // Log using SubmitLogServer
-    await SubmitLogServer(type || 'error', location || 'client', message || 'Unknown error', errorObj)
+  
+    const { type, location, message, details } = body as Readonly<{ type: string, location: string, message: string, details: Record<string, string> }>
+    await SubmitLogServer(
+      type || 'error',
+      location || 'client',
+      message || 'Unknown error',
+      details
+    )
 
     return NextResponse.json(
       {
@@ -49,8 +37,14 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     )
+
   } catch (error) {
-    await SubmitLogServer('error', 'api/logger', 'Failed to log error', error as Error)
+    await SubmitLogServer(
+      'error',
+      'api/logger',
+      error instanceof Error ? error.name : 'Failed to log error',
+      { details: error instanceof Error ? error.message || 'No message available' : String(error) || 'Unknown error' }
+    )
     return NextResponse.json(
       {
         success: false,

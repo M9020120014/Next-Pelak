@@ -1,31 +1,28 @@
 'use client'
-
+/* --- Base ------------------------------------------------------------------------------------- */
 import { createContext, useContext } from 'react'
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { SubmitLogClient } from '@/lib/log/logger'
-
+/* --- Types ------------------------------------------------------------------------------------ */
 interface SecurityContextType {
   csrfToken: string
   nonce: string
   reportSecurityIssue: (issue: string) => void
 }
-
+/* --- Constants -------------------------------------------------------------------------------- */
 const SecurityContext = createContext<SecurityContextType | null>(null)
-
-export function SecurityProvider({ 
+/* --- Functions -------------------------------------------------------------------------------- */
+export function SecurityProvider({
   children,
   csrfToken,
   nonce
-}: { 
+}: {
   children: React.ReactNode
   csrfToken: string
   nonce: string
 }) {
   const reportSecurityIssue = (issue: string) => {
-    // Report to security monitoring service
-    const error = new Error(`Security Issue: ${issue}`)
-    error.name = 'SecurityIssue'
-    // Log to server
+    const error = { issue }
     SubmitLogClient(
       'security',
       'components/providers/SecurityProvider',

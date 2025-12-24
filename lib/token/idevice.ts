@@ -1,13 +1,22 @@
 
+/* --- Base ------------------------------------------------------------------------------------- */
+import { cookies } from "next/headers";
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { SubmitLogServer } from '@/lib/log/logger'
+/* --- Constants -------------------------------------------------------------------------------- */
+const IDEVICE_STORAGE_KEY = process.env.IDEVICE_STORAGE_KEY || 'idevice-token'
 /* --- Functions -------------------------------------------------------------------------------- */
+/* --- Get iDevice -------------------------------------------------- */
+export async function getIDeviceToken(): Promise<string> {
+  const idevice = (await cookies()).get(IDEVICE_STORAGE_KEY)?.value || 'unknown';
+  return idevice;
+}
+
 /* --- Call iDevice ------------------------------------------------- */
 export function iDeviceToken(userAgent: string): string {
   try {
     return encodeTimestamp() + parseDeviceInfo(userAgent)
-  } catch (error) {
-    SubmitLogServer('error', 'lib/token/idevice', 'iDeviceToken failed', error as Error)
+  } catch {
     return "unknown"
   }
 }
@@ -116,13 +125,22 @@ export function parseDeviceInfo(userAgent: string): string {
 
   // Validate length (should always be 9)
   if (result.length !== 9) {
-    // Log warning using SubmitLogServer (async, non-blocking)
     Promise.resolve().then(async () => {
       try {
-        const { SubmitLogServer } = await import('@/lib/log/logger')
-        const warningError = new Error(`Expected 9 characters, got ${result.length}: ${result}`)
-        warningError.name = 'ParseDeviceInfoWarning'
-        await SubmitLogServer('warning', 'lib/token/idevice', 'parseDeviceInfo validation failed', warningError)
+        const warningError = { 
+          title: "ParseDeviceInfoWarning",
+          message: "Expected 9 characters, got " + result.length + ": " + result ,
+          os,
+          osVersion,
+          browser,
+          browserVersion,
+          deviceType,
+        }
+        await SubmitLogServer(
+          'warning',
+          'lib/token/idevice',
+          'parseDeviceInfo validation failed',
+          warningError)
       } catch {
         // Silently fail if logging fails
       }

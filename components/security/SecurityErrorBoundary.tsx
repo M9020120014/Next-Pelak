@@ -2,8 +2,8 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import React from 'react'
 /* --- Lib -------------------------------------------------------------------------------------- */
-import { SubmitLogClient, SubmitLogServer } from '@/lib/log/logger'
-
+import { SubmitLogClient } from '@/lib/log/logger'
+/* --- Types ------------------------------------------------------------------------------------ */
 export default class SecurityErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean }
@@ -14,35 +14,37 @@ export default class SecurityErrorBoundary extends React.Component<
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static getDerivedStateFromError(error: Error) {
+  static getDerivedStateFromError(_error: Error) {
     // Don't call async functions here - move to componentDidCatch
     return { hasError: true }
   }
-  
+
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log to security monitoring service
     // Don't expose sensitive error details to client
-    const securityError = new Error(`Security Error: ${error.message}`)
-    securityError.name = 'SecurityErrorBoundary'
-    securityError.stack = errorInfo.componentStack || undefined
-    
+    const details = {
+      message: error.message,
+      name: 'SecurityErrorBoundary',
+      stack: errorInfo.componentStack || "undefined",
+    }
+
     // Log to server (both client and server side)
-    SubmitLogClient(
+     SubmitLogClient(
       'error',
       'components/Providers/SecurityErrorBoundary',
       'Security Error Caught',
-      securityError
+      details
     ).catch(() => {
       // Silently fail if logging fails
     })
-    
+
     // Also log server-side if available
     if (typeof window === 'undefined') {
-      SubmitLogServer(
+      SubmitLogClient(
         'error',
         'components/Providers/SecurityErrorBoundary',
         'Security Error Caught',
-        securityError
+        details
       ).catch(() => {
         // Silently fail if logging fails
       })

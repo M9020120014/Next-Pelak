@@ -5,7 +5,8 @@ import { NextResponse } from 'next/server'
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { generateCSRFToken } from '@/lib/security/cookies'
 import { iDeviceToken } from '@/lib/token/idevice'
-import { detectSuspiciousActivity, SubmitSecurityServer } from '@/lib/security/monitoring'
+import { detectSuspiciousActivity } from '@/lib/security/monitoring'
+import { SubmitLogServer } from '@/lib/log/logger'
 /* --- Constants -------------------------------------------------------------------------------- */
 const IDEVICE_STORAGE_KEY = process.env.IDEVICE_STORAGE_KEY || 'idevice-token'
 const CSRF_COOKIE_NAME = process.env.CSRF_COOKIE_NAME || 'csrf-token'
@@ -15,7 +16,9 @@ export default async function proxy(
   request: NextRequest
 ): Promise<NextResponse> {
   const response = NextResponse.next()
-  const userAgent = request.headers.get('user-agent') || ''
+
+  // Security check
+  const { check, ip, userAgent, referer, url } = detectSuspiciousActivity(request)
 
   // CSRF token management
   const existingToken = request.cookies.get(CSRF_COOKIE_NAME)?.value
@@ -44,27 +47,21 @@ export default async function proxy(
     })
   }
 
-  // Security check
-  if (detectSuspiciousActivity(request)) {
-    // Get IP from headers
-    const forwardedFor = request.headers.get('x-forwarded-for')
-    const realIp = request.headers.get('x-real-ip')
-    const cfConnectingIp = request.headers.get('cf-connecting-ip')
-    const ip = forwardedFor?.split(',')[0].trim() || realIp || cfConnectingIp || 'unknown'
-
+  if (check) {
     // Log security event (async, non-blocking)
     Promise.resolve().then(() => {
-      SubmitSecurityServer(
+      SubmitLogServer(
         'suspicious_request',
         'proxy.ts',
         `Suspicious activity detected: ${request.method} ${request.nextUrl.pathname}`,
         {
           path: request.nextUrl.pathname,
           method: request.method,
-          url: request.url,
           ip,
           userAgent,
           iDdevice,
+          referer,
+          url,
         }
       )
     }).catch(() => {
@@ -74,7 +71,7 @@ export default async function proxy(
 
   return response
 }
-
+/* --- Config ------------------------------------------------------- */
 export const config = {
   matcher: [
     '/((?!api|_next/static|_next/image|favicon.ico|favicon.svg|robots.txt|sitemap.xml).*)',
