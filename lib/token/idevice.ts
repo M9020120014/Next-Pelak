@@ -4,16 +4,34 @@ import { cookies } from "next/headers";
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { SubmitLogServer } from '@/lib/log/logger'
 /* --- Constants -------------------------------------------------------------------------------- */
-const IDEVICE_STORAGE_KEY = process.env.IDEVICE_STORAGE_KEY || 'idevice-token'
+const IDEVICE_STORAGE_KEY = process.env.IDEVICE_STORAGE_KEY || ''
 /* --- Functions -------------------------------------------------------------------------------- */
-/* --- Get iDevice -------------------------------------------------- */
-export async function getIDeviceToken(): Promise<string> {
-  const idevice = (await cookies()).get(IDEVICE_STORAGE_KEY)?.value || 'unknown';
-  return idevice;
+
+export async function getOrCreateIDeviceToken(userAgent?: string): Promise<string> {
+  const cookieStore = await cookies();
+  const existingIDevice = await getIDeviceToken()
+  if (!existingIDevice || existingIDevice === "unknown" || existingIDevice.length !== 40) {
+    const idevice = generateIDeviceToken(userAgent || "server-generated");
+    cookieStore.set(IDEVICE_STORAGE_KEY, idevice, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24 * 365, // 1 year
+      path: '/',
+    })
+    return idevice;
+  }
+  return existingIDevice;
 }
 
+/* --- Get iDevice -------------------------------------------------- */
+export async function getIDeviceToken(): Promise<string> {
+  const cookieStore = await cookies();
+  const idevice = cookieStore.get(IDEVICE_STORAGE_KEY)?.value;
+  return idevice || 'unknown';
+}
 /* --- Call iDevice ------------------------------------------------- */
-export function iDeviceToken(userAgent: string): string {
+export function generateIDeviceToken(userAgent: string = "unknown"): string {
   try {
     return encodeTimestamp() + parseDeviceInfo(userAgent)
   } catch {
@@ -35,7 +53,7 @@ export function encodeTimestamp(timestamp: number = Date.now()): string {
 }
 
 /* --- parse Device Info -------------------------------------------- */
-export function parseDeviceInfo(userAgent: string): string {
+function parseDeviceInfo(userAgent: string): string {
   const ua = userAgent.toLowerCase()
   let os = '-'
   let osVersion = '---'
@@ -127,9 +145,9 @@ export function parseDeviceInfo(userAgent: string): string {
   if (result.length !== 9) {
     Promise.resolve().then(async () => {
       try {
-        const warningError = { 
+        const warningError = {
           title: "ParseDeviceInfoWarning",
-          message: "Expected 9 characters, got " + result.length + ": " + result ,
+          message: "Expected 9 characters, got " + result.length + ": " + result,
           os,
           osVersion,
           browser,

@@ -33,6 +33,8 @@ export default async function LocalePage({ params }: LANG_PARAMS) {
         <p>--------------------------------</p>
         <Link href={`/${lang}/ali`}>Ali</Link>
         <p>--------------------------------</p>
+        <Link href={`/${lang}/login`}>Login</Link>
+        <p>--------------------------------</p>
         {/* <Link href={`/${lang}/ali/ali`}>Ali/Ali</Link> */}
       </main>
     </>

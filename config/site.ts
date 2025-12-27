@@ -33,9 +33,20 @@ export function LANG_CHECK(lang: unknown): lang is LANGUAGE_TYPE {
   return typeof lang == 'string' && LANGUAGE_LIST.includes(lang as LANGUAGE_TYPE)
 }
 export type LANG_PARAMS = Readonly<{ params: Promise<{ lang: string }> }>
+export type LANG_PARAMS_CLIENT = Readonly<{ params: { lang: string } }>
 export type LANG_CHILDREN_PARAMS = Readonly<{ children: React.ReactNode; params: Promise<{ lang: string }> }>
 export async function LANG(params: Promise<{ lang: string }>) {
   const { lang } = await params;
+  if (!LANG_CHECK(lang)) {
+    notFound();
+  }
+  return {
+    lang: lang as LANGUAGE_TYPE,
+    otherLanguages: LANGUAGE_LIST.filter((l) => l !== lang)
+  };
+}
+export async function LANG_CLIENT(params: { lang: string }) {
+  const { lang } = params;
   if (!LANG_CHECK(lang)) {
     notFound();
   }

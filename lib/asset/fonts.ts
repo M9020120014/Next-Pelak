@@ -6,10 +6,10 @@ import localFont from "next/font/local";
 export const defaultTitleFont = localFont({
   src: [
     {
-      path: "../../asset/fonts/defaultTitle.woff2",
+      path: "../../asset/fonts/default-title.woff2",
     },
     {
-      path: "../../asset/fonts/defaultTitle.woff",
+      path: "../../asset/fonts/default-title.woff",
     }
   ],
   weight: "900",
@@ -23,10 +23,10 @@ export const defaultTitleFont = localFont({
 export const defaultTextFont = localFont({
   src: [
     {
-      path: "../../asset/fonts/defaultText.woff2",
+      path: "../../asset/fonts/default-text.woff2",
     },
     {
-      path: "../../asset/fonts/defaultText.woff",
+      path: "../../asset/fonts/default-text.woff",
     }
   ],
   weight: "600",

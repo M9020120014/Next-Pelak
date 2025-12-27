@@ -26,6 +26,8 @@ export default async function AliPage({ params }: LANG_PARAMS) {
         بازگشت به صفحه اصلی
       </Link>
       <p className="text-gray-500 mt-8">--------------------------------</p>
+      <Link href={`/${lang}/login`}>Login</Link>
+      <p>--------------------------------</p>
       <Link href={"/faa/ali"} className="text-lg text-blue-600 hover:underline URL" >
         /faa/ali
       </Link>

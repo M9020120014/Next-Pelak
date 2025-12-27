@@ -4,17 +4,40 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { generateCSRFToken } from '@/lib/security/cookies'
-import { iDeviceToken } from '@/lib/token/idevice'
+import { generateIDeviceToken } from '@/lib/token/idevice'
 import { detectSuspiciousActivity } from '@/lib/security/monitoring'
 import { SubmitLogServer } from '@/lib/log/logger'
 /* --- Constants -------------------------------------------------------------------------------- */
-const IDEVICE_STORAGE_KEY = process.env.IDEVICE_STORAGE_KEY || 'idevice-token'
-const CSRF_COOKIE_NAME = process.env.CSRF_COOKIE_NAME || 'csrf-token'
+const IDEVICE_STORAGE_KEY = process.env.IDEVICE_STORAGE_KEY || ''
+const CSRF_COOKIE_NAME = process.env.CSRF_COOKIE_NAME || ''
+const REFRESH_TOKEN_COOKIE = process.env.REFRESH_TOKEN_COOKIE || ''
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Proxy -------------------------------------------------------- */
 export default async function proxy(
   request: NextRequest
 ): Promise<NextResponse> {
+  const pathname = request.nextUrl.pathname
+
+  // Check if route is admin protected (dashboard, profile, etc.)
+  // Pattern: /{lang}/dashboard or /{lang}/profile
+  const isAdminRoute = /^\/[^\/]+\/(dashboard|profile)(\/.*)?$/.test(pathname)
+  
+  if (isAdminRoute) {
+    // Check authentication
+    const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE)?.value
+    
+    if (!refreshToken) {
+      // Extract language from pathname
+      const langMatch = pathname.match(/^\/([^\/]+)/)
+      const lang = langMatch ? langMatch[1] : 'fa'
+      
+      // Redirect to login page with redirect parameter
+      const loginUrl = new URL(`/${lang}/login`, request.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+  }
+
   const response = NextResponse.next()
 
   // Security check
@@ -36,7 +59,7 @@ export default async function proxy(
 
   // iDevice token management
   const existingIDevice = request.cookies.get(IDEVICE_STORAGE_KEY)?.value
-  const iDdevice: string = existingIDevice || iDeviceToken(userAgent)
+  const iDdevice: string = existingIDevice || generateIDeviceToken(userAgent)
   if (!existingIDevice || existingIDevice.length !== 40) {
     response.cookies.set(IDEVICE_STORAGE_KEY, iDdevice, {
       httpOnly: false, // Needs to be accessible from client for localStorage sync
