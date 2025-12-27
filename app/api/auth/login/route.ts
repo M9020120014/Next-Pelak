@@ -1,73 +1,117 @@
 // /app/api/auth/login/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { callRpc } from "@/lib/rest/rpc";
+import { callRpc, extractUserData, hasRefreshToken } from "@/lib/rest/rpc";
 import { setRefreshTokenInResponse } from "@/lib/token/auth-cookie";
 import { generateAccessToken } from "@/lib/token/jwt";
+import { validateAPIRequest } from "@/lib/security/api-middleware";
+import { sanitizeMobile, sanitizePassword } from "@/lib/security/request-limits";
+import { validateMobile, validatePassword } from "@/lib/validation";
+import { validationError, invalidInputError, successResponse } from "@/lib/api/response";
+import { ERROR_MESSAGES } from "@/lib/api/error-messages";
+import { RATE_LIMIT, TOKEN } from "@/config/security";
+import { logLoginAttempt } from "@/lib/security/audit-log";
+import { checkBruteForce, recordFailedAttempt } from "@/lib/security/brute-force";
+import { runAsync } from "@/lib/utils/async";
+import { withErrorHandlingAndTracking } from "@/lib/performance/monitoring";
 
-export async function POST(request: NextRequest) {
-  try {
+async function POSTHandler(request: NextRequest) {
+    // Security validation
+    const securityCheck = await validateAPIRequest(request, true, {
+      maxRequests: RATE_LIMIT.LOGIN.maxRequests,
+      windowMs: RATE_LIMIT.LOGIN.windowMs,
+    });
+    if (!securityCheck.valid) {
+      return securityCheck.response!;
+    }
+
     const body = await request.json();
     const { mobile, password, iDevice } = body;
 
     if (!mobile || !password || !iDevice) {
+      return invalidInputError("شماره موبایل، رمز عبور و شناسه دستگاه الزامی است.");
+    }
+
+    // Input validation and sanitization
+    const sanitizedMobile = sanitizeMobile(mobile);
+    const sanitizedPassword = sanitizePassword(password);
+    
+    const mobileValidation = validateMobile(sanitizedMobile);
+    if (!mobileValidation.success) {
+      return validationError(mobileValidation);
+    }
+
+    const passwordValidation = validatePassword(sanitizedPassword, 8);
+    if (!passwordValidation.success) {
+      return validationError(passwordValidation);
+    }
+
+    // Check brute force protection
+    const bruteForceCheck = await checkBruteForce(sanitizedMobile);
+    if (!bruteForceCheck.allowed) {
       return NextResponse.json(
         {
           success: false,
-          title: "Invalid Input",
-          message: "شماره موبایل، رمز عبور و شناسه دستگاه الزامی است.",
+          title: ERROR_MESSAGES.ACCOUNT_LOCKED.title,
+          message: bruteForceCheck.reason || ERROR_MESSAGES.ACCOUNT_LOCKED.message,
         },
-        { status: 400 }
+        { status: 429 }
       );
     }
 
     const result = await callRpc("auth_login", {
-      p_mobile: mobile.trim(),
-      p_password: password,
+      p_mobile: sanitizedMobile,
+      p_password: sanitizedPassword,
       p_idevice: iDevice,
     });
 
     if (!result.success) {
+      // Record failed attempt for brute force protection (non-blocking)
+      runAsync(async () => {
+        await recordFailedAttempt(sanitizedMobile)
+        await logLoginAttempt(request, sanitizedMobile, false, undefined, result.message || 'Authentication failed')
+      })
+      
       return NextResponse.json(result, { status: 401 });
     }
 
-    // *** جدید: ساخت Access Token ۵ دقیقه‌ای ***
-    const accessToken = generateAccessToken({
-      id: result.user_id as number,
-      mobile: result.mobile as string,
-      firstname: result.firstname as string || "" ,
-      lastname: result.lastname as string || "",
-    });
-
-    let response = NextResponse.json(
-      {
-        success: true,
-        title: "Login Successful",
-        message: "ورود با موفقیت انجام شد.",
-        access_token: accessToken,
-        expires_in: 300, // ۵ دقیقه
-        mobile: result.mobile,
-        firstname: result.firstname,
-        lastname: result.lastname,
-      },
-      { status: 200 }
-    );
-
-    // ذخیره refresh_token در httpOnly cookie
-    if (result.refresh_token) {
-      response = setRefreshTokenInResponse(response, result.refresh_token as string);
+    const userData = extractUserData(result);
+    if (!userData) {
+      return invalidInputError("داده‌های کاربر نامعتبر است.");
     }
 
-    return response;
+    const accessToken = generateAccessToken({
+      id: userData.id,
+      mobile: userData.mobile,
+      firstname: userData.firstname || "",
+      lastname: userData.lastname || "",
+    });
 
-  } catch (error) {
-    console.error("Login API error:", error);
-    return NextResponse.json(
+    // Add rate limit headers to response if available
+    const rateLimitHeaders = securityCheck.rateLimitHeaders
+    
+    let response = successResponse(
       {
-        success: false,
-        title: "Server Error",
-        message: "خطای داخلی سرور.",
+        title: ERROR_MESSAGES.LOGIN_SUCCESS.title,
+        message: ERROR_MESSAGES.LOGIN_SUCCESS.message,
+        access_token: accessToken,
+        expires_in: TOKEN.ACCESS_TOKEN_EXPIRY,
+        mobile: userData.mobile,
+        firstname: userData.firstname,
+        lastname: userData.lastname,
       },
-      { status: 500 }
+      ERROR_MESSAGES.LOGIN_SUCCESS.message,
+      200,
+      rateLimitHeaders
     );
-  }
+
+    if (hasRefreshToken(result)) {
+      response = setRefreshTokenInResponse(response, result.refresh_token);
+    }
+
+    // Log successful login (non-blocking)
+    runAsync(() => logLoginAttempt(request, sanitizedMobile, true, userData.id))
+
+    return response;
 }
+
+export const POST = withErrorHandlingAndTracking(POSTHandler, '/api/auth/login')

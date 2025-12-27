@@ -3,8 +3,10 @@
 import { notFound } from "next/navigation";
 /* --- Types ------------------------------------------------------------------------------------ */
 import type { LanguageMap, LanguageObject, ConfigSiteLangObject, ConfigSiteObject } from "@/types/configs/site";
+/* --- Lib -------------------------------------------------------------------------------------- */
+import { ENV } from "./env";
 /* --- Constants -------------------------------------------------------------------------------- */
-const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+const baseURL = ENV.NEXT_PUBLIC_BASE_URL;
 /* --- Language ----------------------------------------------------- */
 export const LANGUAGE = {
   default: "fa",
@@ -99,7 +101,7 @@ export const SITE_LANG = {
   en: {
     Data: {
       name: "PELAK Design System", // data.metadata.BACE_SEO_LANG // libs.schema.getJsonLd // manifest
-      locale: "fa_IR", // data.metadata.BACE_SEO_LANG
+      locale: "en-US", // data.metadata.BACE_SEO_LANG
       title: "PELAK Design System", // data.metadata.HOME_SEO_LANG // configs.Map
       description: "A universal design system built as a shared foundation for digital products, aligning structure, behavior, and aesthetics through consistent rules.", // data.metadata.HOME_SEO_LANG // libs.schema.getJsonLd // manifest // configs.Map
       image: "/image.png", // data.metadata.HOME_SEO_LANG

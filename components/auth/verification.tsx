@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSecurity } from "@/components/security/SecurityProvider";
 
 type Step = "mobile" | "otp" | "password" | "success";
 
@@ -15,13 +16,13 @@ export default function VerificationComponent({
   translator: Record<string, string>
 }>) {
   const router = useRouter();
+  const { csrfToken } = useSecurity();
 
   const [step, setStep] = useState<Step>("mobile");
   const [mobile, setMobile] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [otpSecret, setOtpSecret] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -36,7 +37,10 @@ export default function VerificationComponent({
     try {
       const res = await fetch("/api/auth/verification-user", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-csrf-token": csrfToken
+        },
         body: JSON.stringify({ mobile, iDevice }),
       });
       const data = await res.json();
@@ -63,14 +67,17 @@ export default function VerificationComponent({
     try {
       const res = await fetch("/api/auth/verification-register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-csrf-token": csrfToken
+        },
         body: JSON.stringify({ mobile, iDevice, otpCode }),
       });
       const data = await res.json();
 
       if (data.success) {
         setMessage(data.message || translator.otpVerified);
-        setOtpSecret(data.otpSecret);
+        // OTP secret is now stored securely in session cookie, not in client state
         setStep("password");
       } else {
         setError(data.message || translator.verifyError);
@@ -103,8 +110,11 @@ export default function VerificationComponent({
     try {
       const res = await fetch("/api/auth/verification-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile, iDevice, otpSecret, password, confirmPassword }),
+        headers: { 
+          "Content-Type": "application/json",
+          "x-csrf-token": csrfToken
+        },
+        body: JSON.stringify({ mobile, iDevice, password, confirmPassword }),
       });
       const data = await res.json();
 

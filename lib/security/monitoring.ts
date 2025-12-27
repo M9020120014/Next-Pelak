@@ -20,11 +20,37 @@ const SUSPICIOUS_PATTERNS = [
   /\b(sql|union|select|insert|delete|update|drop|create)\b/i,
   // XSS patterns
   /\b(script|javascript|vbscript|onload|onerror)\b/i,
-  // Path traversal
-  /\b(\.\.|\/etc\/|\/var\/|\/usr\/)\b/i,
+  // Path traversal - improved patterns
+  /\.\./,                    // .. (directory traversal)
+  /\.\.\//,                  // ../
+  /\.\.\\/,                  // ..\ (Windows)
+  /\/etc\//,                 // /etc/
+  /\/var\//,                 // /var/
+  /\/usr\//,                 // /usr/
+  /\/proc\//,                // /proc/
+  /\/sys\//,                 // /sys/
+  /\/boot\//,                // /boot/
+  /\/root\//,                // /root/
+  /\/home\//,                // /home/
+  /\/tmp\//,                 // /tmp/
+  /\/windows\//i,           // /windows/ (Windows)
+  /\/winnt\//i,              // /winnt/ (Windows)
+  /\/system32\//i,           // /system32/ (Windows)
+  /%2e%2e/i,                 // URL encoded ..
+  /%2f/i,                    // URL encoded /
+  /%5c/i,                    // URL encoded \ (Windows)
 ]
 
 /* --- Functions -------------------------------------------------------------------------------- */
+import { getClientIP } from './utils'
+
+/**
+ * Helper function to check if a string matches any suspicious pattern
+ */
+function matchesSuspiciousPattern(text: string): boolean {
+  return SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(text))
+}
+
 /* --- Detect Suspicious Activity ------------------------------------ */
 export function detectSuspiciousActivity(request: Request): Readonly<{ 
   check: boolean, 
@@ -35,39 +61,19 @@ export function detectSuspiciousActivity(request: Request): Readonly<{
 }> {
   
   // Get IP from headers
-  const forwardedFor = request.headers.get('x-forwarded-for')
-  const realIp = request.headers.get('x-real-ip')
-  const cfConnectingIp = request.headers.get('cf-connecting-ip')
-  const ip = forwardedFor?.split(',')[0].trim() || realIp || cfConnectingIp || 'unknown'
+  const ip = getClientIP(request)
 
   const userAgent = request.headers.get('user-agent') || ''
   const referer = request.headers.get('referer') || ''
   const url = request.url || ''
 
-  // Check user agent
-  if (SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(userAgent))) {
-    return {
-      check: true,
-      ip,
-      userAgent,
-      referer,
-      url,
-    }
-  }
-
-  // Check referer
-  if (SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(referer))) {
-    return {
-      check: true,
-      ip,
-      userAgent,
-      referer,
-      url,
-    }
-  }
-
-  // Check URL
-  if (SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(url))) {
+  // Check all fields for suspicious patterns
+  // If any field matches, return suspicious activity detected
+  if (
+    matchesSuspiciousPattern(userAgent) ||
+    matchesSuspiciousPattern(referer) ||
+    matchesSuspiciousPattern(url)
+  ) {
     return {
       check: true,
       ip,

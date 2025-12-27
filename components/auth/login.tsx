@@ -3,17 +3,21 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSecurity } from "@/components/security/SecurityProvider";
 
 export default function LoginComponent({
   iDevice,
   lang,
+  redirect,
   translator
 }: Readonly<{
   iDevice: string,
   lang: string,
+  redirect?: string,
   translator: Record<string, string>
 }>) {
   const router = useRouter();
+  const { csrfToken } = useSecurity();
 
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
@@ -28,14 +32,26 @@ export default function LoginComponent({
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-csrf-token": csrfToken
+        },
         body: JSON.stringify({ mobile, password, iDevice }),
       });
       const data = await res.json();
 
       if (data.success) {
-        // ریدایرکت به داشبورد
-        router.push("/" + lang + "/dashboard");
+        // ریدایرکت به آدرس مورد نظر یا داشبورد
+        // فقط به مسیرهای داخلی سایت redirect می‌کنیم (شروع با /)
+        // و از open redirect جلوگیری می‌کنیم
+        let redirectPath = `/${lang}/dashboard`;
+        
+        if (redirect && redirect.startsWith('/') && !redirect.startsWith('//')) {
+          // بررسی امنیتی: فقط به مسیرهای داخلی سایت
+          redirectPath = redirect;
+        }
+        
+        router.push(redirectPath);
       } else {
         setError(data.message || translator.loginFailed);
       }

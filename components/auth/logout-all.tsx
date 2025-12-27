@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSecurity } from "@/components/security/SecurityProvider";
 
 type Step = "mobile" | "otp" | "success";
 
@@ -15,6 +16,7 @@ export default function LogoutAllComponent({
   translator: Record<string, string>
 }>) {
   const router = useRouter();
+  const { csrfToken } = useSecurity();
 
   const [step, setStep] = useState<Step>("mobile");
   const [mobile, setMobile] = useState("");
@@ -33,7 +35,10 @@ export default function LogoutAllComponent({
     try {
       const res = await fetch("/api/auth/verification-user", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-csrf-token": csrfToken
+        },
         body: JSON.stringify({ mobile, iDevice }),
       });
       const data = await res.json();
@@ -60,7 +65,10 @@ export default function LogoutAllComponent({
     try {
       const res = await fetch("/api/auth/logout-all", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-csrf-token": csrfToken
+        },
         body: JSON.stringify({ mobile, iDevice, otpCode }),
       });
       const data = await res.json();

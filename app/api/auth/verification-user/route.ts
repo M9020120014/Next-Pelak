@@ -2,110 +2,58 @@
 import { NextRequest, NextResponse } from "next/server"
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { validateMobile, validateDeviceId } from "@/lib/validation"
-/* --- Constants -------------------------------------------------------------------------------- */
-const OTP_SERVICE_URL = process.env.OTP_SERVER_URL || "";
-const OTP_API_KEY = process.env.OTP_API_KEY || "";
+import { validateAPIRequest } from "@/lib/security/api-middleware"
+import { sanitizeMobile } from "@/lib/security/request-limits"
+import { sendOTP } from "@/lib/otp/service"
+import { validationError, invalidInputError, successResponse } from "@/lib/api/response"
+import { RATE_LIMIT } from "@/config/security"
+import { withErrorHandlingAndTracking } from "@/lib/performance/monitoring"
 
 /* --- POST verification-user ------------------------------------------------------------------- */
-export async function POST(request: NextRequest) {
-  try {
+async function POSTHandler(request: NextRequest) {
+    // Security validation
+    const securityCheck = await validateAPIRequest(request, true, {
+      maxRequests: RATE_LIMIT.OTP.maxRequests,
+      windowMs: RATE_LIMIT.OTP.windowMs,
+    });
+    if (!securityCheck.valid) {
+      return securityCheck.response!;
+    }
+
     const body = await request.json();
     const { mobile, iDevice } = body;
 
     /* --- Validation ----------------- */
     if (!mobile || !iDevice) {
-      return NextResponse.json(
-        {
-          success: false,
-          title: "Invalid Input",
-          message: "شماره موبایل و شناسه دستگاه الزامی است.",
-        },
-        { status: 400 }
-      );
+      return invalidInputError("شماره موبایل و شناسه دستگاه الزامی است.");
     }
 
-    const mobileValidation = validateMobile(mobile);
+    const sanitizedMobile = sanitizeMobile(mobile);
+    const mobileValidation = validateMobile(sanitizedMobile);
     if (!mobileValidation.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          title: mobileValidation.title || "Invalid Mobile",
-          message: mobileValidation.message || "شماره موبایل معتبر نیست",
-        },
-        { status: 400 }
-      );
+      return validationError(mobileValidation);
     }
 
     const deviceValidation = validateDeviceId(iDevice);
     if (!deviceValidation.success) {
+      return validationError(deviceValidation);
+    }
+
+    /* --- Send OTP ----------------- */
+    const result = await sendOTP(sanitizedMobile);
+    
+    if (!result.success) {
       return NextResponse.json(
-        {
-          success: false,
-          title: deviceValidation.title || "Invalid Device",
-          message: deviceValidation.message || "شناسه دستگاه معتبر نیست",
-        },
+        { success: false, title: result.title || "Error", message: result.message || "خطا در ارسال کد تایید" },
         { status: 400 }
       );
     }
 
-    /* --- Test mode ----------------- */
-    if (mobile === "09123456789") {
-      return NextResponse.json(
-        { success: true, title: "OTP sent", message: "کد تایید ارسال شد" },
-        { status: 200 }
-      );
-    }
-
-    /* --- Send OTP ----------------- */
-    try {
-      const response = await fetch(`${OTP_SERVICE_URL}/send`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          api_key: OTP_API_KEY,
-          mobile: mobile.trim(),
-        }),
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        return NextResponse.json(
-          { success: false, title: "Error sending verification code", message: "خطا در ارسال کد تایید" },
-          { status: response.status }
-        );
-      }
-
-      const data = await response.json();
-      if (!data.success) {
-        return NextResponse.json(
-          { success: false, title: data.title || "Error reading information", message: data.message || "خطا در خواندن اطلاعات" },
-          { status: 400 }
-        );
-      }
-
-      return NextResponse.json(
-        { success: true, title: data.title || "OTP sent", message: data.message || "کد تایید ارسال شد" },
-        { status: 200 }
-      );
-    } catch (error) {
-      console.error("Send OTP error:", error);
-      return NextResponse.json(
-        { success: false, title: "OTP send service failed", message: "خطا در ارتباط با سرور" },
-        { status: 500 }
-      );
-    }
-  } catch (error) {
-    console.error("Verification-user API error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        title: "Server Error",
-        message: "خطای داخلی سرور.",
-      },
-      { status: 500 }
+    return successResponse(
+      { title: result.title || "OTP sent", message: result.message || "کد تایید ارسال شد" },
+      result.message
     );
-  }
 }
+
+export const POST = withErrorHandlingAndTracking(POSTHandler, '/api/auth/verification-user')
 

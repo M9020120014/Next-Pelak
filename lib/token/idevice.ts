@@ -1,23 +1,23 @@
 
 /* --- Base ------------------------------------------------------------------------------------- */
 import { cookies } from "next/headers";
+import crypto from "crypto";
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { SubmitLogServer } from '@/lib/log/logger'
+import { COOKIE, TOKEN } from '@/config/security'
+import { ENV } from '@/config/env'
+import { runAsync } from '@/lib/utils/async'
 /* --- Constants -------------------------------------------------------------------------------- */
-const IDEVICE_STORAGE_KEY = process.env.IDEVICE_STORAGE_KEY || ''
+const IDEVICE_STORAGE_KEY = ENV.IDEVICE_STORAGE_KEY
 /* --- Functions -------------------------------------------------------------------------------- */
 
 export async function getOrCreateIDeviceToken(userAgent?: string): Promise<string> {
   const cookieStore = await cookies();
   const existingIDevice = await getIDeviceToken()
-  if (!existingIDevice || existingIDevice === "unknown" || existingIDevice.length !== 40) {
+  if (!existingIDevice || existingIDevice === "unknown" || existingIDevice.length !== TOKEN.DEVICE_ID_LENGTH) {
     const idevice = generateIDeviceToken(userAgent || "server-generated");
     cookieStore.set(IDEVICE_STORAGE_KEY, idevice, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 365, // 1 year
-      path: '/',
+      ...COOKIE.IDEVICE,
     })
     return idevice;
   }
@@ -48,7 +48,10 @@ export function encodeTimestamp(timestamp: number = Date.now()): string {
   const day = date.getDate().toString().padStart(2, '0').split('').map(Number)
   const hours = date.getHours().toString().padStart(2, '0').split('').map(Number)
   const minutes = date.getMinutes().toString().padStart(2, '0').split('').map(Number)
-  const random = Math.random().toString(36).substring(2, 12).toUpperCase();
+  // Use cryptographically secure random bytes instead of Math.random()
+  const randomBytes = crypto.randomBytes(6)
+  // Convert to hex first, then take first 10 characters and convert to uppercase
+  const random = randomBytes.toString('hex').substring(0, 10).toUpperCase()
   return "c" + TIMESTAMP_ENCODE[(hours[0] + hours[1]) % 10] + hours[0].toString() + hours[1].toString() + TIMESTAMP_ENCODE[(minutes[0] + minutes[1]) % 10] + minutes[0].toString() + minutes[1].toString() + TIMESTAMP_ENCODE[(year[0] + year[1]) % 10] + year[0].toString() + year[1].toString() + TIMESTAMP_ENCODE[(year[2] + year[3]) % 10] + year[2].toString() + year[3].toString() + TIMESTAMP_ENCODE[(month[0] + month[1]) % 10] + month[0].toString() + month[1].toString() + TIMESTAMP_ENCODE[(day[0] + day[1]) % 10] + day[0].toString() + day[1].toString() + "X" + random + "X"
 }
 
@@ -143,25 +146,21 @@ function parseDeviceInfo(userAgent: string): string {
 
   // Validate length (should always be 9)
   if (result.length !== 9) {
-    Promise.resolve().then(async () => {
-      try {
-        const warningError = {
-          title: "ParseDeviceInfoWarning",
-          message: "Expected 9 characters, got " + result.length + ": " + result,
-          os,
-          osVersion,
-          browser,
-          browserVersion,
-          deviceType,
-        }
-        await SubmitLogServer(
-          'warning',
-          'lib/token/idevice',
-          'parseDeviceInfo validation failed',
-          warningError)
-      } catch {
-        // Silently fail if logging fails
+    runAsync(async () => {
+      const warningError: Record<string, string> = {
+        title: "ParseDeviceInfoWarning",
+        message: "Expected 9 characters, got " + result.length + ": " + result,
+        os,
+        osVersion,
+        browser,
+        browserVersion,
+        deviceType,
       }
+      await SubmitLogServer(
+        'warning',
+        'lib/token/idevice',
+        'parseDeviceInfo validation failed',
+        warningError)
     })
     // Fallback to ensure 9 characters
     return (os + osVersion.padEnd(3, '-') + browser + browserVersion.padEnd(3, '-') + deviceType).substring(0, 9)

@@ -6,7 +6,6 @@ import { SubmitLogClient } from '@/lib/log/logger'
 /* --- Types ------------------------------------------------------------------------------------ */
 interface SecurityContextType {
   csrfToken: string
-  nonce: string
   reportSecurityIssue: (issue: string) => void
 }
 /* --- Constants -------------------------------------------------------------------------------- */
@@ -14,12 +13,10 @@ const SecurityContext = createContext<SecurityContextType | null>(null)
 /* --- Functions -------------------------------------------------------------------------------- */
 export function SecurityProvider({
   children,
-  csrfToken,
-  nonce
+  csrfToken
 }: {
   children: React.ReactNode
   csrfToken: string
-  nonce: string
 }) {
   const reportSecurityIssue = (issue: string) => {
     const error = { issue }
@@ -27,14 +24,15 @@ export function SecurityProvider({
       'security',
       'components/providers/SecurityProvider',
       'Security Issue Reported',
-      error
+      error,
+      csrfToken
     ).catch(() => {
       // Silently fail if logging fails
     })
   }
 
   return (
-    <SecurityContext.Provider value={{ csrfToken, nonce, reportSecurityIssue }}>
+    <SecurityContext.Provider value={{ csrfToken, reportSecurityIssue }}>
       {children}
     </SecurityContext.Provider>
   )

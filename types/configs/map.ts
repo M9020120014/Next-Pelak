@@ -1,8 +1,12 @@
 
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { MetadataRoute } from "next";
-// TODO : Add icon type From Pelak
-type Icon =  "default" | "none" | "home" | "todo" | "test";
+
+/**
+ * Icon type for page objects
+ * Represents available icon types in the Pelak design system
+ */
+type Icon = "default" | "none" | "home" | "todo" | "test";
 /* --- Page Object Type --------------------------------------------- */
 export type PageObjectType = {
   title?: string;

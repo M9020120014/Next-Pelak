@@ -12,7 +12,7 @@ export const metadata: Metadata = { ...ROBOTS_ON, ...HOME_SEO };
 /* --- Base Page ---------------------------------------------------- */
 export default function BasePage() {
   return (
-    <html>
+    <html lang={LANGUAGE.default}>
       <body>
         <div>
           <h1>Hello World</h1>

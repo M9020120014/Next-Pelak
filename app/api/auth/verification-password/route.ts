@@ -2,79 +2,75 @@
 import { NextRequest, NextResponse } from "next/server"
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { validateMobile, validatePassword, validateDeviceId } from "@/lib/validation"
-import { callRpc } from "@/lib/rest/rpc"
+import { callRpc, extractUserData, hasRefreshToken } from "@/lib/rest/rpc"
 import { setRefreshTokenInResponse } from "@/lib/token/auth-cookie"
 import { generateAccessToken } from "@/lib/token/jwt"
+import { validateAPIRequest } from "@/lib/security/api-middleware"
+import { sanitizeMobile, sanitizePassword } from "@/lib/security/request-limits"
+import { validationError, invalidInputError, successResponse } from "@/lib/api/response"
+import { TOKEN, RATE_LIMIT } from "@/config/security"
+import { validateAndClearOtpSecretSession, getAndValidateOtpSecretSession } from "@/lib/security/cookies"
+import { withErrorHandlingAndTracking } from "@/lib/performance/monitoring"
 
 /* --- POST verification-password --------------------------------------------------------------- */
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { mobile, iDevice, otpSecret, password, confirmPassword } = body;
-
-    /* --- Validation ----------------- */
-    if (!mobile || !iDevice || !otpSecret || !password || !confirmPassword) {
-      return NextResponse.json(
-        {
-          success: false,
-          title: "Invalid Input",
-          message: "تمام فیلدها الزامی است.",
-        },
-        { status: 400 }
-      );
+async function POSTHandler(request: NextRequest) {
+    // Security validation with rate limiting
+    const securityCheck = await validateAPIRequest(request, true, {
+      maxRequests: RATE_LIMIT.OTP.maxRequests,
+      windowMs: RATE_LIMIT.OTP.windowMs,
+    });
+    if (!securityCheck.valid) {
+      return securityCheck.response!;
     }
 
-    const mobileValidation = validateMobile(mobile);
+    const body = await request.json();
+    const { mobile, iDevice, password, confirmPassword } = body;
+
+    /* --- Validation ----------------- */
+    if (!mobile || !iDevice || !password || !confirmPassword) {
+      return invalidInputError("تمام فیلدها الزامی است.");
+    }
+
+    const sanitizedMobile = sanitizeMobile(mobile);
+    const sanitizedPassword = sanitizePassword(password);
+    const sanitizedConfirmPassword = sanitizePassword(confirmPassword);
+    
+    const mobileValidation = validateMobile(sanitizedMobile);
     if (!mobileValidation.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          title: mobileValidation.title || "Invalid Mobile",
-          message: mobileValidation.message || "شماره موبایل معتبر نیست",
-        },
-        { status: 400 }
-      );
+      return validationError(mobileValidation);
     }
 
     const deviceValidation = validateDeviceId(iDevice);
     if (!deviceValidation.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          title: deviceValidation.title || "Invalid Device",
-          message: deviceValidation.message || "شناسه دستگاه معتبر نیست",
-        },
-        { status: 400 }
-      );
+      return validationError(deviceValidation);
     }
 
-    if (password !== confirmPassword) {
-      return NextResponse.json(
-        {
-          success: false,
-          title: "Password Mismatch",
-          message: "رمز عبور و تکرار آن مطابقت ندارند.",
-        },
-        { status: 400 }
-      );
+    if (sanitizedPassword !== sanitizedConfirmPassword) {
+      return invalidInputError("رمز عبور و تکرار آن مطابقت ندارند.");
     }
 
-    const passwordValidation = validatePassword(password, 6);
+    const passwordValidation = validatePassword(sanitizedPassword, 8);
     if (!passwordValidation.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          title: passwordValidation.title || "Weak Password",
-          message: passwordValidation.message || "رمز عبور باید حداقل ۶ کاراکتر باشد.",
-        },
-        { status: 400 }
-      );
+      return validationError(passwordValidation);
+    }
+
+    // Get OTP secret from secure session (not from client)
+    // This prevents client from manipulating the secret
+    const otpSecret = await getAndValidateOtpSecretSession();
+    if (!otpSecret) {
+      return invalidInputError("جلسه ثبت‌نام منقضی شده است. لطفاً دوباره تلاش کنید.");
+    }
+    
+    // Validate and clear the session (one-time use)
+    const isValid = await validateAndClearOtpSecretSession(otpSecret);
+    if (!isValid) {
+      return invalidInputError("جلسه ثبت‌نام نامعتبر است. لطفاً دوباره تلاش کنید.");
     }
 
     /* --- Set Password ----------------- */
     const setPasswordResult = await callRpc("auth_set_password", {
-      p_mobile: mobile.trim(),
-      p_new_password: password,
+      p_mobile: sanitizedMobile,
+      p_new_password: sanitizedPassword,
       p_otp_secret: otpSecret,
     });
 
@@ -84,8 +80,8 @@ export async function POST(request: NextRequest) {
 
     /* --- Login User ----------------- */
     const loginResult = await callRpc("auth_login", {
-      p_mobile: mobile.trim(),
-      p_password: password,
+      p_mobile: sanitizedMobile,
+      p_password: sanitizedPassword,
       p_idevice: iDevice,
     });
 
@@ -93,44 +89,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(loginResult, { status: 401 });
     }
 
+    const userData = extractUserData(loginResult);
+    if (!userData) {
+      return invalidInputError("داده‌های کاربر نامعتبر است.");
+    }
+
     /* --- Generate Access Token ----------------- */
     const accessToken = generateAccessToken({
-      id: loginResult.user_id as number,
-      mobile: loginResult.mobile as string,
-      firstname: (loginResult.firstname as string) || "",
-      lastname: (loginResult.lastname as string) || "",
+      id: userData.id,
+      mobile: userData.mobile,
+      firstname: userData.firstname || "",
+      lastname: userData.lastname || "",
     });
 
-    let response = NextResponse.json(
+    let response = successResponse(
       {
-        success: true,
         title: "Password Set and Login Successful",
         message: "رمز عبور تنظیم شد و ورود با موفقیت انجام شد.",
         access_token: accessToken,
-        expires_in: 300, // ۵ دقیقه
-        mobile: loginResult.mobile,
-        firstname: loginResult.firstname,
-        lastname: loginResult.lastname,
+        expires_in: TOKEN.ACCESS_TOKEN_EXPIRY,
+        mobile: userData.mobile,
+        firstname: userData.firstname,
+        lastname: userData.lastname,
       },
-      { status: 200 }
+      "رمز عبور تنظیم شد و ورود با موفقیت انجام شد."
     );
 
     /* --- Set Refresh Token Cookie ----------------- */
-    if (loginResult.refresh_token) {
-      response = setRefreshTokenInResponse(response, loginResult.refresh_token as string);
+    if (hasRefreshToken(loginResult)) {
+      response = setRefreshTokenInResponse(response, loginResult.refresh_token);
     }
 
     return response;
-  } catch (error) {
-    console.error("Verification-password API error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        title: "Server Error",
-        message: "خطای داخلی سرور.",
-      },
-      { status: 500 }
-    );
-  }
 }
+
+export const POST = withErrorHandlingAndTracking(POSTHandler, '/api/auth/verification-password')
 

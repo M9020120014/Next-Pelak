@@ -13,7 +13,6 @@ export default class SecurityErrorBoundary extends React.Component<
     this.state = { hasError: false }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static getDerivedStateFromError(_error: Error) {
     // Don't call async functions here - move to componentDidCatch
     return { hasError: true }
@@ -28,27 +27,15 @@ export default class SecurityErrorBoundary extends React.Component<
       stack: errorInfo.componentStack || "undefined",
     }
 
-    // Log to server (both client and server side)
-     SubmitLogClient(
+    // Log to server
+    SubmitLogClient(
       'error',
-      'components/Providers/SecurityErrorBoundary',
+      'components/security/SecurityErrorBoundary',
       'Security Error Caught',
       details
     ).catch(() => {
       // Silently fail if logging fails
     })
-
-    // Also log server-side if available
-    if (typeof window === 'undefined') {
-      SubmitLogClient(
-        'error',
-        'components/Providers/SecurityErrorBoundary',
-        'Security Error Caught',
-        details
-      ).catch(() => {
-        // Silently fail if logging fails
-      })
-    }
   }
 
   render() {

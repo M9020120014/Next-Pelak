@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { SECURITY_HEADERS } from "./config/security";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -8,30 +9,16 @@ const nextConfig: NextConfig = {
       {
         source: '/(.*)',
         headers: [
-          // CSP - Content Security Policy
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
-              "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https:",
-              "font-src 'self'",
-              "connect-src 'self'",
-              "media-src 'self'",
-              "object-src 'none'",
-              "frame-src 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-              "frame-ancestors 'none'",
-              "upgrade-insecure-requests"
-            ].join('; ')
-          },
+          // CSP will be set dynamically in middleware with nonce
           // HSTS - HTTP Strict Transport Security
-          // {
-          //   key: 'Strict-Transport-Security',
-          //   value: 'max-age=31536000; includeSubDomains; preload'
-          // },
+          {
+            key: 'Strict-Transport-Security',
+            value: [
+              `max-age=${SECURITY_HEADERS.HSTS.maxAge}`,
+              SECURITY_HEADERS.HSTS.includeSubDomains ? 'includeSubDomains' : '',
+              SECURITY_HEADERS.HSTS.preload ? 'preload' : ''
+            ].filter(Boolean).join('; ')
+          },
           // X-Frame-Options
           {
             key: 'X-Frame-Options',
@@ -51,6 +38,43 @@ const nextConfig: NextConfig = {
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()'
+          },
+          // X-DNS-Prefetch-Control
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'off'
+          },
+          // X-XSS-Protection (for older browsers)
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
+          },
+          // Cross-Origin-Embedder-Policy
+          // Note: Changed from 'require-corp' to 'credentialless' for better compatibility
+          // 'require-corp' can break external resources. Use 'credentialless' or remove if needed.
+          // {
+          //   key: 'Cross-Origin-Embedder-Policy',
+          //   value: 'credentialless'
+          // },
+          // Cross-Origin-Opener-Policy
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin'
+          },
+          // Cross-Origin-Resource-Policy
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'same-origin'
+          },
+          // X-Permitted-Cross-Domain-Policies
+          {
+            key: 'X-Permitted-Cross-Domain-Policies',
+            value: 'none'
+          },
+          // Expect-CT (Certificate Transparency)
+          {
+            key: 'Expect-CT',
+            value: 'max-age=86400, enforce'
           }
         ]
       }
@@ -60,6 +84,20 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   reactStrictMode: true,
+  // Image Optimization
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60,
+    dangerouslyAllowSVG: false,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
+  // Performance optimizations
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['@radix-ui/react-icons'],
+  },
 }
 
 export default nextConfig;

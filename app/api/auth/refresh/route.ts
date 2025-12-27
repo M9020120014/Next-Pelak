@@ -1,36 +1,47 @@
 // /app/api/auth/refresh/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { callRpc } from "@/lib/rest/rpc";
-import { getRefreshTokenCookie, setRefreshTokenInResponse } from "@/lib/token/auth-cookie";
+import { callRpc, extractUserData, hasRefreshToken } from "@/lib/rest/rpc";
+import { getRefreshTokenCookie, setRefreshTokenInResponse, clearRefreshTokenCookie, validateRefreshTokenFormat } from "@/lib/token/auth-cookie";
 import { generateAccessToken } from "@/lib/token/jwt";
+import { validateAPIRequest } from "@/lib/security/api-middleware";
+import { validateDeviceId } from "@/lib/validation";
+import { validationError, invalidInputError, unauthorizedError, successResponse } from "@/lib/api/response";
+import { TOKEN } from "@/config/security";
+import { ERROR_MESSAGES } from "@/lib/api/error-messages";
+import { withErrorHandlingAndTracking } from "@/lib/performance/monitoring";
 
-export async function POST(request: NextRequest) {
-  try {
+async function POSTHandler(request: NextRequest) {
+    // Security validation
+    const securityCheck = await validateAPIRequest(request, true);
+    if (!securityCheck.valid) {
+      return securityCheck.response!;
+    }
+
     const body = await request.json();
     const { iDevice } = body;
 
     if (!iDevice) {
-      return NextResponse.json(
-        {
-          success: false,
-          title: "Invalid Input",
-          message: "شناسه دستگاه الزامی است.",
-        },
-        { status: 400 }
-      );
+      return invalidInputError("شناسه دستگاه الزامی است.");
+    }
+
+    const deviceValidation = validateDeviceId(iDevice);
+    if (!deviceValidation.success) {
+      return validationError(deviceValidation);
     }
 
     const currentRefreshToken = await getRefreshTokenCookie();
 
     if (!currentRefreshToken) {
-      return NextResponse.json(
-        {
-          success: false,
-          title: "No Token",
-          message: "توکن احراز هویت یافت نشد. لطفاً دوباره وارد شوید.",
-        },
+      return unauthorizedError("توکن احراز هویت یافت نشد. لطفاً دوباره وارد شوید.");
+    }
+
+    // Validate refresh token format before sending to backend
+    if (!validateRefreshTokenFormat(currentRefreshToken)) {
+      const response = NextResponse.json(
+        { success: false, title: ERROR_MESSAGES.INVALID_TOKEN_FORMAT.title, message: ERROR_MESSAGES.INVALID_TOKEN_FORMAT.message },
         { status: 401 }
       );
+      return clearRefreshTokenCookie(response);
     }
 
     const result = await callRpc("auth_refresh_token", {
@@ -40,46 +51,41 @@ export async function POST(request: NextRequest) {
 
     if (!result.success) {
       const response = NextResponse.json(result, { status: 401 });
-      response.cookies.delete("refresh_token");
-      return response;
+      return clearRefreshTokenCookie(response);
     }
 
-    // *** جدید: ساخت Access Token جدید ***
+    const userData = extractUserData(result);
+    if (!userData) {
+      const response = NextResponse.json(
+        { success: false, title: "Invalid Response", message: "داده‌های کاربر نامعتبر است." },
+        { status: 401 }
+      );
+      return clearRefreshTokenCookie(response);
+    }
+
     const accessToken = generateAccessToken({
-      id: result.user_id as number,
-      mobile: result.mobile as string, 
-      firstname: result.firstname as string || "",
-      lastname: result.lastname as string || "",
+      id: userData.id,
+      mobile: userData.mobile,
+      firstname: userData.firstname || "",
+      lastname: userData.lastname || "",
     });
 
-    let response = NextResponse.json(
+    let response = successResponse(
       {
-        success: true,
-        title: "Token Refreshed",
-        message: "توکن با موفقیت تمدید شد.",
+        title: ERROR_MESSAGES.TOKEN_REFRESHED.title,
+        message: ERROR_MESSAGES.TOKEN_REFRESHED.message,
         access_token: accessToken,
-        expires_in: 300,
-        user_id: result.user_id,
+        expires_in: TOKEN.ACCESS_TOKEN_EXPIRY,
+        user_id: userData.id,
       },
-      { status: 200 }
+      ERROR_MESSAGES.TOKEN_REFRESHED.message
     );
 
-    // ذخیره refresh_token جدید در httpOnly cookie
-    if (result.refresh_token) {
-      response = setRefreshTokenInResponse(response, result.refresh_token as string);
+    if (hasRefreshToken(result)) {
+      response = setRefreshTokenInResponse(response, result.refresh_token);
     }
 
     return response;
-
-  } catch (error) {
-    console.error("Refresh token API error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        title: "Server Error",
-        message: "خطای داخلی سرور.",
-      },
-      { status: 500 }
-    );
-  }
 }
+
+export const POST = withErrorHandlingAndTracking(POSTHandler, '/api/auth/refresh')
