@@ -32,7 +32,9 @@ async function POSTHandler(request: NextRequest) {
     const currentRefreshToken = await getRefreshTokenCookie();
 
     if (!currentRefreshToken) {
-      return unauthorizedError("توکن احراز هویت یافت نشد. لطفاً دوباره وارد شوید.");
+      // پاک کردن refresh token cookie در صورت عدم وجود
+      const response = unauthorizedError("توکن احراز هویت یافت نشد. لطفاً دوباره وارد شوید.");
+      return clearRefreshTokenCookie(response);
     }
 
     // Validate refresh token format before sending to backend

@@ -43,6 +43,7 @@ export async function sendOTP(mobile: string): Promise<OTPResponse> {
           'X-API-Key': OTP_API_KEY,
         },
         body: JSON.stringify({
+          api_key: OTP_API_KEY,
           mobile,
         }),
         cache: 'no-store',
@@ -135,6 +136,7 @@ export async function verifyOTP(mobile: string, code: string): Promise<OTPRespon
           'X-API-Key': OTP_API_KEY,
         },
         body: JSON.stringify({
+          api_key: OTP_API_KEY,
           code,
           mobile,
         }),
@@ -158,7 +160,7 @@ export async function verifyOTP(mobile: string, code: string): Promise<OTPRespon
       return {
         success: false,
         title: data.title || 'Error reading information',
-        message: data.message || 'خطا در خواندن اطلاعات',
+        message: data.message || 'خطا در تایید کد تایید',
       }
     }
 

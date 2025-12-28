@@ -3,7 +3,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 /* --- Config ----------------------------------------------------------------------------------- */
-import { ENV } from '@/config/env'
+import { ENV, IS_DEVELOPMENT } from '@/config/env'
 import { COOKIE, ROUTES } from '@/config/security'
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { generateCSRFToken, generateNonce } from '@/lib/security/cookies'
@@ -82,10 +82,14 @@ export default async function proxy(
     // 2. Invalid tokens will be rejected by API routes which perform full validation
     // 3. Format validation prevents obviously invalid/malformed tokens from passing through
     // 4. Actual token validation (signature, expiration, database check) happens in /api/auth/refresh
-    // 5. If format is invalid, user is redirected to login immediately (defense in depth)
+    // 5. If format is invalid, user is redirected to login (but we don't clear cookie here - let API handle it)
     if (!isAuthenticated) {
       if (!refreshToken || !validateRefreshTokenFormat(refreshToken)) {
         // Invalid or missing refresh token - redirect to login
+        // Note: We don't clear the cookie here because:
+        // 1. Cookie might exist but not be readable due to domain/path/sameSite settings
+        // 2. Actual validation should happen in API route which can properly handle cookie clearing
+        // 3. Prevents race conditions and unnecessary cookie deletion
         // Extract language from pathname
         const langMatch = pathname.match(/^\/([^\/]+)/)
         const lang = langMatch ? langMatch[1] : ROUTES.DEFAULT_LANG
@@ -93,6 +97,8 @@ export default async function proxy(
         // Redirect to login page with redirect parameter
         const loginUrl = new URL(`/${lang}/login`, request.url)
         loginUrl.searchParams.set('redirect', pathname)
+        
+        // Redirect without clearing cookie - let API route handle cookie clearing on actual auth failure
         return NextResponse.redirect(loginUrl)
       }
       // Refresh token format is valid - allow access to page
@@ -166,7 +172,7 @@ export default async function proxy(
     "manifest-src 'self'"
   ].join('; ')
 
-  response.headers.set('Content-Security-Policy', cspHeader)
+  !IS_DEVELOPMENT && response.headers.set('Content-Security-Policy', cspHeader)
 
   if (check) {
     // Log security event (non-blocking)

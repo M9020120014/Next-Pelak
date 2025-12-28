@@ -34,7 +34,7 @@ export default async function LoginPage({
   params,
   searchParams 
 }: LANG_PARAMS & { searchParams: Promise<{ redirect?: string }> }) {
-  const { lang} = await LANG(params);
+  const { lang } = await LANG(params);
   const iDevice = await getIDeviceToken();
   const { redirect } = await searchParams;
   return <LoginComponent iDevice={iDevice} lang={lang} redirect={redirect} translator={translator[lang as keyof typeof translator]} />;

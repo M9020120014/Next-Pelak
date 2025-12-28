@@ -2,13 +2,14 @@
  * Unit tests for RPC utility functions
  * Run with: npm test
  */
+
 import {
   isRpcParamValue,
   isRpcParamsObject,
   extractUserData,
   hasRefreshToken,
-} from './rest/rpc'
-import type { RpcResponseType } from './rest/rpc'
+} from './rpc'
+import type { RpcResponseType } from './rpc'
 
 describe('RPC Utility Functions', () => {
   describe('isRpcParamValue', () => {

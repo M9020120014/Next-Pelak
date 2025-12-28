@@ -107,3 +107,47 @@ export function verifyAccessToken(token: string): {
     return null;
   }
 }
+
+/**
+ * Decode JWT token payload without verifying signature (server-side only)
+ * For client-side use, import from '@/lib/token/jwt-client' instead
+ * 
+ * @deprecated Use decodeTokenPayload from '@/lib/token/jwt-client' in client components
+ */
+export function decodeTokenPayload(token: string): {
+  user_id: number;
+  mobile: string;
+  firstname: string | null;
+  lastname: string | null;
+  role: string;
+  iat: number;
+  exp: number;
+} | null {
+  try {
+    if (!token || typeof token !== 'string') return null;
+    
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    
+    const payloadB64 = parts[1];
+    if (!payloadB64) return null;
+    
+    // Validate base64url format (basic check)
+    const base64UrlRegex = /^[A-Za-z0-9_-]+$/;
+    if (!base64UrlRegex.test(payloadB64)) {
+      return null;
+    }
+    
+    // Decode base64url (Node.js only)
+    const payload = JSON.parse(Buffer.from(payloadB64, "base64url").toString());
+    
+    // Validate payload structure
+    if (!payload || typeof payload !== 'object') return null;
+    if (typeof payload.user_id !== 'number' || typeof payload.mobile !== 'string') return null;
+    if (typeof payload.exp !== 'number' || typeof payload.iat !== 'number') return null;
+    
+    return payload;
+  } catch {
+    return null;
+  }
+}

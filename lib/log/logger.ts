@@ -6,7 +6,8 @@ const BASE_URL = ENV.NEXT_PUBLIC_BASE_URL
 // Optional logging service URL for production
 // If set, logs will be sent to this endpoint
 // Format: https://your-logging-service.com/api/logs
-const LOGGING_SERVICE_URL = process.env.LOGGING_SERVICE_URL
+const LOGGING_SERVICE_URL = ENV.LOGGING_SERVICE_URL
+const LOGGING_API_KEY = ENV.LOGGING_API_KEY
 
 // Sensitive fields that should be filtered from logs
 const SENSITIVE_FIELDS = [
@@ -78,7 +79,7 @@ export async function SubmitLogClient(
     // Filter sensitive data before sending
     const filteredDetails = filterSensitiveData(details)
     
-    await fetch(BASE_URL + '/api/logger', {
+    await fetch(BASE_URL + 'api/logger', {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -127,8 +128,12 @@ export async function SubmitLogServer(
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'X-API-Key': LOGGING_API_KEY,
           },
-          body: JSON.stringify(logEntry),
+          body: JSON.stringify({
+            api_key: LOGGING_API_KEY,
+            logEntry,
+          }),
         }).catch(() => {
           // Silently fail if external logging fails
           // Fallback to console output in production if service unavailable

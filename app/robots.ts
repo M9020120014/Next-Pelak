@@ -11,6 +11,8 @@ export default function robots(): MetadataRoute.Robots {
   const disallowedPaths = [
     "/api/",
     "/admin/",
+    "/dashboard/",
+    "/profile/",
     "/_next/static/",
     "/private/",
     "/*.json$"

@@ -2,12 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.6] - 2025-12-14
+## [0.2.0] - 2025-12-27
+
+- Enhance security and refactor authentication system
+
+## [0.1.6] - 2025-12-27
 
 - Update login system
-- Add rest
+- Refactor logging and security monitoring
 
-## [0.1.5] - 2025-12-14
+## [0.1.5] - 2025-12-23
 
 - Add assets directory  
   - Fonts  

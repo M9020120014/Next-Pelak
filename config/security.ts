@@ -65,11 +65,11 @@ export const RATE_LIMIT = {
     windowMs: TIME.MINUTE * 1000, // 1 minute in milliseconds
   },
   LOGIN: {
-    maxRequests: 5,
+    maxRequests: 10,
     windowMs: 15 * TIME.MINUTE * 1000, // 15 minutes in milliseconds
   },
   OTP: {
-    maxRequests: 3,
+    maxRequests: 5,
     windowMs: 10 * TIME.MINUTE * 1000, // 10 minutes in milliseconds
   },
 } as const
@@ -84,20 +84,20 @@ export const REQUEST = {
 /* --- Input Length Limits ----------------------------------------------------------------------- */
 export const INPUT_LIMITS = {
   MOBILE: {
-    MIN: 10,
-    MAX: 15,
+    MIN: 11,
+    MAX: 11,
   },
   PASSWORD: {
     MIN: 8,
-    MAX: 128, // Increased from 50 to allow for passphrases
+    MAX: 50, // Increased from 50 to allow for passphrases
   },
   OTP_CODE: {
     MIN: 4,
-    MAX: 8,
+    MAX: 4,
   },
   DEVICE_ID: {
-    MIN: 16,
-    MAX: 64,
+    MIN: 40,
+    MAX: 40,
   },
   NATIONAL_CODE: {
     MIN: 10,
@@ -115,10 +115,10 @@ export const INPUT_LIMITS = {
 
 /* --- Date Validation Constants ----------------------------------------------------------------- */
 export const DATE_VALIDATION = {
-  PERSIAN_YEAR_MIN: 1000,
-  PERSIAN_YEAR_MAX: 1999,
-  GREGORIAN_YEAR_MIN: 1000,
-  GREGORIAN_YEAR_MAX: 2999,
+  PERSIAN_YEAR_MIN: 1300,
+  PERSIAN_YEAR_MAX: 1410,
+  GREGORIAN_YEAR_MIN: 1900,
+  GREGORIAN_YEAR_MAX: 2050,
   MONTH_MIN: 1,
   MONTH_MAX: 12,
   DAY_MIN: 1,

@@ -3,14 +3,13 @@
 import "@/styles/globals.css";
 import type { Metadata, Viewport } from "next";
 import Security from "@/components/provider/Security";
+/* --- Config ----------------------------------------------------------------------------------- */
+import { NODE_ENV, validateServerEnv } from "@/config/env";
 /* --- Data ------------------------------------------------------------------------------------- */
 import { BACE_SEO, ROBOTS_OFF, SITE_VIEWPORT } from "@/data/metadata/metadata";
-/* --- Lib -------------------------------------------------------------------------------------- */
-import { validateServerEnv } from "@/config/env";
-/* --- Constants ----------------------------------------------------------------------------- */
+/* --- Constants -------------------------------------------------------------------------------- */
 export const metadata: Metadata = { ...ROBOTS_OFF, ...BACE_SEO };
 export const viewport: Viewport = SITE_VIEWPORT;
-
 // Validate environment variables at startup
 // This runs once per server instance
 try {
@@ -18,7 +17,7 @@ try {
 } catch (error) {
   // In production, fail fast if environment is invalid
   // In development, log the error but allow the app to start
-  if (process.env.NODE_ENV === 'production') {
+  if (NODE_ENV === 'production') {
     console.error('Environment validation failed:', error instanceof Error ? error.message : 'Unknown error');
     throw error;
   } else {

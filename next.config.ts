@@ -49,13 +49,6 @@ const nextConfig: NextConfig = {
             key: 'X-XSS-Protection',
             value: '1; mode=block'
           },
-          // Cross-Origin-Embedder-Policy
-          // Note: Changed from 'require-corp' to 'credentialless' for better compatibility
-          // 'require-corp' can break external resources. Use 'credentialless' or remove if needed.
-          // {
-          //   key: 'Cross-Origin-Embedder-Policy',
-          //   value: 'credentialless'
-          // },
           // Cross-Origin-Opener-Policy
           {
             key: 'Cross-Origin-Opener-Policy',

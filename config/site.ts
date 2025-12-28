@@ -2,11 +2,11 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import { notFound } from "next/navigation";
 /* --- Types ------------------------------------------------------------------------------------ */
-import type { LanguageMap, LanguageObject, ConfigSiteLangObject, ConfigSiteObject } from "@/types/configs/site";
+import type { LanguageMap, LanguageObject, ConfigSiteLangObject, ConfigSiteObject, PageObjectType } from "@/types/configs/site";
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { ENV } from "./env";
 /* --- Constants -------------------------------------------------------------------------------- */
-const baseURL = ENV.NEXT_PUBLIC_BASE_URL;
+const BASE_URL = ENV.NEXT_PUBLIC_BASE_URL;
 /* --- Language ----------------------------------------------------- */
 export const LANGUAGE = {
   default: "fa",
@@ -148,7 +148,7 @@ export const SITE = {
   }, // libs.schema.getJsonLd
   Data: {
     appName: "PELAK Design System", // data.metadata.BACE_SEO
-    url: baseURL, // data.metadata.BACE_SEO // data.metadata.BACE_SEO_LANG // data.metadata.HOME_SEO_LANG // libs.schema.getJsonLd // robots // manifest
+    url: BASE_URL, // data.metadata.BACE_SEO // data.metadata.BACE_SEO_LANG // data.metadata.HOME_SEO_LANG // libs.schema.getJsonLd // robots // manifest
     logo: "/logo.png", // data.metadata.BACE_SEO // libs.schema.getJsonLd
     googleVerification: "1234567890123456789012345678901234567890123", // data.metadata.BACE_SEO
     twitter: "@MahdiGoodini", // data.metadata.BACE_SEO
@@ -162,3 +162,26 @@ export const SITE = {
     logoSize: 256 // libs.schema.getJsonLd
   }
 } as const satisfies ConfigSiteObject;
+/* --- Data --------------------------------------------------------- */
+export const HOME_MAP = {
+  title: SITE_LANG[LANGUAGE.default].Data.title,
+  short: SITE_LANG[LANGUAGE.default].Data.shortName,
+  description: SITE_LANG[LANGUAGE.default].Data.description,
+  icon: "home",
+  sitemap: {
+    url: BASE_URL + "/",
+    lastModified: new Date(),
+    changeFrequency: "daily",
+    priority: 1.0,
+    alternates: {
+      languages: {
+        "x-default": BASE_URL + "/",
+        fa: BASE_URL + "/",
+        en: BASE_URL + "/en",
+      },
+    },
+    images: [
+      "/logo.png",
+    ],
+  }
+} as const satisfies PageObjectType

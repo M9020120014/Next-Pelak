@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSecurity } from "@/components/security/SecurityProvider";
+import { setAccessToken } from "@/lib/auth/token-manager";
 
 export default function LoginComponent({
   iDevice,
@@ -41,6 +42,11 @@ export default function LoginComponent({
       const data = await res.json();
 
       if (data.success) {
+        // ذخیره Access Token در SessionStorage
+        if (data.access_token) {
+          setAccessToken(data.access_token);
+        }
+        
         // ریدایرکت به آدرس مورد نظر یا داشبورد
         // فقط به مسیرهای داخلی سایت redirect می‌کنیم (شروع با /)
         // و از open redirect جلوگیری می‌کنیم

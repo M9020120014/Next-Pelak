@@ -2,14 +2,12 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { MetadataRoute } from "next";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { HOME_PAGE, MAIN_PAGE ,SITE_MAP } from "@/config/map";
+import { HOME_MAP } from "@/config/site";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Sitemap ------------------------------------------------------- */
 export default function sitemap(): MetadataRoute.Sitemap {
   /* --- Base ----------------------- */
   return [
-    ...HOME_PAGE.map((item) => item.sitemap),
-    ...MAIN_PAGE.map((item) => item.sitemap),
-    ...SITE_MAP,
+    HOME_MAP.sitemap,
   ];
 }
