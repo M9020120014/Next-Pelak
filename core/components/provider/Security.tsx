@@ -2,6 +2,7 @@
 /* --- Components ------------------------------------------------------------------------------- */
 import SecurityErrorBoundary from '@/core/components/security/SecurityErrorBoundary'
 import { SecurityProvider } from '@/core/components/security/SecurityProvider'
+import PostHogProvider from './PostHogProvider'
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { getOrCreateCSRFToken } from "@/core/lib/security/cookies";
 /* --- Functions -------------------------------------------------------------------------------- */
@@ -11,7 +12,9 @@ export default async function SecurityProviders({ children }: Readonly<{ childre
   return (
     <SecurityErrorBoundary>
       <SecurityProvider csrfToken={csrfToken}>
-        {children}
+        <PostHogProvider>
+          {children}
+        </PostHogProvider>
       </SecurityProvider>
     </SecurityErrorBoundary>
   )

@@ -2,7 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.1] - 2025-12-28
+## [0.2.2] - 2025-12-29
+
+- Integrate PostHog analytics and enhance security configurations
+- Refactor project structure and update configuration paths
+- Improve logout process and enhance error handling
+- Enhance security headers and improve logout process
+
+## [0.2.1] - 2025-12-29
 
 - Remove deprecated files and refactor project structure
 

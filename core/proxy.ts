@@ -28,6 +28,7 @@ function getEnvValues() {
     IDEVICE_STORAGE_KEY: ENV.IDEVICE_STORAGE_KEY,
     CSRF_COOKIE_NAME: ENV.CSRF_COOKIE_NAME,
     REFRESH_TOKEN_COOKIE: ENV.REFRESH_TOKEN_COOKIE,
+    NEXT_PUBLIC_POSTHOG_HOST: ENV.NEXT_PUBLIC_POSTHOG_HOST,
   }
 }
 /* --- Proxy -------------------------------------------------------- */
@@ -156,6 +157,22 @@ export default async function proxy(
   // Store nonce in response header for client-side access
   response.headers.set('X-CSP-Nonce', nonce)
   
+  // Extract PostHog host for CSP if configured
+  let posthogHostCSP = ''
+  if (envValues.NEXT_PUBLIC_POSTHOG_HOST) {
+    try {
+      const posthogUrl = new URL(envValues.NEXT_PUBLIC_POSTHOG_HOST)
+      posthogHostCSP = posthogUrl.origin
+    } catch {
+      // Invalid URL, skip CSP addition
+    }
+  }
+  
+  // Build connect-src directive with PostHog host if available
+  const connectSrc = posthogHostCSP 
+    ? `connect-src 'self' ${posthogHostCSP}`
+    : "connect-src 'self'"
+  
   // CSP configuration for Next.js
   // Using 'strict-dynamic' with nonce provides better security than 'unsafe-inline'
   // 'strict-dynamic' allows scripts loaded by nonce-verified scripts
@@ -168,7 +185,7 @@ export default async function proxy(
     `style-src 'self' 'nonce-${nonce}'`, // Use nonce for styles when possible
     "img-src 'self' data: https:",
     "font-src 'self'",
-    "connect-src 'self'",
+    connectSrc,
     "media-src 'self'",
     "object-src 'none'",
     "frame-src 'none'",
