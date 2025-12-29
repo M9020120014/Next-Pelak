@@ -203,12 +203,17 @@ export function useAuth(iDevice: string): UseAuthReturn {
    */
   const logout = useCallback(async () => {
     try {
-      // Call logout API to clear refresh token cookie
+      // Get access token before clearing it
+      const accessToken = getAccessToken()
+      
+      // Call logout API to revoke refresh token from database and clear cookie
       await fetch('/api/auth/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-csrf-token': csrfToken,
+          // Include access token so server can extract user_id for revoking refresh token
+          ...(accessToken && { 'Authorization': `Bearer ${accessToken}` }),
         },
       })
     } catch {

@@ -44,16 +44,28 @@ async function POSTHandler(request: NextRequest) {
     // Revoke refresh token from database if we have user_id and valid idevice
     // IMPORTANT: This must complete BEFORE clearing the cookie to ensure token is revoked in DB
     if (userId && iDevice && iDevice !== 'unknown') {
-      try {
-        await callRpc("auth_revoke_token", {
-          p_user_id: userId,
-          p_idevice: iDevice,
-        });
-      } catch (error) {
+      const revokeResult = await callRpc("auth_revoke_token", {
+        p_user_id: userId,
+        p_idevice: iDevice,
+      });
+      
+      if (!revokeResult.success) {
         // Log error but continue with logout - token will be cleared from cookie anyway
         // This ensures logout completes even if database call fails
-        console.error('Failed to revoke token from database:', error);
+        console.error('Failed to revoke token from database:', {
+          title: revokeResult.title,
+          message: revokeResult.message,
+          userId,
+          iDevice,
+        });
       }
+    } else {
+      // Log warning if we don't have required data for revoking token
+      console.warn('Cannot revoke token from database - missing required data:', {
+        hasUserId: !!userId,
+        hasIDevice: !!iDevice,
+        iDeviceValue: iDevice,
+      });
     }
 
     // Clear refresh token cookie (only after revoking from database)
