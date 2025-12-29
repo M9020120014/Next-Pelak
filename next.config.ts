@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { SECURITY_HEADERS } from "./core/config/security";
+import { IS_PRODUCTION } from "./core/config/env";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -10,15 +11,15 @@ const nextConfig: NextConfig = {
         source: '/(.*)',
         headers: [
           // CSP will be set dynamically in proxy with nonce
-          // HSTS - HTTP Strict Transport Security
-          {
+          // HSTS - HTTP Strict Transport Security (only in production)
+          ...(IS_PRODUCTION ? [{
             key: 'Strict-Transport-Security',
             value: [
               `max-age=${SECURITY_HEADERS.HSTS.maxAge}`,
               SECURITY_HEADERS.HSTS.includeSubDomains ? 'includeSubDomains' : '',
               SECURITY_HEADERS.HSTS.preload ? 'preload' : ''
             ].filter(Boolean).join('; ')
-          },
+          }] : []),
           // X-Frame-Options
           {
             key: 'X-Frame-Options',

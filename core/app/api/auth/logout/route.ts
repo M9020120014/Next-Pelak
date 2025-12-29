@@ -42,24 +42,21 @@ async function POSTHandler(request: NextRequest) {
     }
 
     // Revoke refresh token from database if we have user_id and valid idevice
+    // IMPORTANT: This must complete BEFORE clearing the cookie to ensure token is revoked in DB
     if (userId && iDevice && iDevice !== 'unknown') {
-      // Call auth_revoke_token to move token to history (non-blocking)
-      // We don't wait for this to complete to avoid blocking the logout response
-      runAsync(async () => {
-        try {
-          await callRpc("auth_revoke_token", {
-            p_user_id: userId,
-            p_idevice: iDevice,
-          });
-        } catch (error) {
-          // Silently fail - token will be cleared from cookie anyway
-          // Log error for monitoring
-          console.error('Failed to revoke token from database:', error);
-        }
-      });
+      try {
+        await callRpc("auth_revoke_token", {
+          p_user_id: userId,
+          p_idevice: iDevice,
+        });
+      } catch (error) {
+        // Log error but continue with logout - token will be cleared from cookie anyway
+        // This ensures logout completes even if database call fails
+        console.error('Failed to revoke token from database:', error);
+      }
     }
 
-    // Clear refresh token cookie
+    // Clear refresh token cookie (only after revoking from database)
     let response = successResponse(
       {
         title: "Logout Successful",
