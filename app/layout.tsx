@@ -5,6 +5,8 @@ import type { Metadata, Viewport } from "next";
 import Security from "@/components/provider/Security";
 /* --- Config ----------------------------------------------------------------------------------- */
 import { NODE_ENV, validateServerEnv } from "@/config/env";
+/* --- Hooks ------------------------------------------------------------------------------------ */
+import { loadProjectHooksSync } from "@/lib/hooks/loader";
 /* --- Data ------------------------------------------------------------------------------------- */
 import { BACE_SEO, ROBOTS_OFF, SITE_VIEWPORT } from "@/data/metadata/metadata";
 /* --- Constants -------------------------------------------------------------------------------- */
@@ -24,6 +26,10 @@ try {
     console.warn('Environment validation warning:', error instanceof Error ? error.message : 'Unknown error');
   }
 }
+
+// Load project-specific hooks at startup
+// This ensures hooks are registered before they are executed
+loadProjectHooksSync();
 
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Base Layout -------------------------------------------------- */

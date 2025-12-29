@@ -8,7 +8,6 @@ import { COOKIE, ROUTES } from '@/config/security'
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { generateCSRFToken, generateNonce } from '@/lib/security/cookies'
 import { detectSuspiciousActivity } from '@/lib/security/monitoring'
-import { checkIPFilter } from '@/lib/security/ip-filter'
 import { logSuspiciousActivity } from '@/lib/security/audit-log'
 import { checkAuthorization } from '@/lib/security/authorization'
 import { logUnauthorizedAccess } from '@/lib/security/audit-log'
@@ -36,17 +35,9 @@ export default async function proxy(
     )
   }
 
-  // Note: Request size validation and rate limiting for API routes are handled
-  // in api-middleware.ts via validateAPIRequest() function
-
-  // IP filtering
-  const ipCheck = checkIPFilter(request)
-  if (!ipCheck.allowed) {
-    return NextResponse.json(
-      { success: false, title: 'Access Denied', message: 'دسترسی به این درخواست مجاز نیست' },
-      { status: 403 }
-    )
-  }
+  // Note: Request size validation, rate limiting, and IP filtering for API routes 
+  // are handled in api-middleware.ts via validateAPIRequest() function
+  // IP filtering removed from here to avoid duplication
 
   // Check if route is admin protected (dashboard, profile, etc.)
   const isAdminRoute = ROUTES.ADMIN_ROUTE_PATTERN.test(pathname)

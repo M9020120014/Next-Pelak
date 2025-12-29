@@ -13,6 +13,7 @@ import { logLoginAttempt } from "@/lib/security/audit-log";
 import { checkBruteForce, recordFailedAttempt } from "@/lib/security/brute-force";
 import { runAsync } from "@/lib/utils/async";
 import { withErrorHandlingAndTracking } from "@/lib/performance/monitoring";
+import { hookRegistry } from "@/lib/hooks";
 
 async function POSTHandler(request: NextRequest) {
     // Security validation
@@ -110,6 +111,21 @@ async function POSTHandler(request: NextRequest) {
 
     // Log successful login (non-blocking)
     runAsync(() => logLoginAttempt(request, sanitizedMobile, true, userData.id))
+
+    // Execute auth:after-login hooks (non-blocking)
+    runAsync(async () => {
+      try {
+        await hookRegistry.execute('auth:after-login', {
+          id: userData.id,
+          mobile: userData.mobile,
+          firstname: userData.firstname,
+          lastname: userData.lastname,
+        });
+      } catch (error) {
+        // Silently fail - hooks shouldn't break the login flow
+        console.error('Error executing auth:after-login hooks:', error);
+      }
+    });
 
     return response;
 }
