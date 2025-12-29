@@ -1,7 +1,7 @@
 /* --- Project-specific Auth Hooks --------------------------------------------------------------- */
 /* Example hooks for authentication events */
 
-import { hookRegistry } from '@/lib/hooks'
+import { hookRegistry } from '@/core/lib/hooks'
 
 /**
  * Example: Log user activity after login

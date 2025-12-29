@@ -1,42 +1,18 @@
-
 /* --- Base ------------------------------------------------------------------------------------- */
-import "@/styles/globals.css";
-import type { Metadata, Viewport } from "next";
-import Security from "@/components/provider/Security";
+import CoreLayout from "@/core/app/layout";
 /* --- Config ----------------------------------------------------------------------------------- */
-import { NODE_ENV, validateServerEnv } from "@/config/env";
-/* --- Hooks ------------------------------------------------------------------------------------ */
-import { loadProjectHooksSync } from "@/lib/hooks/loader";
-/* --- Data ------------------------------------------------------------------------------------- */
-import { BACE_SEO, ROBOTS_OFF, SITE_VIEWPORT } from "@/data/metadata/metadata";
-/* --- Constants -------------------------------------------------------------------------------- */
-export const metadata: Metadata = { ...ROBOTS_OFF, ...BACE_SEO };
-export const viewport: Viewport = SITE_VIEWPORT;
-// Validate environment variables at startup
-// This runs once per server instance
-try {
-  validateServerEnv();
-} catch (error) {
-  // In production, fail fast if environment is invalid
-  // In development, log the error but allow the app to start
-  if (NODE_ENV === 'production') {
-    console.error('Environment validation failed:', error instanceof Error ? error.message : 'Unknown error');
-    throw error;
-  } else {
-    console.warn('Environment validation warning:', error instanceof Error ? error.message : 'Unknown error');
-  }
-}
-
-// Load project-specific hooks at startup
-// This ensures hooks are registered before they are executed
-loadProjectHooksSync();
-
+import { setCoreConfig } from "@/core/config/core-config";
+import { projectCoreConfig } from "@/project/config/core-override";
+/* --- Set Core Configuration ------------------------------------------------------------------- */
+// Set project-specific core configuration before rendering
+// This must be called before CoreLayout is used
+setCoreConfig(projectCoreConfig);
 /* --- Functions -------------------------------------------------------------------------------- */
-/* --- Base Layout -------------------------------------------------- */
-export default async function BaseLayout({
+/* --- Root Layout -------------------------------------------------- */
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <Security>{children}</Security>
+  return <CoreLayout>{children}</CoreLayout>
 }

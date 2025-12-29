@@ -1,6 +1,6 @@
-import { LANG_PARAMS, LANG } from "@/config/site";
-import { getIDeviceToken } from "@/lib/token/idevice";
-import VerificationComponent from "@/components/auth/verification";
+import { LANG_PARAMS, LANG } from "@/project/config/site";
+import { getIDeviceToken } from "@/core/lib/token/idevice";
+import VerificationComponent from "@/core/components/auth/verification";
 
 const translator = {
   fa: {

@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2025-12-28
+
+- Remove deprecated files and refactor project structure
+
+### Fixed
+- Fix API routes accessibility - Create wrapper files in `app/api/` to re-export from `core/app/api/`
+- Resolve 404 errors for API endpoints (e.g., `/api/auth/refresh`)
+
+### Added
+- Complete project documentation in README.md
+- API routes wrapper files for Next.js App Router compatibility
+
+### Verified
+- Core independence - Confirmed no hard dependencies on project directory
+- Security audit - All security measures verified
+- Performance optimizations verified
+
+- Update project files and enhance authentication hooks
+- Refactor project structure and update configurations
+
 ## [0.2.0] - 2025-12-27
 
 - Enhance security and refactor authentication system

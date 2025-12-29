@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANGUAGE } from "@/config/site";
+import { LANGUAGE } from "@/project/config/site";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Root NotFound ------------------------------------------------ */
 export default function NotFound() {

@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { SECURITY_HEADERS } from "./config/security";
+import { SECURITY_HEADERS } from "./core/config/security";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
       {
         source: '/(.*)',
         headers: [
-          // CSP will be set dynamically in middleware with nonce
+          // CSP will be set dynamically in proxy with nonce
           // HSTS - HTTP Strict Transport Security
           {
             key: 'Strict-Transport-Security',
@@ -88,7 +88,7 @@ const nextConfig: NextConfig = {
   },
   // Performance optimizations
   experimental: {
-    optimizeCss: true,
+    // optimizeCss: true, // Disabled - requires 'critters' package
     optimizePackageImports: ['@radix-ui/react-icons'],
   },
 }

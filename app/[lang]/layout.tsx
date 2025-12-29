@@ -1,12 +1,12 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { Font } from "@/lib/fonts";
+import { Font } from "@/core/lib/fonts";
 /* --- Components ------------------------------------------------------------------------------- */
-import Providers from "@/components/provider/Provider";
+import Providers from "@/core/components/provider/Provider";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANGUAGE_DATA, LANG_PARAMS, LANG_CHILDREN_PARAMS, LANG } from "@/config/site";
-import { BACE_SEO_LANG } from "@/data/metadata/metadata";
+import { LANGUAGE_DATA, LANG_PARAMS, LANG_CHILDREN_PARAMS, LANG } from "@/project/config/site";
+import { BACE_SEO_LANG } from "@/project/data/metadata/metadata";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Locale Layout Metadata --------------------------------------- */
 export async function generateMetadata({ params }: LANG_PARAMS): Promise<Metadata> {

@@ -1,7 +1,7 @@
 import React from "react";
-import { LANG_PARAMS, LANG } from "@/config/site";
-import { getIDeviceToken } from "@/lib/token/idevice";
-import LoginComponent from "@/components/auth/login";
+import { LANG_PARAMS, LANG } from "@/project/config/site";
+import { getIDeviceToken } from "@/core/lib/token/idevice";
+import LoginComponent from "@/core/components/auth/login";
 
 const translator = {
   fa: {

@@ -2,8 +2,8 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import { Metadata } from 'next';
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANGUAGE } from "@/config/site";
-import { HOME_SEO_LANG, ROBOTS_ON } from "@/data/metadata/metadata";
+import { LANGUAGE } from "@/project/config/site";
+import { HOME_SEO_LANG, ROBOTS_ON } from "@/project/data/metadata/metadata";
 import Link from 'next/link';
 /* --- Constants -------------------------------------------------------------------------------- */
 const HOME_SEO = HOME_SEO_LANG(LANGUAGE.default)

@@ -1,5 +1,5 @@
 
-import { LANG_PARAMS, LANG } from "@/config/site";
+import { LANG_PARAMS, LANG } from "@/project/config/site";
 import Link from "next/link";
 
 export default async function AliPage({ params }: LANG_PARAMS) {

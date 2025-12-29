@@ -1,6 +1,6 @@
-import { LANG_PARAMS, LANG } from "@/config/site";
-import { getIDeviceToken } from "@/lib/token/idevice";
-import LogoutAllComponent from "@/components/auth/logout-all";
+import { LANG_PARAMS, LANG } from "@/project/config/site";
+import { getIDeviceToken } from "@/core/lib/token/idevice";
+import LogoutAllComponent from "@/core/components/auth/logout-all";
 
 const translator = {
   fa: {

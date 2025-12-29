@@ -2,7 +2,7 @@
 /* This file contains project-specific configuration overrides */
 /* Values here will override base configuration from /core/config/base.ts */
 
-import { ROUTES as BASE_ROUTES } from '@/config/security'
+import { ROUTES as BASE_ROUTES } from '@/core/config/security'
 
 /* --- Project-specific Route Configuration ----------------------------------------------------- */
 export const PROJECT_ROUTES = {

@@ -4,53 +4,92 @@
 
 پروژه به دو بخش اصلی تقسیم شده است:
 
-### `/lib` - کتابخانه‌های اصلی
-کدهای قابل استفاده مجدد که در تمام پروژه‌ها مشترک هستند:
-- `lib/auth/` - منطق احراز هویت
-- `lib/security/` - امنیت
-- `lib/token/` - مدیریت توکن
-- `lib/hooks/` - سیستم Hook/Plugin
-  - `lib/hooks/loader.ts` - لودر خودکار hooks پروژه
-  - `lib/hooks/registry.ts` - رجیستری hooks
-  - `lib/hooks/types.ts` - تایپ‌های hooks
-
-### `/config` - تنظیمات پایه
-- `config/security.ts` - تنظیمات امنیتی
-- `config/env.ts` - متغیرهای محیطی
+### `/core` - سیستم پایه (Plug-and-Play)
+کدهای کاملاً مستقل و قابل استفاده مجدد که در تمام پروژه‌ها مشترک هستند:
+- `core/lib/` - کتابخانه‌های اصلی
+  - `lib/auth/` - منطق احراز هویت
+  - `lib/security/` - امنیت
+  - `lib/token/` - مدیریت توکن
+  - `lib/hooks/` - سیستم Hook/Plugin
+    - `lib/hooks/loader.ts` - لودر خودکار hooks با configurable paths
+    - `lib/hooks/registry.ts` - رجیستری hooks
+    - `lib/hooks/types.ts` - تایپ‌های hooks
+- `core/config/` - تنظیمات پایه
+  - `config/env.ts` - متغیرهای محیطی
+  - `config/security.ts` - تنظیمات امنیتی
+  - `config/metadata.ts` - Metadata configuration interface
+  - `config/hooks.ts` - Hooks configuration interface
+  - `config/messages.ts` - Messages configuration interface
+  - `config/core-config.ts` - Main configuration interface
+- `core/app/` - ساختار Next.js پایه
+- `core/proxy.ts` - Proxy اصلی
 
 ### `/project` - کد خاص پروژه
-کدهای خاص پروژه Pelak که قابل شخصی‌سازی هستند:
-- `project/config/override.ts` - تنظیمات override
+کدهای خاص پروژه که قابل شخصی‌سازی هستند:
+- `project/config/core-override.ts` - Override کردن core configs
+- `project/config/site.ts` - تنظیمات سایت
 - `project/hooks/` - Hook های خاص پروژه
   - `project/hooks/auth.ts` - Hook های احراز هویت
 
 ## استفاده از سیستم کانفیگ
 
+### Core Configuration System
+
+Core از سیستم **Configuration Injection** استفاده می‌کند که اجازه می‌دهد پروژه‌ها configs را override کنند بدون تغییر در core.
+
+### تنظیم Core Config
+
+در `app/layout.tsx`:
+
+```typescript
+import { setCoreConfig } from "@/core/config/core-config";
+import { projectCoreConfig } from "@/project/config/core-override";
+
+// Set core configuration before rendering
+setCoreConfig(projectCoreConfig);
+```
+
+### Override کردن Core Config
+
+در `project/config/core-override.ts`:
+
+```typescript
+import type { CoreConfig } from '@/core/config/core-config';
+
+export const projectCoreConfig: CoreConfig = {
+  metadata: {
+    site: { /* site config */ },
+    siteLang: { /* language configs */ },
+    language: { /* language list */ },
+    robotsEnabled: false,
+    themeColor: '#ffffff',
+  },
+  hooks: {
+    paths: ['@/project/hooks/auth'],
+  },
+  messages: {
+    invalidPath: {
+      title: 'Invalid Path',
+      message: 'مسیر درخواست نامعتبر است',
+    },
+    unauthorized: {
+      title: 'Unauthorized',
+      message: 'شما اجازه دسترسی ندارید',
+    },
+  },
+};
+```
+
 ### Import کانفیگ
 
 ```typescript
-// ✅ درست - از config اصلی استفاده کنید
-import { ROUTES } from '@/config/security'
+// ✅ درست - از core config استفاده کنید
+import { ROUTES } from '@/core/config/security'
+import { getCoreConfig } from '@/core/config/core-config'
+
+// دریافت config
+const config = getCoreConfig()
 ```
-
-### Override کانفیگ
-
-برای override کردن کانفیگ در پروژه خود:
-
-1. فایل `/project/config/override.ts` را ویرایش کنید:
-
-```typescript
-import { ROUTES as BASE_ROUTES } from '@/config/security'
-
-export const PROJECT_CONFIG = {
-  ROUTES: {
-    ADMIN_ROUTE_PATTERN: /^\/[^\/]+\/(dashboard|profile|admin)(\/.*)?$/,
-    DEFAULT_LANG: 'fa',
-  },
-}
-```
-
-2. در فایل‌های خود از `PROJECT_CONFIG` استفاده کنید یا مستقیماً از `@/config/security` استفاده کنید.
 
 ## استفاده از سیستم Hook
 
@@ -210,7 +249,9 @@ export const PROJECT_CONFIG = {
 ```
 project/
 ├── config/
-│   └── override.ts          # Override config ها
+│   ├── core-override.ts     # Override core configs
+│   ├── site.ts              # Site configuration
+│   └── override.ts          # Legacy override (optional)
 └── hooks/
     ├── auth.ts              # Hook های احراز هویت
     └── custom.ts            # Hook های سفارشی دیگر (اختیاری)
@@ -220,10 +261,13 @@ project/
 
 برای استفاده از این ساختار در پروژه جدید:
 
-1. کپی کردن `/lib` و `/config` به پروژه جدید
-2. ایجاد `/project` در پروژه جدید
-3. شخصی‌سازی hooks و config در `/project`
-4. به‌روزرسانی: فقط `/lib` و `/config` را به‌روز کنید
+1. **کپی کردن `/core`** به پروژه جدید (کاملاً مستقل است)
+2. **اضافه کردن path alias** `@/core/*` به `tsconfig.json`
+3. **ایجاد `/project`** در پروژه جدید
+4. **ایجاد `project/config/core-override.ts`** برای override کردن configs
+5. **ایجاد `app/layout.tsx`** که `setCoreConfig()` را فراخوانی می‌کند
+6. **ایجاد `middleware.ts` یا `proxy.ts` در root** که از core re-export می‌کند
+7. **به‌روزرسانی:** فقط `/core` را به‌روز کنید - project configs بدون تغییر باقی می‌مانند
 
 ## نکات مهم
 
@@ -238,27 +282,37 @@ project/
 
 ```
 /
-├── lib/                      # کتابخانه‌های اصلی (قابل استفاده مجدد)
-│   ├── hooks/                # سیستم Hook
-│   │   ├── loader.ts         # لودر خودکار hooks
-│   │   ├── registry.ts       # رجیستری hooks
-│   │   ├── types.ts          # تایپ‌های hooks
-│   │   └── index.ts          # Export اصلی
-│   ├── auth/                 # احراز هویت
-│   ├── security/             # امنیت
-│   └── token/                 # مدیریت توکن
-├── config/                   # تنظیمات پایه (قابل استفاده مجدد)
-│   ├── security.ts           # تنظیمات امنیتی
-│   └── env.ts                # متغیرهای محیطی
+├── core/                     # سیستم پایه (Plug-and-Play)
+│   ├── lib/                  # کتابخانه‌های اصلی
+│   │   ├── hooks/            # سیستم Hook
+│   │   │   ├── loader.ts     # لودر خودکار hooks (configurable)
+│   │   │   ├── registry.ts   # رجیستری hooks
+│   │   │   ├── types.ts      # تایپ‌های hooks
+│   │   │   └── index.ts      # Export اصلی
+│   │   ├── auth/             # احراز هویت
+│   │   ├── security/         # امنیت
+│   │   └── token/            # مدیریت توکن
+│   ├── config/               # تنظیمات پایه
+│   │   ├── env.ts            # متغیرهای محیطی
+│   │   ├── security.ts       # تنظیمات امنیتی
+│   │   ├── metadata.ts       # Metadata config interface
+│   │   ├── hooks.ts          # Hooks config interface
+│   │   ├── messages.ts        # Messages config interface
+│   │   └── core-config.ts    # Main config interface
+│   ├── app/                  # ساختار Next.js پایه
+│   │   └── layout.tsx        # Base layout (uses config injection)
+│   └── proxy.ts              # Proxy اصلی
 ├── project/                  # کد خاص پروژه (شخصی‌سازی)
 │   ├── config/
-│   │   └── override.ts        # Override کانفیگ
+│   │   ├── core-override.ts  # Override core configs
+│   │   └── site.ts           # Site configuration
 │   └── hooks/
-│       └── auth.ts            # Hook های احراز هویت
-└── app/                      # Next.js app directory
-    ├── layout.tsx             # لود hooks در اینجا
-    └── api/                   # API routes
-        └── auth/              # Routes احراز هویت
+│       └── auth.ts           # Hook های احراز هویت
+├── app/                      # Next.js app directory
+│   ├── layout.tsx            # Set core config + use CoreLayout
+│   └── api/                  # API routes
+│       └── auth/             # Routes احراز هویت
+└── middleware.ts             # Re-export proxy from core (Next.js requirement)
 ```
 
 ## بهینه‌سازی دیتابیس
@@ -277,19 +331,89 @@ Index `idx_refresh_tokens_user_device` به صورت partial index است و ف�
 
 ## مثال کامل: استفاده در پروژه جدید
 
-### مرحله 1: کپی کردن ساختار پایه
+### مرحله 1: کپی کردن Core
 
 ```bash
-# کپی کردن lib و config به پروژه جدید
-cp -r lib/ new-project/
-cp -r config/ new-project/
+# کپی کردن core به پروژه جدید
+cp -r core/ new-project/
 ```
 
-### مرحله 2: ایجاد project hooks
+### مرحله 2: تنظیم TypeScript
+
+```json
+// new-project/tsconfig.json
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./*"],
+      "@/core/*": ["./core/*"]
+    }
+  }
+}
+```
+
+### مرحله 3: ایجاد Project Config
 
 ```typescript
-// در new-project/project/hooks/auth.ts
-import { hookRegistry } from '@/lib/hooks'
+// new-project/project/config/core-override.ts
+import type { CoreConfig } from '@/core/config/core-config';
+
+export const projectCoreConfig: CoreConfig = {
+  metadata: {
+    site: {
+      Data: {
+        url: 'https://example.com',
+        appName: 'My App',
+        logo: '/logo.png',
+        googleVerification: '',
+        twitter: '',
+      },
+      Theme: { light: '#ffffff', dark: '#000000' },
+      Number: { imageWidth: 1200, imageHeight: 630, logoSize: 256 },
+    },
+    siteLang: { /* language configs */ },
+    language: { default: 'en', list: { en: 'English' } },
+  },
+  hooks: {
+    paths: ['@/project/hooks/auth'],
+  },
+  messages: {
+    invalidPath: { title: 'Invalid Path', message: 'Invalid path' },
+    unauthorized: { title: 'Unauthorized', message: 'Unauthorized' },
+  },
+};
+```
+
+### مرحله 4: ایجاد App Layout
+
+```typescript
+// new-project/app/layout.tsx
+import CoreLayout from "@/core/app/layout";
+import { setCoreConfig } from "@/core/config/core-config";
+import { projectCoreConfig } from "@/project/config/core-override";
+
+setCoreConfig(projectCoreConfig);
+
+export default async function RootLayout({ children }) {
+  return <CoreLayout>{children}</CoreLayout>
+}
+```
+
+### مرحله 5: ایجاد Proxy/Middleware
+
+```typescript
+// new-project/middleware.ts یا proxy.ts
+import coreProxy from '@/core/proxy'
+import { config as proxyConfig } from '@/core/proxy'
+export default coreProxy
+export const config = proxyConfig
+```
+
+### مرحله 6: ایجاد Project Hooks
+
+```typescript
+// new-project/project/hooks/auth.ts
+import { hookRegistry } from '@/core/lib/hooks'
 
 hookRegistry.register('auth:after-login', async (user) => {
   // منطق خاص پروژه جدید
@@ -297,9 +421,10 @@ hookRegistry.register('auth:after-login', async (user) => {
 })
 ```
 
-### مرحله 3: به‌روزرسانی
+### مرحله 7: به‌روزرسانی
 
 ```bash
-# فقط lib و config را به‌روز کنید
-# project hooks شما بدون تغییر باقی می‌ماند
+# فقط core را به‌روز کنید
+# project configs شما بدون تغییر باقی می‌مانند
+cp -r core/ new-project/
 ```
