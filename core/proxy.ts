@@ -3,7 +3,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 /* --- Config ----------------------------------------------------------------------------------- */
-import { ENV, IS_DEVELOPMENT } from '@/core/config/env'
+import { ENV, IS_DEVELOPMENT } from '@/core/config/env-merge'
 import { COOKIE, ROUTES } from '@/core/config/security'
 import { getCoreConfig } from '@/core/config/core-config'
 import { getMessages } from '@/core/config/messages'
@@ -18,11 +18,18 @@ import { validateRefreshTokenFormat } from '@/core/lib/token/auth-cookie'
 import { verifyAccessToken } from '@/core/lib/token/jwt'
 import { SubmitLogServer } from '@/core/lib/log/logger'
 import { runAsync } from '@/core/lib/utils/async'
-/* --- Constants -------------------------------------------------------------------------------- */
-const IDEVICE_STORAGE_KEY = ENV.IDEVICE_STORAGE_KEY
-const CSRF_COOKIE_NAME = ENV.CSRF_COOKIE_NAME
-const REFRESH_TOKEN_COOKIE = ENV.REFRESH_TOKEN_COOKIE
 /* --- Functions -------------------------------------------------------------------------------- */
+/**
+ * Get environment variable values
+ * Uses lazy evaluation to ensure ENV is initialized before access
+ */
+function getEnvValues() {
+  return {
+    IDEVICE_STORAGE_KEY: ENV.IDEVICE_STORAGE_KEY,
+    CSRF_COOKIE_NAME: ENV.CSRF_COOKIE_NAME,
+    REFRESH_TOKEN_COOKIE: ENV.REFRESH_TOKEN_COOKIE,
+  }
+}
 /* --- Proxy -------------------------------------------------------- */
 export default async function proxy(
   request: NextRequest
@@ -51,9 +58,10 @@ export default async function proxy(
   
   if (isAdminRoute) {
     // Check authentication - validate both access token (from header) and refresh token (from cookie)
+    const envValues = getEnvValues()
     const authHeader = request.headers.get('authorization')
     const accessToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
-    const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE)?.value
+    const refreshToken = request.cookies.get(envValues.REFRESH_TOKEN_COOKIE)?.value
     
     // Try to validate access token first (if provided)
     let isAuthenticated = false
@@ -121,21 +129,24 @@ export default async function proxy(
   // Security check
   const { check, ip, userAgent, referer, url } = detectSuspiciousActivity(request)
 
+  // Get environment values
+  const envValues = getEnvValues()
+
   // CSRF token management
-  const existingToken = request.cookies.get(CSRF_COOKIE_NAME)?.value
+  const existingToken = request.cookies.get(envValues.CSRF_COOKIE_NAME)?.value
 
   if (!existingToken) {
     const newToken = generateCSRFToken()
-    response.cookies.set(CSRF_COOKIE_NAME, newToken, {
+    response.cookies.set(envValues.CSRF_COOKIE_NAME, newToken, {
       ...COOKIE.CSRF,
     })
   }
 
   // iDevice token management
-  const existingIDevice = request.cookies.get(IDEVICE_STORAGE_KEY)?.value
+  const existingIDevice = request.cookies.get(envValues.IDEVICE_STORAGE_KEY)?.value
   const iDdevice: string = existingIDevice || generateIDeviceToken(userAgent)
   if (!existingIDevice || existingIDevice.length !== 40) {
-    response.cookies.set(IDEVICE_STORAGE_KEY, iDdevice, {
+    response.cookies.set(envValues.IDEVICE_STORAGE_KEY, iDdevice, {
       ...COOKIE.IDEVICE,
     })
   }

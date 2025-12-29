@@ -18,7 +18,7 @@ export interface HooksConfig {
  * Default hooks configuration
  * Projects should override this via CoreConfig
  * 
- * Default path: '@/project/hooks/auth' (optional, will fail gracefully if not found)
+ * Default path: '@/core/hooks/auth' (optional, will fail gracefully if not found)
  */
 export const defaultHooksConfig: HooksConfig = {
   paths: [],

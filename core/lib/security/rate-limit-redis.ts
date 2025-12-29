@@ -2,7 +2,7 @@
 // Uses Redis sorted sets for efficient rate limiting across multiple server instances
 
 import Redis from 'ioredis'
-import { ENV } from '@/core/config/env'
+import { ENV } from '@/core/config/env-merge'
 import { REDIS_CONFIG } from '@/core/config/security'
 
 let redisClient: Redis | null = null

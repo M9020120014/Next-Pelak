@@ -1,4 +1,4 @@
-import { LANG_PARAMS, LANG } from "@/project/config/site";
+import { LANG_PARAMS, LANG } from "@/core/config/site";
 import { getIDeviceToken } from "@/core/lib/token/idevice";
 import VerificationComponent from "@/core/components/auth/verification";
 

@@ -44,13 +44,13 @@
      return <CoreLayout>{children}</CoreLayout>
    }
    ```
-4. **ایجاد `project/config/core-override.ts`** برای override کردن configs:
+4. **ویرایش `core/config/project-override.ts`** برای override کردن configs:
    ```typescript
    import type { CoreConfig } from '@/core/config/core-config';
    
    export const projectCoreConfig: CoreConfig = {
      metadata: { /* your metadata config */ },
-     hooks: { paths: ['@/project/hooks/auth'] },
+     hooks: { paths: ['@/core/hooks/auth'] },
      messages: { /* your messages config */ },
    };
    ```
@@ -104,7 +104,7 @@ Core از سیستم **Configuration Injection** استفاده می‌کند:
 1. کپی کردن فولدر `core/` به پروژه هدف
 2. بررسی conflict ها (نباید conflict داشته باشد - core مستقل است)
 3. تست در پروژه هدف
-4. اگر config جدید اضافه شده، آن را در `project/config/core-override.ts` اضافه کنید
+4. اگر config جدید اضافه شده، آن را در `core/config/project-override.ts` اضافه کنید
 
 ## Version
 

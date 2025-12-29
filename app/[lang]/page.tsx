@@ -2,10 +2,10 @@
 import type { Metadata } from "next";
 // import Script from "next/script";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANGUAGE_DATA, LANG_PARAMS, LANG } from "@/project/config/site";
+import { LANGUAGE_DATA, LANG_PARAMS, LANG } from "@/core/config/site";
 import { HOME_SEO_LANG, ROBOTS_ON } from "@/project/data/metadata/metadata";
 /* --- Components ------------------------------------------------------------------------------ */
-import HomeClient from "@/project/components/page/HomeClient";
+import HomeClient from "@/project/pages/HomeClient";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Locale Page Metadata ----------------------------------------- */
 export async function generateMetadata({ params }: LANG_PARAMS): Promise<Metadata> {

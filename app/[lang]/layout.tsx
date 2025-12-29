@@ -5,7 +5,7 @@ import { Font } from "@/core/lib/fonts";
 /* --- Components ------------------------------------------------------------------------------- */
 import Providers from "@/core/components/provider/Provider";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANGUAGE_DATA, LANG_PARAMS, LANG_CHILDREN_PARAMS, LANG } from "@/project/config/site";
+import { LANGUAGE_DATA, LANG_PARAMS, LANG_CHILDREN_PARAMS, LANG } from "@/core/config/site";
 import { BACE_SEO_LANG } from "@/project/data/metadata/metadata";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Locale Layout Metadata --------------------------------------- */

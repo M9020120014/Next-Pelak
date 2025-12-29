@@ -6,6 +6,23 @@ export type SecurityEventType =
   | 'csrf_violation'
   | 'xss_attempt'
 
+/**
+ * Whitelist of static paths that should never be flagged as suspicious
+ * These are common static assets and manifest files
+ */
+const STATIC_PATH_PATTERNS = [
+  /^\/manifest\.webmanifest$/i,
+  /^\/manifest\.json$/i,
+  /^\/favicon\.(ico|png|svg)$/i,
+  /^\/robots\.txt$/i,
+  /^\/sitemap\.xml$/i,
+  /^\/image\.(webp|jpg|jpeg|png|gif|svg)$/i,
+  /^\/logo\.(png|svg|jpg|jpeg|webp)$/i,
+  /^\/maskable\.png$/i,
+  /^\/_next\/static\//i,
+  /^\/_next\/image\//i,
+]
+
 const SUSPICIOUS_PATTERNS = [
   // Security scanning tools
   /sqlmap/i,
@@ -45,6 +62,13 @@ const SUSPICIOUS_PATTERNS = [
 import { getClientIP } from './utils'
 
 /**
+ * Helper function to check if a path is a static asset (whitelisted)
+ */
+function isStaticPath(path: string): boolean {
+  return STATIC_PATH_PATTERNS.some((pattern) => pattern.test(path))
+}
+
+/**
  * Helper function to check if a string matches any suspicious pattern
  */
 function matchesSuspiciousPattern(text: string): boolean {
@@ -66,6 +90,28 @@ export function detectSuspiciousActivity(request: Request): Readonly<{
   const userAgent = request.headers.get('user-agent') || ''
   const referer = request.headers.get('referer') || ''
   const url = request.url || ''
+
+  // Extract pathname from URL for static path checking
+  let pathname = ''
+  try {
+    const urlObj = new URL(url)
+    pathname = urlObj.pathname
+  } catch {
+    // If URL parsing fails, use empty string
+    pathname = ''
+  }
+
+  // Skip suspicious activity check for static assets
+  // These are common files that should never be flagged
+  if (isStaticPath(pathname)) {
+    return {
+      check: false,
+      ip,
+      userAgent,
+      referer,
+      url,
+    }
+  }
 
   // Check all fields for suspicious patterns
   // If any field matches, return suspicious activity detected

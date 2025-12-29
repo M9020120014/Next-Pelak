@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 import { SECURITY_HEADERS } from "./core/config/security";
-import { IS_PRODUCTION } from "./core/config/env";
+import { IS_PRODUCTION } from "./core/config/env-merge";
 
 const nextConfig: NextConfig = {
   output: 'standalone',

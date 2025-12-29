@@ -26,10 +26,10 @@
 
 ### `/project` - کد خاص پروژه
 کدهای خاص پروژه که قابل شخصی‌سازی هستند:
-- `project/config/core-override.ts` - Override کردن core configs
-- `project/config/site.ts` - تنظیمات سایت
-- `project/hooks/` - Hook های خاص پروژه
-  - `project/hooks/auth.ts` - Hook های احراز هویت
+- `core/config/project-override.ts` - Override کردن core configs (بخشی از Core)
+- `core/config/site.ts` - تنظیمات سایت (بخشی از Core)
+- `core/hooks/` - Hook های Core
+  - `core/hooks/auth.ts` - Hook های احراز هویت (بخشی از Core)
 
 ## استفاده از سیستم کانفیگ
 
@@ -65,7 +65,7 @@ export const projectCoreConfig: CoreConfig = {
     themeColor: '#ffffff',
   },
   hooks: {
-    paths: ['@/project/hooks/auth'],
+    paths: ['@/core/hooks/auth'],
   },
   messages: {
     invalidPath: {
@@ -135,7 +135,7 @@ if (result.success) {
 Hooks به صورت خودکار در `app/layout.tsx` لود می‌شوند. شما فقط کافی است hooks خود را در `project/hooks/` ثبت کنید:
 
 ```typescript
-// در /project/hooks/auth.ts
+// در /core/hooks/auth.ts
 import { hookRegistry } from '@/lib/hooks'
 
 // این hook به صورت خودکار لود و اجرا می‌شود
@@ -156,7 +156,7 @@ hookRegistry.register('auth:after-login', async (user) => {
 #### 1. ارسال نوتیفیکیشن بعد از لاگین
 
 ```typescript
-// در /project/hooks/auth.ts
+// در /core/hooks/auth.ts
 hookRegistry.register('auth:after-login', async (user) => {
   // ارسال نوتیفیکیشن push
   await sendPushNotification(user.id, {
@@ -264,7 +264,7 @@ project/
 1. **کپی کردن `/core`** به پروژه جدید (کاملاً مستقل است)
 2. **اضافه کردن path alias** `@/core/*` به `tsconfig.json`
 3. **ایجاد `/project`** در پروژه جدید
-4. **ایجاد `project/config/core-override.ts`** برای override کردن configs
+4. **ویرایش `core/config/project-override.ts`** برای override کردن configs
 5. **ایجاد `app/layout.tsx`** که `setCoreConfig()` را فراخوانی می‌کند
 6. **ایجاد `middleware.ts` یا `proxy.ts` در root** که از core re-export می‌کند
 7. **به‌روزرسانی:** فقط `/core` را به‌روز کنید - project configs بدون تغییر باقی می‌مانند
@@ -272,8 +272,8 @@ project/
 ## نکات مهم
 
 1. **از `/lib` و `/config` اصلی استفاده کنید** - این فایل‌ها برای Next.js ضروری هستند
-2. **کانفیگ override ها را در `/project/config/override.ts` قرار دهید**
-3. **Hook های خاص پروژه را در `/project/hooks/` قرار دهید**
+2. **کانفیگ override ها در `/core/config/project-override-legacy.ts` قرار دارد**
+3. **Hook های Core در `/core/hooks/` قرار دارند**
 4. **برای اضافه کردن hook جدید، آن را در `/lib/hooks/index.ts` مستند کنید**
 5. **Hooks به صورت خودکار لود می‌شوند** - نیازی به import دستی نیست
 6. **Hooks باید non-blocking باشند** - از `runAsync` برای اجرای async استفاده می‌شود
@@ -375,7 +375,7 @@ export const projectCoreConfig: CoreConfig = {
     language: { default: 'en', list: { en: 'English' } },
   },
   hooks: {
-    paths: ['@/project/hooks/auth'],
+    paths: ['@/core/hooks/auth'],
   },
   messages: {
     invalidPath: { title: 'Invalid Path', message: 'Invalid path' },
@@ -412,7 +412,7 @@ export const config = proxyConfig
 ### مرحله 6: ایجاد Project Hooks
 
 ```typescript
-// new-project/project/hooks/auth.ts
+// new-project/core/hooks/auth.ts
 import { hookRegistry } from '@/core/lib/hooks'
 
 hookRegistry.register('auth:after-login', async (user) => {

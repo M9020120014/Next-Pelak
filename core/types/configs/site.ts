@@ -53,3 +53,4 @@ export type PageObjectType = {
 
 /* --- Page Map Type ----------------------------------------------- */
 export type PageMapType = MetadataRoute.Sitemap;
+

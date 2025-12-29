@@ -145,7 +145,7 @@ import type { CoreConfig } from '@/core/config/core-config';
 
 export const projectCoreConfig: CoreConfig = {
   metadata: { /* your config */ },
-  hooks: { paths: ['@/project/hooks/auth'] },
+  hooks: { paths: ['@/core/hooks/auth'] },
   messages: { /* your messages */ },
 };
 ```
@@ -205,7 +205,7 @@ export const config = {
 برای اضافه کردن منطق خاص پروژه:
 
 ```typescript
-// project/hooks/auth.ts
+// core/hooks/auth.ts
 import { hookRegistry } from '@/core/lib/hooks'
 
 hookRegistry.register('auth:after-login', async (user) => {

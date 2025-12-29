@@ -2,7 +2,7 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { MetadataRoute } from "next";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { SITE, SITE_LANG, LANGUAGE } from "@/project/config/site";
+import { SITE, SITE_LANG, LANGUAGE } from "@/core/config/site";
 /* --- Constants -------------------------------------------------------------------------------- */
 const defaultLang = LANGUAGE.default
 /* --- Functions -------------------------------------------------------------------------------- */

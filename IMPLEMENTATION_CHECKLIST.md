@@ -135,7 +135,7 @@ hookRegistry.register('auth:after-login', async (user) => {
 
 برای اضافه کردن منطق خاص پروژه:
 
-1. فایل `/project/hooks/auth.ts` را ویرایش کنید
+1. فایل `/core/hooks/auth.ts` را ویرایش کنید
 2. Hook های مورد نیاز را اضافه کنید
 
 **مثال**:

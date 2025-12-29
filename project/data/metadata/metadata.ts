@@ -2,7 +2,7 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { Metadata, Viewport } from "next";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { SITE, SITE_LANG, LANGUAGE_TYPE, LANGUAGE_DATA, LANGUAGE_LIST, LANGUAGE } from "@/project/config/site";
+import { SITE, SITE_LANG, LANGUAGE_TYPE, LANGUAGE_DATA, LANGUAGE_LIST, LANGUAGE } from "@/core/config/site";
 /* --- Robots ------------------------------------------------------- */
 /* --- Robots On -------------------- */
 export const ROBOTS_ON: Metadata = {

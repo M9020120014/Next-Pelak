@@ -1,10 +1,9 @@
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import "@/core/styles/globals.css";
 import type { Metadata, Viewport } from "next";
 import Security from "@/core/components/provider/Security";
 /* --- Config ----------------------------------------------------------------------------------- */
-import { NODE_ENV, validateServerEnv } from "@/core/config/env";
+import { IS_PRODUCTION, validateEnv } from "@/core/config/env-merge";
 import { getCoreConfig } from "@/core/config/core-config";
 import { createMetadataFromConfig, createViewportFromConfig } from "@/core/config/metadata";
 /* --- Hooks ------------------------------------------------------------------------------------ */
@@ -17,11 +16,11 @@ export const viewport: Viewport = createViewportFromConfig(coreConfig.metadata);
 // Validate environment variables at startup
 // This runs once per server instance
 try {
-  validateServerEnv();
+  validateEnv();
 } catch (error) {
   // In production, fail fast if environment is invalid
   // In development, log the error but allow the app to start
-  if (NODE_ENV === 'production') {
+  if (IS_PRODUCTION) {
     console.error('Environment validation failed:', error instanceof Error ? error.message : 'Unknown error');
     throw error;
   } else {

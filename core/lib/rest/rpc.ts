@@ -1,5 +1,5 @@
 // lib/rest/rpc.ts
-import { ENV } from '@/core/config/env'
+import { ENV } from '@/core/config/env-merge'
 import { REQUEST } from '@/core/config/security'
 import { validateURL } from '@/core/lib/security/ssrf-protection'
 import { getCacheOptions } from '@/core/lib/api/cache'

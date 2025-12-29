@@ -2,29 +2,35 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { COOKIE, TOKEN } from "@/core/config/security";
-import { ENV } from "@/core/config/env";
+import { ENV } from "@/core/config/env-merge";
 
-const REFRESH_TOKEN_COOKIE = ENV.REFRESH_TOKEN_COOKIE;
+/**
+ * Get refresh token cookie name
+ * Uses lazy evaluation to ensure ENV is initialized before access
+ */
+function getRefreshTokenCookieName(): string {
+  return ENV.REFRESH_TOKEN_COOKIE;
+}
 
 export async function setRefreshTokenCookie(token: string) {
   const cookieStore = await cookies();
-  cookieStore.set(REFRESH_TOKEN_COOKIE, token, {
+  cookieStore.set(getRefreshTokenCookieName(), token, {
     ...COOKIE.REFRESH_TOKEN,
   });
 }
 
 export async function getRefreshTokenCookie(): Promise<string | undefined> {
   const cookieStore = await cookies();
-  return cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
+  return cookieStore.get(getRefreshTokenCookieName())?.value;
 }
 
 export function clearRefreshTokenCookie<T>(response: NextResponse<T>) {
-  response.cookies.delete(REFRESH_TOKEN_COOKIE);
+  response.cookies.delete(getRefreshTokenCookieName());
   return response;
 }
 
 export function setRefreshTokenInResponse<T>(response: NextResponse<T>, token: string) {
-  response.cookies.set(REFRESH_TOKEN_COOKIE, token, {
+  response.cookies.set(getRefreshTokenCookieName(), token, {
     ...COOKIE.REFRESH_TOKEN,
   });
   return response;

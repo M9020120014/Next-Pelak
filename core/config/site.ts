@@ -2,9 +2,9 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import { notFound } from "next/navigation";
 /* --- Types ------------------------------------------------------------------------------------ */
-import type { LanguageMap, LanguageObject, ConfigSiteLangObject, ConfigSiteObject, PageObjectType } from "@/project/types/configs/site";
+import type { LanguageMap, LanguageObject, ConfigSiteLangObject, ConfigSiteObject, PageObjectType } from "@/core/types/configs/site";
 /* --- Lib -------------------------------------------------------------------------------------- */
-import { ENV } from "@/core/config/env";
+import { ENV } from "@/core/config/env-merge";
 /* --- Constants -------------------------------------------------------------------------------- */
 const BASE_URL = ENV.NEXT_PUBLIC_BASE_URL;
 /* --- Language ----------------------------------------------------- */
@@ -185,3 +185,4 @@ export const HOME_MAP = {
     ],
   }
 } as const satisfies PageObjectType
+

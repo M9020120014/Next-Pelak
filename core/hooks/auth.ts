@@ -1,5 +1,6 @@
-/* --- Project-specific Auth Hooks --------------------------------------------------------------- */
+/* --- Core Auth Hooks Example --------------------------------------------------------------- */
 /* Example hooks for authentication events */
+/* This file demonstrates how to register hooks for authentication events */
 
 import { hookRegistry } from '@/core/lib/hooks'
 
@@ -29,4 +30,5 @@ hookRegistry.register('auth:token-refresh', async (userId, ip) => {
   console.log('Token refreshed for user:', userId, 'from IP:', ip)
   // Add your custom logic here
 })
+
 

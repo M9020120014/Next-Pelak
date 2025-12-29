@@ -1,5 +1,5 @@
 import React from "react";
-import { LANG_PARAMS, LANG } from "@/project/config/site";
+import { LANG_PARAMS, LANG } from "@/core/config/site";
 import { getIDeviceToken } from "@/core/lib/token/idevice";
 import LoginComponent from "@/core/components/auth/login";
 

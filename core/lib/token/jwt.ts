@@ -1,7 +1,7 @@
 // /lib/token/jwt.ts
 import { createHmac, timingSafeEqual } from "crypto";
 import { TOKEN } from "@/core/config/security";
-import { ENV } from "@/core/config/env";
+import { ENV } from "@/core/config/env-merge";
 
 /**
  * Get JWT secret with runtime validation

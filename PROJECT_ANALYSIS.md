@@ -2,6 +2,8 @@
 
 این مستند شامل تحلیل و بررسی کامل ساختار پروژه Next-Pelak با تمام جزئیات فنی است.
 
+> **⚠️ نکته مهم**: فایل‌های موجود در `project/config/` (شامل `core-override.ts`, `site.ts`, و `override.ts`) بخشی از سیستم Core هستند و باید همراه با core در پروژه‌های جدید کپی شوند.
+
 ---
 
 ## 1. نمای کلی پروژه
@@ -28,9 +30,16 @@ Next-Pelak یک سیستم مدیریت محتوا (CMS) کامل و قابل ا
 
 ### ساختار سه‌لایه:
 
-1. **Core Layer** (`/core`): کدهای مستقل و قابل استفاده مجدد
+1. **Core Layer** (`/core` + `project/config/*`): کدهای مستقل و قابل استفاده مجدد
+   - شامل فایل‌های config در `project/config/` که بخشی از Core هستند
 2. **Project Layer** (`/project`): کدهای خاص پروژه و overrideها
+   - شامل hooks، components، و data های خاص پروژه
 3. **App Layer** (`/app`): ساختار Next.js و wrapper files
+
+**نکته مهم**: فایل‌های config که قبلاً در `project/config/` بودند، اکنون به `core/config/` منتقل شده‌اند:
+- `core/config/project-override.ts` (قبلاً `project/config/core-override.ts`)
+- `core/config/site.ts` (قبلاً `project/config/site.ts`)
+- `core/config/project-override-legacy.ts` (قبلاً `project/config/override.ts`)
 
 ### نمودار معماری:
 
@@ -126,6 +135,11 @@ core/
 │   ├── messages.ts        # Messages config
 │   ├── security.ts        # Security config
 │   └── env.ts             # Environment variables
+│
+⚠️ نکته: فایل‌های config در core/config/ هستند:
+│   core/config/project-override.ts         # Core Config Override
+│   core/config/site.ts                    # Site Configuration
+│   core/config/project-override-legacy.ts  # Legacy Override
 ├── app/                   # ساختار Next.js پایه
 │   ├── layout.tsx         # Base Layout
 │   └── api/               # API Routes
@@ -182,12 +196,8 @@ core/
 
 ```
 project/
-├── config/
-│   ├── core-override.ts   # Override Core Configs
-│   ├── override.ts        # Legacy override (optional)
-│   └── site.ts            # Site configuration
 ├── hooks/
-│   └── auth.ts            # Hook های احراز هویت
+│   └── auth.ts            # Hook های احراز هویت (خاص پروژه)
 ├── components/
 │   └── page/
 │       ├── DashboardClient.tsx
@@ -200,6 +210,8 @@ project/
     └── configs/
         └── site.ts
 ```
+
+**نکته**: فایل‌های config که قبلاً در `project/config/` بودند، اکنون به `core/config/` منتقل شده‌اند و بخشی از Core هستند.
 
 ### 3.3. App Directory (`/app`)
 
@@ -246,10 +258,19 @@ app/
 
 پروژه از الگوی **Configuration Injection** استفاده می‌کند که اجازه می‌دهد پروژه‌ها configs را override کنند بدون تغییر در core.
 
+**نکته مهم**: فایل‌های config در `core/config/` هستند:
+- `project-override.ts`: فایل اصلی برای override کردن Core Configs (قبلاً `project/config/core-override.ts`)
+- `site.ts`: تنظیمات سایت که در project-override استفاده می‌شود (قبلاً `project/config/site.ts`)
+- `project-override-legacy.ts`: Legacy override (قبلاً `project/config/override.ts`)
+
+این فایل‌ها بخشی از ساختار Core هستند و همراه با core منتقل می‌شوند.
+
 ### جریان Configuration:
 
 ```
-1. Project Config (project/config/core-override.ts)
+1. Project Config (core/config/project-override.ts)
+   ├─ Import from core/config/site.ts
+   └─ Import from core/config/project-override-legacy.ts (optional)
    ↓
 2. app/layout.tsx → setCoreConfig(projectCoreConfig)
    ↓
@@ -275,9 +296,17 @@ interface CoreConfig {
 - `getCoreConfig()`: دریافت config با merge defaults
 - `resetCoreConfig()`: ریست config (برای testing)
 
-#### Project Config (`project/config/core-override.ts`):
+#### Project Config (`core/config/project-override.ts`):
 - `projectCoreConfig`: Config خاص پروژه
 - Override کردن metadata, hooks, messages
+- **بخشی از سیستم Core**: این فایل همراه با core منتقل می‌شود
+
+#### فایل‌های مرتبط با Core Config:
+- `core/config/site.ts`: تنظیمات سایت (زبان‌ها، metadata، theme)
+- `core/config/project-override-legacy.ts`: Legacy override برای routes (اختیاری)
+- `core/types/configs/site.ts`: Type definitions برای site config
+
+**نکته**: این فایل‌ها در `core/config/` و `core/types/` قرار دارند و بخشی از سیستم Core هستند.
 
 ---
 
@@ -502,7 +531,7 @@ Layer 4: Database Functions
 سیستم Hook برای افزودن منطق خاص پروژه بدون تغییر در core:
 
 ```
-Hook Registration (project/hooks/auth.ts)
+Hook Registration (core/hooks/auth.ts)
     ↓
 Hook Registry (core/lib/hooks/registry.ts)
     ↓
@@ -525,7 +554,7 @@ Execute in API Routes
 ### 7.3. Hook Registration
 
 ```typescript
-// project/hooks/auth.ts
+// core/hooks/auth.ts (example hooks)
 import { hookRegistry } from '@/core/lib/hooks'
 
 hookRegistry.register('auth:after-login', async (user) => {
@@ -860,6 +889,10 @@ app/[lang]/
 
 - ✅ Core کاملاً مستقل است
 - ✅ هیچ وابستگی به `/project` ندارد
+- ✅ **فایل‌های config در `core/config/` هستند**:
+  - `core/config/project-override.ts` - Core Config Override
+  - `core/config/site.ts` - Site Configuration
+  - `core/config/project-override-legacy.ts` - Legacy Override
 - ✅ قابل کپی به پروژه‌های جدید
 - ✅ Config injection برای customization
 
@@ -909,11 +942,16 @@ app/[lang]/
 
 ### Project Files:
 
-| فایل | کاربرد |
-|------|--------|
-| `project/config/core-override.ts` | Project config |
-| `project/hooks/auth.ts` | Project hooks |
-| `project/components/page/*.tsx` | Page components |
+| فایل | کاربرد | نوع |
+|------|--------|-----|
+| `core/config/project-override.ts` | Core Config Override | بخشی از Core |
+| `core/config/site.ts` | Site Configuration | بخشی از Core |
+| `core/config/project-override-legacy.ts` | Legacy Override | بخشی از Core |
+| `core/types/configs/site.ts` | Site Types | بخشی از Core |
+| `core/hooks/auth.ts` | Core hooks example | بخشی از Core |
+| `project/components/page/*.tsx` | Page components | خاص پروژه |
+
+**نکته**: فایل‌های config اکنون در `core/config/` هستند و بخشی از سیستم Core محسوب می‌شوند.
 
 ### App Files:
 
@@ -1029,17 +1067,45 @@ app/[lang]/
 ### استفاده از Core در پروژه جدید:
 
 1. **کپی Core**: `cp -r core/ new-project/`
+   - شامل `core/config/project-override.ts`, `core/config/site.ts` و `core/types/configs/site.ts`
 2. **تنظیم TypeScript**: اضافه کردن path aliases
-3. **ایجاد Project Config**: `project/config/core-override.ts`
-4. **ایجاد App Layout**: تنظیم config در `app/layout.tsx`
+3. **تنظیم Project Config**: ویرایش `core/config/project-override.ts` و `core/config/site.ts`
+4. **ایجاد App Layout**: تنظیم config در `app/layout.tsx` با import از `@/core/config/project-override`
 5. **ایجاد Proxy**: re-export از `core/proxy.ts`
-6. **ایجاد Hooks**: `project/hooks/auth.ts`
+6. **Hooks**: فایل `core/hooks/auth.ts` به صورت پیش‌فرض وجود دارد (می‌توانید آن را ویرایش کنید)
 
 برای جزئیات بیشتر، به [ARCHITECTURE.md](ARCHITECTURE.md) مراجعه کنید.
 
 ---
 
-## 18. مستندات مرتبط
+## 18. سوالات متداول (FAQ)
+
+### چرا فایل‌های config در `core/config/` هستند؟
+
+فایل‌های config برای override کردن تنظیمات Core استفاده می‌شوند و بخشی از ساختار Core محسوب می‌شوند. این فایل‌ها از `project/config/` به `core/config/` منتقل شده‌اند:
+
+- **`core/config/project-override.ts`**: فایل اصلی برای override کردن Core Configs (قبلاً `project/config/core-override.ts`)
+- **`core/config/site.ts`**: تنظیمات سایت (زبان‌ها، metadata، theme) که در project-override استفاده می‌شود
+- **`core/config/project-override-legacy.ts`**: Legacy override برای routes (قبلاً `project/config/override.ts`)
+
+این فایل‌ها همراه با core منتقل می‌شوند و بخشی از ساختار Core هستند.
+
+### تفاوت بین Core و Project چیست؟
+
+- **Core** (`/core` شامل `core/config/*`): کدهای مستقل و قابل استفاده مجدد
+- **Project** (`/project`): کدهای خاص پروژه (hooks، components، data)
+
+### چگونه Core را به پروژه جدید منتقل کنیم؟
+
+1. کپی کردن `/core` به پروژه جدید (شامل تمام فایل‌های config)
+2. تنظیم TypeScript paths
+3. ویرایش `core/config/project-override.ts` و `core/config/site.ts`
+4. ایجاد `app/layout.tsx` با import از `@/core/config/project-override`
+5. تنظیم config در `app/layout.tsx`
+
+---
+
+## 19. مستندات مرتبط
 
 - [README.md](README.md) - راهنمای کلی پروژه
 - [ARCHITECTURE.md](ARCHITECTURE.md) - راهنمای معماری و استفاده

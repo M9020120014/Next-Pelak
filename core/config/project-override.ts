@@ -31,7 +31,7 @@ const projectMetadataConfig: MetadataConfig<LANGUAGE_TYPE> = {
 
 /* --- Project Hooks Configuration -------------------------------------------------------------- */
 const projectHooksConfig: HooksConfig = {
-  paths: ['@/project/hooks/auth'], // Add more hook paths as needed
+  paths: ['@/core/hooks/auth'], // Add more hook paths as needed
   enableAutoDiscovery: false,
   discoveryBasePath: undefined,
 };
@@ -59,4 +59,5 @@ export const projectCoreConfig: CoreConfig = {
   hooks: projectHooksConfig,
   messages: projectMessagesConfig,
 };
+
 

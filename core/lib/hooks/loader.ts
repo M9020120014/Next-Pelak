@@ -20,7 +20,7 @@ export async function loadProjectHooks(): Promise<void> {
   // If no paths configured, try default path for backward compatibility
   const pathsToLoad = hookPaths.length > 0 
     ? hookPaths 
-    : ['@/project/hooks/auth']; // Default for backward compatibility
+    : ['@/core/hooks/auth']; // Default for backward compatibility
   
   for (const path of pathsToLoad) {
     try {
@@ -55,7 +55,7 @@ export function loadProjectHooksSync(): void {
   // If no paths configured, try default path for backward compatibility
   const pathsToLoad = hookPaths.length > 0 
     ? hookPaths 
-    : ['@/project/hooks/auth']; // Default for backward compatibility
+    : ['@/core/hooks/auth']; // Default for backward compatibility
   
   for (const path of pathsToLoad) {
     try {

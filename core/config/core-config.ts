@@ -1,6 +1,6 @@
 /* --- Core Configuration Interface ------------------------------------------------------------- */
 /* This file provides the main configuration interface for the core module */
-/* Projects can override these configurations via project/config/core-override.ts */
+/* Projects can override these configurations via core/config/project-override.ts */
 
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { MetadataConfig } from './metadata';

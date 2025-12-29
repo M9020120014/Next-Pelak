@@ -1,7 +1,7 @@
 // /app/[lang]/(admin)/profile/page.tsx
-import { LANG_PARAMS, LANG } from '@/project/config/site'
+import { LANG_PARAMS, LANG } from '@/core/config/site'
 import { getIDeviceToken } from '@/core/lib/token/idevice'
-import ProfileClient from '@/project/components/page/ProfileClient'
+import ProfileClient from '@/project/pages/ProfileClient'
 
 export default async function ProfilePage({ params }: LANG_PARAMS) {
   await LANG(params)

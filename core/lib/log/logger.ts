@@ -1,5 +1,5 @@
 
-import { ENV, IS_DEVELOPMENT, IS_PRODUCTION } from '@/core/config/env'
+import { ENV, IS_DEVELOPMENT, IS_PRODUCTION } from '@/core/config/env-merge'
 
 const BASE_URL = ENV.NEXT_PUBLIC_BASE_URL
 

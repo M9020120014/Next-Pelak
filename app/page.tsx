@@ -2,7 +2,7 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import { Metadata } from 'next';
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANGUAGE } from "@/project/config/site";
+import { LANGUAGE } from "@/core/config/site";
 import { HOME_SEO_LANG, ROBOTS_ON } from "@/project/data/metadata/metadata";
 import Link from 'next/link';
 /* --- Constants -------------------------------------------------------------------------------- */
