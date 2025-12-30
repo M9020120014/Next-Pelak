@@ -3,8 +3,9 @@
 /**
  * Hook callback function type
  * Can be async or sync
+ * Uses unknown[] for args and unknown for return value for type safety
  */
-export type HookCallback = (...args: any[]) => Promise<any> | any
+export type HookCallback = (...args: unknown[]) => Promise<unknown> | unknown
 
 /**
  * Hook registry interface
@@ -19,7 +20,7 @@ export interface HookRegistry {
  */
 export interface HookResult {
   success: boolean
-  results?: any[]
+  results?: unknown[]
   errors?: Error[]
 }
 

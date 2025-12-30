@@ -12,6 +12,7 @@ import { ERROR_MESSAGES } from "@/core/lib/api/error-messages";
 import { withErrorHandlingAndTracking } from "@/core/lib/performance/monitoring";
 import { hookRegistry } from "@/core/lib/hooks";
 import { runAsync } from "@/core/lib/utils/async";
+import { logError } from "@/core/lib/log/logger-utils";
 
 async function POSTHandler(request: NextRequest) {
     // Security validation
@@ -100,7 +101,7 @@ async function POSTHandler(request: NextRequest) {
         await hookRegistry.execute('auth:token-refresh', userData.id, clientIP);
       } catch (error) {
         // Silently fail - hooks shouldn't break the refresh flow
-        console.error('Error executing auth:token-refresh hooks:', error);
+        logError('Error executing auth:token-refresh hooks', error, '/api/auth/refresh');
       }
     });
 

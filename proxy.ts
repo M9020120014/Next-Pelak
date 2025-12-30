@@ -2,7 +2,6 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 /* Import and re-export proxy from core */
 /* Next.js requires middleware.ts (or proxy.ts) to be in root, so we import from core/proxy */
-import type { NextRequest } from 'next/server'
 import coreProxy from '@/core/proxy'
 
 /* --- Proxy Function --------------------------------------------------------------------------- */

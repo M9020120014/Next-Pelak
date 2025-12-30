@@ -11,12 +11,16 @@ export const PROJECT_ENV = {
   ZARINPAL_API_URL: getEnvVar('ZARINPAL_API_URL', ''),
   ZARINPAL_MERCHANT_ID: getEnvVar('ZARINPAL_MERCHANT_ID', ''),
   ZARINPAL_CALLBACK_URL: getEnvVar('ZARINPAL_CALLBACK_URL', ''),
+  SSS_OBJECT: getEnvVar('SSS_OBJECT', ''),
+  SSS_URL: getEnvVar('SSS_URL', ''),
 } as const
 
 export const requiredProjectVars: Array<{ key: keyof typeof PROJECT_ENV; message?: string }> = [
   { key: 'ZARINPAL_API_URL', message: 'Zarinpal Api Url is required for production' },
   { key: 'ZARINPAL_MERCHANT_ID', message: 'Zarinpal Merchant Id is required for production' },
   { key: 'ZARINPAL_CALLBACK_URL', message: 'Callback is required for production' },
+  { key: 'SSS_OBJECT', message: 'SSS Object is required for production' },
+  { key: 'SSS_URL', message: 'SSS Url is required for production' },
 ]
 
 /**
@@ -52,6 +56,14 @@ export function validateProjectEnv(): EnvValidationResult {
     if (!uuidRegex.test(PROJECT_ENV.ZARINPAL_MERCHANT_ID)) {
       errors.push('ZARINPAL_MERCHANT_ID must be a valid UUID format')
     }
+  }
+
+  if (PROJECT_ENV.SSS_OBJECT && !PROJECT_ENV.SSS_OBJECT.startsWith('http')) {
+    errors.push('SSS_OBJECT must be a valid URL starting with http:// or https://')
+  }
+
+  if (PROJECT_ENV.SSS_URL && !PROJECT_ENV.SSS_URL.startsWith('http')) {
+    errors.push('SSS_URL must be a valid URL starting with http:// or https://')
   }
 
   const valid = missing.length === 0 && errors.length === 0

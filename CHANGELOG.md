@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.2] - 2025-12-29
 
+- Refactor logging and enhance hook management
 - Integrate PostHog analytics and enhance security configurations
 - Refactor project structure and update configuration paths
 - Improve logout process and enhance error handling

@@ -12,7 +12,7 @@ interface DashboardClientProps {
   lang: string
 }
 
-export default function DashboardClient({ iDevice, lang }: DashboardClientProps) {
+export default function DashboardClient({ iDevice, lang: _lang }: DashboardClientProps) {
   const { authState, error, refreshAccessToken, logout } = useAuth(iDevice)
   const [retrying, setRetrying] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)

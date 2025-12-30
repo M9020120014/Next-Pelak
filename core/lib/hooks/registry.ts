@@ -36,14 +36,14 @@ class HookRegistryClass {
    * @param args - Arguments to pass to callbacks
    * @returns Promise resolving to hook execution result
    */
-  async execute(hookName: string, ...args: any[]): Promise<HookResult> {
+  async execute(hookName: string, ...args: unknown[]): Promise<HookResult> {
     const callbacks = this.hooks[hookName] || []
     
     if (callbacks.length === 0) {
       return { success: true, results: [] }
     }
 
-    const results: any[] = []
+    const results: unknown[] = []
     const errors: Error[] = []
 
     for (const callback of callbacks) {

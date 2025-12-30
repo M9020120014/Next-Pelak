@@ -3,7 +3,7 @@
 
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { getAccessToken, setAccessToken, clearAccessToken, isTokenExpired } from './token-manager'
 import { useSecurity } from '@/core/components/security/SecurityProvider'
@@ -67,6 +67,9 @@ export function useAuth(iDevice: string): UseAuthReturn {
   const router = useRouter()
   const { csrfToken } = useSecurity()
 
+  // Use ref to allow recursive calls without dependency issues
+  const refreshAccessTokenRef = useRef<((retryCount?: number) => Promise<boolean>) | null>(null)
+
   /**
    * Refresh access token using refresh token from cookie
    * Automatically attempts to get a new access token when the current one is missing or expired
@@ -118,8 +121,7 @@ export function useAuth(iDevice: string): UseAuthReturn {
             const delayMs = Math.pow(2, retryCount) * 1000
             await sleep(delayMs)
             // Retry without clearing token
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-            return refreshAccessToken(retryCount + 1)
+            return refreshAccessTokenRef.current?.(retryCount + 1) ?? false
           } else {
             // All retries failed - keep token but set error state
             setError({ 
@@ -166,8 +168,7 @@ export function useAuth(iDevice: string): UseAuthReturn {
         const delayMs = Math.pow(2, retryCount) * 1000
         await sleep(delayMs)
         // Retry without clearing token
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        return refreshAccessToken(retryCount + 1)
+        return refreshAccessTokenRef.current?.(retryCount + 1) ?? false
       } else {
         // All retries failed or non-transient error - keep token but set error state
         setError({ 
@@ -179,6 +180,11 @@ export function useAuth(iDevice: string): UseAuthReturn {
       }
     }
   }, [iDevice, csrfToken])
+
+  // Store the function in ref for recursive calls (use effect to avoid render-time ref update)
+  useEffect(() => {
+    refreshAccessTokenRef.current = refreshAccessToken
+  }, [refreshAccessToken])
 
   /**
    * Get valid access token, refreshing if necessary

@@ -4,6 +4,9 @@
 /* --- Config ----------------------------------------------------------------------------------- */
 import { getCoreConfig } from '@/core/config/core-config';
 import { mergeHookPaths } from '@/core/config/hooks';
+import { IS_DEVELOPMENT } from '@/core/config/env-merge';
+/* --- Lib -------------------------------------------------------------------------------------- */
+import { logInfo, logError } from '@/core/lib/log/logger-utils';
 
 /**
  * Load project-specific hooks from configured paths
@@ -32,12 +35,12 @@ export async function loadProjectHooks(): Promise<void> {
       // This allows the base system to work without project-specific hooks
       if (error instanceof Error && error.message.includes('Cannot find module')) {
         // Hook file doesn't exist - this is fine, just log for debugging
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`[Hooks Loader] Hook file not found: ${path} - this is optional`)
+        if (IS_DEVELOPMENT) {
+          logInfo(`Hook file not found: ${path} - this is optional`, undefined, 'Hooks Loader')
         }
       } else {
         // Other errors should be logged
-        console.error(`[Hooks Loader] Error loading hook from ${path}:`, error)
+        logError(`Error loading hook from ${path}`, error, 'Hooks Loader')
       }
     }
   }
@@ -61,7 +64,6 @@ export function loadProjectHooksSync(): void {
     try {
       // In server-side code, we use dynamic import for synchronous-like loading
       // Using void to fire-and-forget the promise
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       void import(path).catch(() => {
         // Silently fail - hooks are optional
       })
@@ -69,11 +71,11 @@ export function loadProjectHooksSync(): void {
       // If hook file doesn't exist, that's okay
       if (error instanceof Error && error.message.includes('Cannot find module')) {
         // Hook file doesn't exist - this is fine
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`[Hooks Loader] Hook file not found: ${path} - this is optional`)
+        if (IS_DEVELOPMENT) {
+          logInfo(`Hook file not found: ${path} - this is optional`, undefined, 'Hooks Loader')
         }
       } else {
-        console.error(`[Hooks Loader] Error loading hook from ${path}:`, error)
+        logError(`Error loading hook from ${path}`, error, 'Hooks Loader')
       }
     }
   }

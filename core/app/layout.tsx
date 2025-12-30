@@ -8,6 +8,8 @@ import { getCoreConfig } from "@/core/config/core-config";
 import { createMetadataFromConfig, createViewportFromConfig } from "@/core/config/metadata";
 /* --- Hooks ------------------------------------------------------------------------------------ */
 import { loadProjectHooksSync } from "@/core/lib/hooks/loader";
+/* --- Lib -------------------------------------------------------------------------------------- */
+import { logError, logWarn } from "@/core/lib/log/logger-utils";
 /* --- Constants -------------------------------------------------------------------------------- */
 // Get configuration - will use defaults if not set by project
 const coreConfig = getCoreConfig();
@@ -21,10 +23,10 @@ try {
   // In production, fail fast if environment is invalid
   // In development, log the error but allow the app to start
   if (IS_PRODUCTION) {
-    console.error('Environment validation failed:', error instanceof Error ? error.message : 'Unknown error');
+    logError('Environment validation failed', error, 'app/layout');
     throw error;
   } else {
-    console.warn('Environment validation warning:', error instanceof Error ? error.message : 'Unknown error');
+    logWarn('Environment validation warning', { error: error instanceof Error ? error.message : 'Unknown error' }, 'app/layout');
   }
 }
 

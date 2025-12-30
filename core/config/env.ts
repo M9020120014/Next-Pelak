@@ -48,6 +48,9 @@ export const CORE_ENV = {
   // PostHog Analytics Configuration
   NEXT_PUBLIC_POSTHOG_KEY: getEnvVar('NEXT_PUBLIC_POSTHOG_KEY', ''),
   NEXT_PUBLIC_POSTHOG_HOST: getEnvVar('NEXT_PUBLIC_POSTHOG_HOST', ''),
+  
+  // Hooks Configuration
+  CORE_HOOKS_PATHS: getEnvVar('CORE_HOOKS_PATHS', ''),
 } as const
 
 export const requiredCoreVars: Array<{ key: keyof typeof CORE_ENV; message?: string }> = [

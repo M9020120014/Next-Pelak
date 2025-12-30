@@ -9,6 +9,7 @@ import { successResponse } from "@/core/lib/api/response";
 import { withErrorHandlingAndTracking } from "@/core/lib/performance/monitoring";
 import { runAsync } from "@/core/lib/utils/async";
 import { hookRegistry } from "@/core/lib/hooks";
+import { logError, logWarn } from "@/core/lib/log/logger-utils";
 
 async function POSTHandler(request: NextRequest) {
     // Security validation
@@ -36,7 +37,7 @@ async function POSTHandler(request: NextRequest) {
           await hookRegistry.execute('auth:before-logout', userId);
         } catch (error) {
           // Silently fail - hooks shouldn't break the logout flow
-          console.error('Error executing auth:before-logout hooks:', error);
+          logError('Error executing auth:before-logout hooks', error, '/api/auth/logout');
         }
       });
     }
@@ -52,20 +53,20 @@ async function POSTHandler(request: NextRequest) {
       if (!revokeResult.success) {
         // Log error but continue with logout - token will be cleared from cookie anyway
         // This ensures logout completes even if database call fails
-        console.error('Failed to revoke token from database:', {
+        logError('Failed to revoke token from database', undefined, '/api/auth/logout', {
           title: revokeResult.title,
           message: revokeResult.message,
-          userId,
+          userId: String(userId),
           iDevice,
         });
       }
     } else {
       // Log warning if we don't have required data for revoking token
-      console.warn('Cannot revoke token from database - missing required data:', {
-        hasUserId: !!userId,
-        hasIDevice: !!iDevice,
-        iDeviceValue: iDevice,
-      });
+      logWarn('Cannot revoke token from database - missing required data', {
+        hasUserId: String(!!userId),
+        hasIDevice: String(!!iDevice),
+        iDeviceValue: iDevice || 'unknown',
+      }, '/api/auth/logout');
     }
 
     // Clear refresh token cookie (only after revoking from database)
@@ -86,7 +87,7 @@ async function POSTHandler(request: NextRequest) {
           await hookRegistry.execute('auth:after-logout', userId);
         } catch (error) {
           // Silently fail - hooks shouldn't break the logout flow
-          console.error('Error executing auth:after-logout hooks:', error);
+          logError('Error executing auth:after-logout hooks', error, '/api/auth/logout');
         }
       });
     }

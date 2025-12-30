@@ -14,6 +14,7 @@ import { checkBruteForce, recordFailedAttempt } from "@/core/lib/security/brute-
 import { runAsync } from "@/core/lib/utils/async";
 import { withErrorHandlingAndTracking } from "@/core/lib/performance/monitoring";
 import { hookRegistry } from "@/core/lib/hooks";
+import { logError } from "@/core/lib/log/logger-utils";
 
 async function POSTHandler(request: NextRequest) {
     // Security validation
@@ -123,7 +124,7 @@ async function POSTHandler(request: NextRequest) {
         });
       } catch (error) {
         // Silently fail - hooks shouldn't break the login flow
-        console.error('Error executing auth:after-login hooks:', error);
+        logError('Error executing auth:after-login hooks', error, '/api/auth/login');
       }
     });
 

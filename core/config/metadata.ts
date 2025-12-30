@@ -3,6 +3,8 @@
 
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { Metadata, Viewport } from "next";
+/* --- Config ----------------------------------------------------------------------------------- */
+import { ENV } from "@/core/config/env-merge";
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { 
   ROBOTS_ON, 
@@ -42,7 +44,7 @@ export interface MetadataConfig<T extends string = string> {
 export const defaultMetadataConfig: MetadataConfig = {
   site: {
     Data: {
-      url: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+      url: ENV.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
       appName: 'Next.js App',
       logo: '/logo.png',
       googleVerification: '',

@@ -4,7 +4,9 @@
 import { useEffect } from 'react'
 import posthog from 'posthog-js'
 /* --- Config ----------------------------------------------------------------------------------- */
-import { ENV } from '@/core/config/env-merge'
+import { ENV, IS_DEVELOPMENT } from '@/core/config/env-merge'
+/* --- Lib -------------------------------------------------------------------------------------- */
+import { logInfo } from '@/core/lib/log/logger-utils'
 
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- PostHog Provider ------------------------------------------- */
@@ -21,39 +23,31 @@ export default function PostHogProvider({ children }: Readonly<{ children: React
 
     // Initialize PostHog
     if (typeof window !== 'undefined') {
-      posthog.init(posthogKey, {
-        api_host: posthogHost,
-        // Enable autocapture for better analytics
-        autocapture: true,
-        // Capture pageviews automatically
-        capture_pageview: true,
-        // Capture pageleaves
-        capture_pageleave: true,
-        // Load PostHog script asynchronously
-        loaded: (posthog) => {
-          if (process.env.NODE_ENV === 'development') {
-            console.log('PostHog initialized')
-          }
-        },
-      })
-    }
-
-    // Cleanup function
-    return () => {
-      if (typeof window !== 'undefined') {
-        try {
-          // Only shutdown if PostHog is initialized
-          if (posthog && typeof posthog.shutdown === 'function') {
-            posthog.shutdown()
-          }
-        } catch (error) {
-          // Silently fail if shutdown fails
-          if (process.env.NODE_ENV === 'development') {
-            console.warn('PostHog shutdown error:', error)
-          }
-        }
+      // Only initialize if not already initialized
+      // Use type assertion to access internal __loaded property
+      const isLoaded = (posthog as { __loaded?: boolean }).__loaded
+      if (!isLoaded) {
+        posthog.init(posthogKey, {
+          api_host: posthogHost,
+          // Enable autocapture for better analytics
+          autocapture: true,
+          // Capture pageviews automatically
+          capture_pageview: true,
+          // Capture pageleaves
+          capture_pageleave: true,
+          // Load PostHog script asynchronously
+          loaded: (_posthogInstance) => {
+            if (IS_DEVELOPMENT) {
+              logInfo('PostHog initialized', undefined, 'PostHogProvider')
+            }
+          },
+        })
       }
     }
+
+    // Note: PostHog is a singleton and should not be shutdown
+    // It will remain active for the entire application lifecycle
+    // No cleanup function needed
   }, [])
 
   return <>{children}</>

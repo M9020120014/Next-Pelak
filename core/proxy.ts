@@ -198,7 +198,9 @@ export default async function proxy(
     "manifest-src 'self'"
   ].join('; ')
 
-  !IS_DEVELOPMENT && response.headers.set('Content-Security-Policy', cspHeader)
+  if (!IS_DEVELOPMENT) {
+    response.headers.set('Content-Security-Policy', cspHeader)
+  }
 
   if (check) {
     // Log security event (non-blocking)

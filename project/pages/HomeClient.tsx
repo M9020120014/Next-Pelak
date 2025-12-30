@@ -17,17 +17,29 @@ export default function HomeClient({ lang, otherLanguages }: HomeClientProps) {
 
   useEffect(() => {
     // Check authentication status
-    const token = getAccessToken()
-    
-    if (token && !isTokenExpired(token)) {
-      // Token exists and is valid - decode to get mobile
-      const payload = decodeTokenPayload(token)
-      if (payload) {
-        setMobile(payload.mobile)
+    // Extract logic to avoid synchronous setState calls
+    const checkAuth = () => {
+      const token = getAccessToken()
+      
+      if (token && !isTokenExpired(token)) {
+        // Token exists and is valid - decode to get mobile
+        const payload = decodeTokenPayload(token)
+        if (payload) {
+          return payload.mobile
+        }
       }
+      
+      return null
     }
-    
-    setIsLoading(false)
+
+    // Use setTimeout to defer state updates and avoid cascading renders
+    const timer = setTimeout(() => {
+      const mobileValue = checkAuth()
+      setMobile(mobileValue)
+      setIsLoading(false)
+    }, 0)
+
+    return () => clearTimeout(timer)
   }, [])
 
   if (isLoading) {
