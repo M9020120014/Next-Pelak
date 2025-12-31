@@ -3,13 +3,31 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSecurity } from "@/core/components/security/SecurityProvider";
+import { UI as P } from "@/core/components/ui/Pelak";
+import { normalize } from "@/core/lib/normalize";
 
 type Step = "mobile" | "otp" | "success";
 
 export default function LogoutAllComponent({
   iDevice,
   lang,
-  translator
+  translator = {
+    title: "Logout from All Devices",
+    mobileDescription: "Enter your mobile number",
+    otpDescription: "Enter the verification code sent to you",
+    mobilePlaceholder: "09123456789",
+    otpPlaceholder: "6-digit code",
+    continueButton: "Continue",
+    continueButtonLoading: "Sending...",
+    logoutButton: "Logout from All Devices",
+    logoutButtonLoading: "Logging out...",
+    successMessage: "Logged out from all devices",
+    redirecting: "Redirecting to login page...",
+    otpSent: "Verification code sent",
+    sendError: "Error sending code",
+    verifyError: "Invalid verification code",
+    serverError: "Server connection error",
+  }
 }: Readonly<{
   iDevice: string,
   lang: string,
@@ -35,7 +53,7 @@ export default function LogoutAllComponent({
     try {
       const res = await fetch("/api/auth/verification-user", {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "x-csrf-token": csrfToken
         },
@@ -65,7 +83,7 @@ export default function LogoutAllComponent({
     try {
       const res = await fetch("/api/auth/logout-all", {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "x-csrf-token": csrfToken
         },
@@ -88,80 +106,78 @@ export default function LogoutAllComponent({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full space-y-8">
+    <div className="h-screen w-full flex justify-center items-center">
+        <div className="max-w-md w-full flex flex-col gap-012-3">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">{translator.title}</h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <h2 className="text-H1 font-bold text-Text">{translator.title}</h2>
+          <p className="mt-008-2 text-B text-Mid">
             {step === "mobile" && translator.mobileDescription}
             {step === "otp" && translator.otpDescription}
           </p>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          <div className="bg-ErrorLight/10 border border-Error text-Error px-012-3 py-010-D rounded-md">
             {error}
           </div>
         )}
 
         {message && !error && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+          <div className="bg-SuccessLight/10 border border-Success text-Success px-012-3 py-010-D rounded-md">
             {message}
           </div>
         )}
 
         {/* مرحله موبایل */}
         {step === "mobile" && (
-          <form onSubmit={handleMobileSubmit} className="space-y-6">
-            <input
+          <form onSubmit={handleMobileSubmit} className="space-y-024-5">
+            <P.Input
+              Size="lg"
               type="text"
               value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
+              onChange={(e) => setMobile(normalize("mobile", e.target.value))}
               placeholder={translator.mobilePlaceholder}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               required
-              dir="ltr"
               inputMode="numeric"
             />
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <P.Button Size="lg" type="submit" className="w-full" disabled={loading}>
               {loading ? translator.continueButtonLoading : translator.continueButton}
-            </button>
+            </P.Button>
           </form>
         )}
 
         {/* مرحله OTP */}
         {step === "otp" && (
-          <form onSubmit={handleOtpSubmit} className="space-y-6">
-            <input
+          <form onSubmit={handleOtpSubmit} className="space-y-024-5">
+            <P.Input
+              Size="lg"
               type="text"
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value)}
+              onChange={(e) => setOtpCode(normalize("otp", e.target.value))}
               placeholder={translator.otpPlaceholder}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl tracking-widest focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="text-center text-2xl tracking-widest"
               required
               maxLength={6}
               inputMode="numeric"
             />
-            <button
+            <P.Button
+              Size="lg"
               type="submit"
+              Theme="error"
+              className="w-full"
               disabled={loading}
-              className="w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? translator.logoutButtonLoading : translator.logoutButton}
-            </button>
+            </P.Button>
           </form>
         )}
 
         {/* مرحله موفقیت */}
         {step === "success" && (
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">✅</div>
-            <p className="text-xl text-green-600">{message}</p>
-            <p className="text-sm text-gray-500 mt-4">{translator.redirecting}</p>
+          <div className="text-center py-034-7">
+            <div className="text-H1 mb-012-3">✅</div>
+            <p className="text-H3 text-Success">{message}</p>
+            <p className="text-B text-Mid mt-012-3">{translator.redirecting}</p>
           </div>
         )}
       </div>

@@ -1,9 +1,11 @@
 
-import { LANG_PARAMS, LANG } from "@/core/config/site";
+import { LANG_PARAMS, LANG, LANGUAGE } from "@/core/config/site";
 import Link from "next/link";
+import { commonTranslator } from "@/project/data/translations/common";
 
 export default async function AliPage({ params }: LANG_PARAMS) {
   const { lang, otherLanguages } = await LANG(params);
+  const t = commonTranslator[lang];
   return (
     <main className="flex flex-col gap-12 items-center justify-center w-full h-screen text-center">
       <h1 className="text-4xl font-bold">Ali Page</h1>
@@ -22,8 +24,8 @@ export default async function AliPage({ params }: LANG_PARAMS) {
         ))}
       </div>
       <p className="text-gray-500 mt-8">--------------------------------</p>
-      <Link href={"/" + lang} className="text-lg text-blue-600 hover:underline" >
-        بازگشت به صفحه اصلی
+      <Link href={lang === LANGUAGE.default ? "/" : `/${lang}`} className="text-lg text-blue-600 hover:underline" >
+        {t.returnToHome}
       </Link>
       <p className="text-gray-500 mt-8">--------------------------------</p>
       <Link href={`/${lang}/login`}>Login</Link>

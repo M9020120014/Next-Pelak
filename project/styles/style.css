@@ -1,6 +1,187 @@
 
+/* --- Base ------------------------------------------------------------------------------------- */
 @layer base {
+  /* --- Global ----------------------------------------------------- */
+  /* --- Selector ------------------- */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    @apply outline-offset-2 outline-Border/50;
+  }
+  /* --- Selection ------------------ */
+  ::selection {
+    @apply bg-Border text-Background;
+  }
+  /* --- HTML ----------------------- */
+  html {
+    @apply motion-safe:scroll-smooth;
+  }
+
   body {
-    background-color: #FDD;
+    @apply bg-Background font-text text-Foreground antialiased;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    background-image: url(../../public/bg.png);
+  }
+
+  h1 {
+    font-size: var(--text-H1);
+    font-family: var(--font-title);
+    line-height: 1.8;
+  }
+  h2 {
+    font-size: var(--text-H2);
+    font-family: var(--font-title);
+    line-height: 1.8;
+  }
+  h3 {
+    font-size: var(--text-H3);
+    font-family: var(--font-title);
+    line-height: 2;
+  }
+  h4 {
+    font-size: var(--text-H4);
+    font-family: var(--font-title);
+    line-height: 2;
+  }
+  h5 {
+    font-size: var(--text-H5);
+    font-family: var(--font-title);
+    line-height: 2.4;
+  }
+  h6 {
+    font-size: var(--text-H6);
+    font-family: var(--font-title);
+    line-height: 2.4;
+  }
+  p {
+    font-size: var(--text-P);
+    line-height: 2;
+  }
+
+  /* --- Custom Scroll Styling -------------------------------------- */
+  /* --- Scrollbar ------------------ */
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--Border);
+    border-radius: 5px;
+  }
+  /* --- HTML ----------------------- */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--Border) transparent;
+  }
+  /* --- Link ----------------------- */
+  [id] {
+    @apply scroll-mt-34;
+  }
+  /* --- q.:| ♢ |:.p ------------------------------------------------------------------------------ */
+  /* --- q.:| Custom Styling |:.p ----------------------------------- */
+  /* --- newsLine ------------------- */
+  @keyframes scroll-right {
+    0% {
+      transform: translateX(-25%);
+    }
+    100% {
+      transform: translateX(25%);
+    }
+  }
+  .animate-scroll-right {
+    animation: scroll-right 34s linear infinite;
+  }
+
+  /* --- Swiper Slider -------------- */
+  .swiper-pagination-bullet-custom {
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: var(--Background) !important;
+    opacity: 0.6 !important;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-radius: 9999px;
+    margin: 0 0.375rem !important;
+  }
+  .swiper-pagination-bullet-active-custom {
+    width: 2rem !important;
+    background-color: var(--Background) !important;
+    opacity: 1 !important;
+  }
+  .swiper-pagination-bullet-custom:hover {
+    opacity: 0.9 !important;
+    background-color: var(--Background) !important;
+  }
+  .swiper-pagination {
+    bottom: calc(var(--Unit) * 6) !important;
+    z-index: 30 !important;
+    position: absolute !important;
+    width: 100% !important;
+    left: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+}
+
+.HTMLDATA {
+  p {
+    @apply pt-004-1 pb-002-T lg:pt-008-2 lg:pb-004-1;
+  }
+  h1 {
+    @apply pt-012-3 lg:pt-018-4;
+  }
+  h2 {
+    @apply pt-012-3 lg:pt-018-4;
+  }
+  h3 {
+    @apply pt-012-3 lg:pt-018-4;
+  }
+  h4 {
+    @apply pt-008-2 lg:pt-012-3;
+  }
+  h5 {
+    @apply pt-008-2 lg:pt-012-3;
+  }
+  h6 {
+    @apply pt-008-2 lg:pt-012-3;
+  }
+  img {
+    @apply mx-auto py-018-4;
+  }
+  table {
+    @apply w-full border border-Border text-start;
+  }
+  th {
+    @apply bg-Primary/10 text-Primary border border-Border p-004-1;
+  }
+  td {
+    @apply border border-Border p-004-1;
+  }
+  blockquote {
+    @apply border-Primary border-s-4 ps-012-3 bg-Primary/20 my-018-4;
+  }
+  code {
+    @apply bg-Primary/10 text-Primary p-004-1;
+  }
+  pre {
+    @apply bg-Primary/10 text-Primary p-012-3;
+  }
+  ul {
+    @apply list-disc list-inside;
+  }
+  a{
+    @apply hover:opacity-80 transition-all duration-200 cursor-pointer;
+  }
+  li{
+    @apply list-disc list-inside py-002-T;
+  }
+  .download-link {
+    @apply text-Primary hover:text-PrimaryLight transition-all duration-200 cursor-pointer;
   }
 }

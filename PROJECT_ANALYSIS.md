@@ -304,7 +304,7 @@ interface CoreConfig {
 #### فایل‌های مرتبط با Core Config:
 - `core/config/site.ts`: تنظیمات سایت (زبان‌ها، metadata، theme)
 - `core/config/project-override-legacy.ts`: Legacy override برای routes (اختیاری)
-- `core/types/configs/site.ts`: Type definitions برای site config
+- `core/config/types.ts`: Type definitions برای site config
 
 **نکته**: این فایل‌ها در `core/config/` و `core/types/` قرار دارند و بخشی از سیستم Core هستند.
 
@@ -947,7 +947,7 @@ app/[lang]/
 | `core/config/project-override.ts` | Core Config Override | بخشی از Core |
 | `core/config/site.ts` | Site Configuration | بخشی از Core |
 | `core/config/project-override-legacy.ts` | Legacy Override | بخشی از Core |
-| `core/types/configs/site.ts` | Site Types | بخشی از Core |
+| `core/config/types.ts` | Site Types | بخشی از Core |
 | `core/hooks/auth.ts` | Core hooks example | بخشی از Core |
 | `project/components/page/*.tsx` | Page components | خاص پروژه |
 
@@ -1067,7 +1067,7 @@ app/[lang]/
 ### استفاده از Core در پروژه جدید:
 
 1. **کپی Core**: `cp -r core/ new-project/`
-   - شامل `core/config/project-override.ts`, `core/config/site.ts` و `core/types/configs/site.ts`
+   - شامل `core/config/project-override.ts`, `core/config/site.ts` و `core/config/types.ts`
 2. **تنظیم TypeScript**: اضافه کردن path aliases
 3. **تنظیم Project Config**: ویرایش `core/config/project-override.ts` و `core/config/site.ts`
 4. **ایجاد App Layout**: تنظیم config در `app/layout.tsx` با import از `@/core/config/project-override`

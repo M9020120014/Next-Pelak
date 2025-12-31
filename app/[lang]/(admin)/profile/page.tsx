@@ -4,8 +4,8 @@ import { getIDeviceToken } from '@/core/lib/token/idevice'
 import ProfileClient from '@/project/pages/ProfileClient'
 
 export default async function ProfilePage({ params }: LANG_PARAMS) {
-  await LANG(params)
+  const { lang } = await LANG(params)
   const iDevice = await getIDeviceToken()
   
-  return <ProfileClient iDevice={iDevice} />
+  return <ProfileClient iDevice={iDevice} lang={lang} />
 }

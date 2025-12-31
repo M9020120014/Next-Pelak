@@ -9,8 +9,8 @@ const translator = {
     mobileDescription: "شماره موبایل خود را وارد کنید",
     otpDescription: "کد تایید ارسال شده را وارد کنید",
     passwordDescription: "رمز عبور جدید را تنظیم کنید",
-    mobilePlaceholder: "۰۹۱۲۳۴۵۶۷۸۹",
-    otpPlaceholder: "کد ۶ رقمی",
+    mobilePlaceholder: "09123456789",
+    otpPlaceholder: "کد ۴ رقمی",
     passwordPlaceholder: "رمز عبور جدید",
     confirmPasswordPlaceholder: "تکرار رمز عبور",
     continueButton: "ادامه",
@@ -29,6 +29,7 @@ const translator = {
     verifyError: "کد تأیید اشتباه است",
     passwordError: "خطا در تنظیم رمز عبور",
     serverError: "خطا در ارتباط با سرور",
+    login: "رفتن به صفحه ورود",
   },
   en: {
     registerTitle: "Register",
@@ -37,7 +38,7 @@ const translator = {
     otpDescription: "Enter the verification code sent to you",
     passwordDescription: "Set your new password",
     mobilePlaceholder: "09123456789",
-    otpPlaceholder: "6-digit code",
+    otpPlaceholder: "4-digit code",
     passwordPlaceholder: "New Password",
     confirmPasswordPlaceholder: "Confirm Password",
     continueButton: "Continue",
@@ -56,6 +57,7 @@ const translator = {
     verifyError: "Invalid verification code",
     passwordError: "Error setting password",
     serverError: "Server connection error",
+    login: "Go to login page",
   },
 };
 

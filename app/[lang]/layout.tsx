@@ -4,6 +4,9 @@ import { headers } from "next/headers";
 import { Font } from "@/core/lib/fonts";
 /* --- Components ------------------------------------------------------------------------------- */
 import Providers from "@/core/components/provider/Provider";
+import ProjectProvider from "@/project/components/provider/Provider";
+import Footer from "@/project/components/theme/footer/Footer";
+import Navbar from "@/project/components/theme/navbar/Navbar";
 /* --- Data ------------------------------------------------------------------------------------- */
 import { LANGUAGE_DATA, LANG_PARAMS, LANG_CHILDREN_PARAMS, LANG } from "@/core/config/site";
 import { BACE_SEO_LANG } from "@/project/data/metadata/metadata";
@@ -31,7 +34,11 @@ export default async function LocaleLayout({ children, params }: LANG_CHILDREN_P
     >
       <body className="antialiased">
         <Providers>
-          {children}
+          <ProjectProvider lang={lang}>
+            <Navbar />
+            {children}
+            <Footer />
+          </ProjectProvider>
         </Providers>
       </body>
     </html>

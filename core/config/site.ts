@@ -2,7 +2,7 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import { notFound } from "next/navigation";
 /* --- Types ------------------------------------------------------------------------------------ */
-import type { LanguageMap, LanguageObject, ConfigSiteLangObject, ConfigSiteObject, PageObjectType } from "@/core/types/configs/site";
+import type { LanguageMap, LanguageObject, ConfigSiteLangObject, ConfigSiteObject, PageObjectType } from "./types";
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { ENV } from "@/core/config/env-merge";
 /* --- Constants -------------------------------------------------------------------------------- */

@@ -15,13 +15,13 @@ export default function ConnectionError({
   retrying = false,
 }: ConnectionErrorProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-Background px-012-3">
       <div className="max-w-md w-full text-center">
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className="bg-White rounded-lg shadow-lg p-034-7">
           {/* Error Icon */}
-          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+          <div className="mx-auto flex items-center justify-center h-072-9 w-072-9 rounded-full bg-ErrorLight/10 mb-012-3">
             <svg
-              className="h-8 w-8 text-red-600"
+              className="h-034-7 w-034-7 text-Error"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -36,24 +36,24 @@ export default function ConnectionError({
           </div>
 
           {/* Error Message */}
-          <h2 className="text-xl font-bold text-gray-900 mb-2">خطا در ارتباط</h2>
-          <p className="text-gray-600 mb-6">{message}</p>
+          <h2 className="text-H2 font-bold text-Text mb-008-2">خطا در ارتباط</h2>
+          <p className="text-Mid mb-024-5">{message}</p>
 
           {/* Retry Button */}
           <button
             onClick={onRetry}
             disabled={retrying}
-            className="w-full py-3 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            className="w-full py-010-D px-012-3 bg-Primary text-PrimaryForeground rounded-md hover:bg-PrimaryDark disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-008-2"
           >
             {retrying ? (
               <>
-                <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <div className="inline-block animate-spin rounded-full h-014-Z w-014-Z border-b-2 border-PrimaryForeground"></div>
                 <span>در حال تلاش مجدد...</span>
               </>
             ) : (
               <>
                 <svg
-                  className="h-5 w-5"
+                  className="h-018-4 w-018-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

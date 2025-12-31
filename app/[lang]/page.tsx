@@ -1,11 +1,11 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { Metadata } from "next";
-// import Script from "next/script";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANGUAGE_DATA, LANG_PARAMS, LANG } from "@/core/config/site";
+import { LANGUAGE_DATA, LANG_PARAMS, LANG, LANGUAGE } from "@/core/config/site";
 import { HOME_SEO_LANG, ROBOTS_ON } from "@/project/data/metadata/metadata";
 /* --- Components ------------------------------------------------------------------------------ */
-import HomeClient from "@/project/pages/HomeClient";
+import Home from "@/project/pages/Home";
+import { redirect } from "next/navigation";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Locale Page Metadata ----------------------------------------- */
 export async function generateMetadata({ params }: LANG_PARAMS): Promise<Metadata> {
@@ -15,5 +15,6 @@ export async function generateMetadata({ params }: LANG_PARAMS): Promise<Metadat
 /* --- Locale Page -------------------------------------------------- */
 export default async function LocalePage({ params }: LANG_PARAMS) {
   const { lang, otherLanguages } = await LANG(params);
-  return <HomeClient lang={LANGUAGE_DATA.lang[lang]} otherLanguages={otherLanguages} />;
+  if (lang === LANGUAGE.default) redirect("/");
+  return <Home lang={LANGUAGE_DATA.lang[lang]} otherLanguages={otherLanguages} />;
 }

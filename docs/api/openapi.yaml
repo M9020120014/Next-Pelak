@@ -1,0 +1,501 @@
+openapi: 3.0.3
+info:
+  title: Next-Pelak API
+  description: |
+    API documentation for Next-Pelak CMS system.
+    
+    ## Authentication
+    Most endpoints require authentication using Bearer tokens. Include the access token in the Authorization header:
+    ```
+    Authorization: Bearer <access_token>
+    ```
+    
+    ## CSRF Protection
+    State-changing requests (POST, PUT, DELETE, PATCH) require a CSRF token in the header:
+    ```
+    X-CSRF-Token: <csrf_token>
+    ```
+    
+    ## Rate Limiting
+    API requests are rate-limited. Check response headers for rate limit information:
+    - `X-RateLimit-Limit`: Maximum number of requests allowed
+    - `X-RateLimit-Remaining`: Number of requests remaining
+    - `X-RateLimit-Reset`: Unix timestamp when the rate limit resets
+    
+  version: 0.2.1
+  contact:
+    name: Mahdi Goodini
+    email: m9020120014@gmail.com
+    url: https://github.com/M9020120014
+
+servers:
+  - url: http://localhost:3131
+    description: Development server
+  - url: https://api.next-pelak.com
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Health
+    description: Health check endpoints
+  - name: Logger
+    description: Client-side logging
+
+paths:
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user with mobile number and password
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - mobile
+                - password
+                - iDevice
+              properties:
+                mobile:
+                  type: string
+                  description: User mobile number (Iranian format)
+                  example: "09123456789"
+                password:
+                  type: string
+                  description: User password (minimum 8 characters)
+                  example: "Password123"
+                iDevice:
+                  type: string
+                  description: Device identifier token
+                  example: "device-token-123"
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                description: Refresh token cookie
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  title:
+                    type: string
+                    example: "ورود موفق"
+                  message:
+                    type: string
+                    example: "با موفقیت وارد شدید"
+                  access_token:
+                    type: string
+                    description: JWT access token
+                  expires_in:
+                    type: integer
+                    description: Access token expiration time in seconds
+                  mobile:
+                    type: string
+                  firstname:
+                    type: string
+                    nullable: true
+                  lastname:
+                    type: string
+                    nullable: true
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: CSRF validation failed or access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded or account locked
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+                description: Seconds to wait before retrying
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Logout current user and invalidate refresh token
+      operationId: logout
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                iDevice:
+                  type: string
+                  description: Device identifier (optional)
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/logout-all:
+    post:
+      tags:
+        - Authentication
+      summary: Logout from all devices
+      description: Logout user from all devices and invalidate all refresh tokens
+      operationId: logoutAll
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Get a new access token using refresh token from cookie
+      operationId: refreshToken
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  access_token:
+                    type: string
+                  expires_in:
+                    type: integer
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/otp:
+    post:
+      tags:
+        - Authentication
+      summary: Send or verify OTP
+      description: Send OTP code to mobile number or verify OTP code
+      operationId: otp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - mobile
+                - action
+              properties:
+                mobile:
+                  type: string
+                  example: "09123456789"
+                action:
+                  type: string
+                  enum: [send, verify]
+                  description: Action to perform
+                code:
+                  type: string
+                  description: OTP code (required for verify action)
+                  example: "123456"
+      responses:
+        '200':
+          description: OTP sent or verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/verification-user:
+    post:
+      tags:
+        - Authentication
+      summary: Verify user
+      description: Verify user account with OTP code
+      operationId: verifyUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - mobile
+                - code
+              properties:
+                mobile:
+                  type: string
+                code:
+                  type: string
+                  description: OTP verification code
+      responses:
+        '200':
+          description: User verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/verification-register:
+    post:
+      tags:
+        - Authentication
+      summary: Register new user
+      description: Register a new user account with OTP verification
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - mobile
+                - code
+                - firstname
+                - lastname
+              properties:
+                mobile:
+                  type: string
+                code:
+                  type: string
+                  description: OTP verification code
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+      responses:
+        '200':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/verification-password:
+    post:
+      tags:
+        - Authentication
+      summary: Set or reset password
+      description: Set or reset user password with OTP verification
+      operationId: setPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - mobile
+                - code
+                - password
+              properties:
+                mobile:
+                  type: string
+                code:
+                  type: string
+                  description: OTP verification code
+                password:
+                  type: string
+                  description: New password (minimum 8 characters)
+      responses:
+        '200':
+          description: Password set successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check API health status
+      operationId: healthCheck
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /api/logger:
+    post:
+      tags:
+        - Logger
+      summary: Client-side logging
+      description: Submit log entries from client-side
+      operationId: submitLog
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - level
+                - message
+              properties:
+                level:
+                  type: string
+                  enum: [log, error, warn, info]
+                message:
+                  type: string
+                details:
+                  type: object
+                  description: Additional log details
+                location:
+                  type: string
+                  description: File or location where log originated
+      responses:
+        '200':
+          description: Log submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - title
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        title:
+          type: string
+          example: "خطا"
+        message:
+          type: string
+          example: "پیام خطا"
+
+    SuccessResponse:
+      type: object
+      required:
+        - success
+        - title
+        - message
+      properties:
+        success:
+          type: boolean
+          example: true
+        title:
+          type: string
+          example: "موفق"
+        message:
+          type: string
+          example: "عملیات با موفقیت انجام شد"
+

@@ -51,7 +51,7 @@ setCoreConfig(projectCoreConfig);
 
 ### Override کردن Core Config
 
-در `project/config/core-override.ts`:
+در `core/config/project-override.ts`:
 
 ```typescript
 import type { CoreConfig } from '@/core/config/core-config';
@@ -225,23 +225,26 @@ import { ROUTES, TOKEN, RATE_LIMIT } from '@/config/security'
 اگر نیاز به تغییر config دارید:
 
 ```typescript
-// در /project/config/override.ts
-import { ROUTES as BASE_ROUTES } from '@/config/security'
+// در core/config/project-override.ts
+import type { CoreConfig } from '@/core/config/core-config';
+import { ROUTES } from '@/core/config/security'
 
-export const PROJECT_CONFIG = {
-  ROUTES: {
-    ...BASE_ROUTES,
-    ADMIN_ROUTE_PATTERN: /^\/[^\/]+\/(dashboard|profile|admin)(\/.*)?$/,
-  },
+export const projectCoreConfig: CoreConfig = {
+  // Override configurations here
+  // Route configurations are managed through core/config/security.ts
+  // For route overrides, edit core/config/project-override-legacy.ts (deprecated)
+  // or directly use ROUTES from '@/core/config/security'
 }
 ```
 
-سپس در کد خود از `PROJECT_CONFIG` استفاده کنید یا مستقیماً از `@/config/security`.
+سپس در کد خود از `getCoreConfig()` استفاده کنید یا مستقیماً از `@/core/config/security`.
+
+**نکته:** فایل `core/config/project-override-legacy.ts` deprecated است و فقط برای backward compatibility نگه داشته شده است.
 
 ### 3. اضافه کردن Hook جدید
 
-1. Hook را در `project/hooks/` ثبت کنید
-2. Hook را در `lib/hooks/index.ts` مستند کنید
+1. Hook را در `core/hooks/` یا `project/hooks/` ثبت کنید
+2. Hook را در `core/lib/hooks/index.ts` مستند کنید
 3. Hook را در API route مربوطه اجرا کنید (اگر hook جدید است)
 
 ### 4. ساختار فایل‌های Project
@@ -249,12 +252,17 @@ export const PROJECT_CONFIG = {
 ```
 project/
 ├── config/
-│   ├── core-override.ts     # Override core configs
-│   ├── site.ts              # Site configuration
-│   └── override.ts          # Legacy override (optional)
-└── hooks/
-    ├── auth.ts              # Hook های احراز هویت
-    └── custom.ts            # Hook های سفارشی دیگر (اختیاری)
+│   └── env.ts               # Project-specific environment variables
+├── hooks/                   # Project-specific hooks (optional)
+│   └── custom.ts           # Hook های سفارشی دیگر (اختیاری)
+├── components/             # Project-specific components
+├── pages/                  # Project-specific pages
+└── styles/                 # Project-specific styles
+
+core/config/
+├── project-override.ts     # Main config override (use this)
+├── site.ts                 # Site configuration
+└── project-override-legacy.ts  # Legacy override (deprecated)
 ```
 
 ### 5. استفاده مجدد در پروژه‌های دیگر
@@ -262,17 +270,18 @@ project/
 برای استفاده از این ساختار در پروژه جدید:
 
 1. **کپی کردن `/core`** به پروژه جدید (کاملاً مستقل است)
+   - شامل `core/config/project-override.ts` و `core/config/site.ts`
 2. **اضافه کردن path alias** `@/core/*` به `tsconfig.json`
-3. **ایجاد `/project`** در پروژه جدید
+3. **ایجاد `/project`** در پروژه جدید (اختیاری)
 4. **ویرایش `core/config/project-override.ts`** برای override کردن configs
 5. **ایجاد `app/layout.tsx`** که `setCoreConfig()` را فراخوانی می‌کند
-6. **ایجاد `middleware.ts` یا `proxy.ts` در root** که از core re-export می‌کند
+6. **ایجاد `middleware.ts` یا `proxy.ts` در root** که از `core/proxy.ts` re-export می‌کند
 7. **به‌روزرسانی:** فقط `/core` را به‌روز کنید - project configs بدون تغییر باقی می‌مانند
 
 ## نکات مهم
 
 1. **از `/lib` و `/config` اصلی استفاده کنید** - این فایل‌ها برای Next.js ضروری هستند
-2. **کانفیگ override ها در `/core/config/project-override-legacy.ts` قرار دارد**
+2. **کانفیگ override ها در `/core/config/project-override.ts` قرار دارد** (فایل legacy deprecated است)
 3. **Hook های Core در `/core/hooks/` قرار دارند**
 4. **برای اضافه کردن hook جدید، آن را در `/lib/hooks/index.ts` مستند کنید**
 5. **Hooks به صورت خودکار لود می‌شوند** - نیازی به import دستی نیست

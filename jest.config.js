@@ -14,8 +14,10 @@ const config = {
     }],
   },
   collectCoverageFrom: [
-    'lib/**/*.{ts,tsx}',
+    'core/lib/**/*.{ts,tsx}',
+    'core/app/**/*.{ts,tsx}',
     'app/**/*.{ts,tsx}',
+    'project/**/*.{ts,tsx}',
     '!**/*.d.ts',
     '!**/*.test.{ts,tsx}',
     '!**/node_modules/**',

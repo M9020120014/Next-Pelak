@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.2] - 2025-12-29
+## [0.2.2] - 2025-12-30
 
 - Refactor logging and enhance hook management
 - Integrate PostHog analytics and enhance security configurations

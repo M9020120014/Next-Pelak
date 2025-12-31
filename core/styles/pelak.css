@@ -7,6 +7,7 @@
 
 .light {
   /* --- Background ----------------- */
+  --Lightness: oklch(0.999 0.001 80);
   --Background: oklch(0.95 0.018 80);
   --Panel: oklch(0.9 0.014 80);
   --Border: oklch(0.8 0.008 80);
@@ -14,6 +15,7 @@
   --Shadow: oklch(0.34 0.008 200);
   --Text: oklch(0.24 0.014 200);
   --Foreground: oklch(0.18 0.018 200);
+  --Darkness: oklch(0.072 0.001 200);
   /* --- Colors --------------------- */
   --Primary: oklch(0.72 0.14 205);
   --PrimaryForeground: oklch(0.98 0.018 205);
@@ -31,6 +33,7 @@
 
 .dark {
   /* --- Background ----------------- */
+  --Lightness: oklch(0.072 0.001 200);
   --Background: oklch(0.18 0.018 200);
   --Panel: oklch(0.24 0.014 200);
   --Border: oklch(0.34 0.008 200);
@@ -38,6 +41,7 @@
   --Shadow: oklch(0.8 0.008 80);
   --Text: oklch(0.9 0.014 80);
   --Foreground: oklch(0.95 0.018 80);
+  --Darkness: oklch(0.999 0.001 80);
   /* --- Colors --------------------- */
   --Primary: oklch(0.72 0.14 205);
   --PrimaryForeground: oklch(0.98 0.018 205);
@@ -55,6 +59,7 @@
 
 @theme inline {
   /* --- Units ------------------------------------------------------ */
+  --spacing-BaseUnit: var(--Unit) /* 4px */;
   /* --- Spacing -------------------- */
   --spacing-000-0: calc(var(--Unit) * 0) /* 0px */;
   --spacing-001-O: calc(var(--Unit) * 0.25) /* 1px */;
@@ -93,6 +98,7 @@
   --color-BlackA: oklch(0.05 0 0);
   --color-Black: oklch(0 0 0);
   /* --- Backgrounds ---------------- */
+  --color-Lightness: var(--Lightness);
   --color-Background: var(--Background);
   --color-Panel: var(--Panel);
   --color-Border: var(--Border);
@@ -100,6 +106,7 @@
   --color-Shadow: var(--Shadow);
   --color-Text: var(--Text);
   --color-Foreground: var(--Foreground);
+  --color-Darkness: var(--Darkness);
   /* --- Colors --------------------- */
   --color-Primary: var(--Primary);
   --color-PrimaryForeground: var(--PrimaryForeground);

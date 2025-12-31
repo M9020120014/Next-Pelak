@@ -198,7 +198,7 @@ export const config = {
 - `GET /api/health` - بررسی وضعیت سرویس
 - `POST /api/logger` - ثبت لاگ از سمت کلاینت
 
-برای جزئیات API، به [DATABASE.md](DATABASE.md) مراجعه کنید.
+برای جزئیات API، به [DATABASE.md](DATABASE.md) و [docs/api/README.md](docs/api/README.md) مراجعه کنید.
 
 ## سیستم Hook
 
@@ -248,6 +248,7 @@ Hook های موجود:
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) - راهنمای معماری و استفاده
 - [DATABASE.md](DATABASE.md) - مستندات دیتابیس و API
+- [docs/api/README.md](docs/api/README.md) - مستندات API (OpenAPI/Swagger)
 - [core/README.md](core/README.md) - راهنمای استفاده از Core
 - [CHANGELOG.md](CHANGELOG.md) - تاریخچه تغییرات
 
