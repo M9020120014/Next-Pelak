@@ -98,7 +98,7 @@ export default function DesktopNavbar({ className }: { className?: string }) {
                 <div className="grid grid-cols-2 gap-012-3">
                   {/* مقالات */}
                   <Link
-                    href={`/${lang}/pages`}
+                    href={`/${lang}/page`}
                     className="flex items-start gap-012-3 p-012-3 rounded-2 border border-Border bg-White hover:bg-Secondary/20 hover:border-Secondary transition-all group"
                   >
                     <div className="w-040-8 h-040-8 rounded-2 bg-PrimaryLight/10 text-Primary flex items-center justify-center shrink-0 group-hover:bg-Primary group-hover:text-White transition-colors">

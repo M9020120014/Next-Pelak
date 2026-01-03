@@ -1,16 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSecurity } from "@/core/components/security/SecurityProvider";
+import { setAccessToken } from "@/core/lib/auth/token-manager";
 import { UI as P } from "@/core/components/ui/Pelak";
 import { normalize } from "@/core/lib/normalize";
 
 type Step = "mobile" | "otp" | "password" | "success";
+type Mode = "register" | "forgot";
 
 export default function VerificationComponent({
   iDevice,
   lang,
+  initialMobile,
+  mode = "register",
   translator = {
     registerTitle: "Register",
     forgotTitle: "Forgot Password",
@@ -37,24 +41,73 @@ export default function VerificationComponent({
     verifyError: "Invalid verification code",
     passwordError: "Error setting password",
     serverError: "Server connection error",
-    login: "Go to login page",
+    backToLogin: "Back to login",
+    changeMobile: "Change mobile number",
   }
 }: Readonly<{
   iDevice: string,
   lang: string,
-  translator: Record<string, string>
+  initialMobile?: string,
+  mode?: Mode,
+  translator?: Record<string, string>
 }>) {
   const router = useRouter();
   const { csrfToken } = useSecurity();
 
-  const [step, setStep] = useState<Step>("mobile");
-  const [mobile, setMobile] = useState("");
+  const [step, setStep] = useState<Step>(initialMobile ? "otp" : "mobile");
+  const [mobile, setMobile] = useState(initialMobile || "");
   const [otpCode, setOtpCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+
+  // ارسال خودکار OTP اگر initialMobile وجود داشت
+  useEffect(() => {
+    if (initialMobile && !otpSent) {
+      const sendOTPAuto = async () => {
+        setError("");
+        setMessage("");
+        setLoading(true);
+
+        try {
+          let endpoint = "/api/auth/verification-user";
+          if (mode === "forgot") {
+            endpoint = "/api/auth/forgot-password";
+          }
+
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-csrf-token": csrfToken
+            },
+            body: JSON.stringify({ mobile: initialMobile, ...(mode === "register" ? { iDevice } : {}) }),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            setMessage(data.message || translator.otpSent);
+            setOtpSent(true);
+            setStep("otp");
+          } else {
+            setError(data.message || translator.sendError);
+            setStep("mobile");
+          }
+        } catch {
+          setError(translator.serverError);
+          setStep("mobile");
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      sendOTPAuto();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialMobile]);
 
   // مرحله ۱: ارسال OTP
   const handleMobileSubmit = async (e: React.FormEvent) => {
@@ -64,13 +117,18 @@ export default function VerificationComponent({
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/verification-user", {
+      let endpoint = "/api/auth/verification-user";
+      if (mode === "forgot") {
+        endpoint = "/api/auth/forgot-password";
+      }
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-csrf-token": csrfToken
         },
-        body: JSON.stringify({ mobile, iDevice }),
+        body: JSON.stringify({ mobile, ...(mode === "register" ? { iDevice } : {}) }),
       });
       const data = await res.json();
 
@@ -87,29 +145,35 @@ export default function VerificationComponent({
     }
   };
 
-  // مرحله ۲: تأیید OTP و ثبت کاربر
+  // مرحله ۲: تأیید OTP
   const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/verification-register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-csrf-token": csrfToken
-        },
-        body: JSON.stringify({ mobile, iDevice, otpCode }),
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        setMessage(data.message || translator.otpVerified);
-        // OTP secret is now stored securely in session cookie, not in client state
+      if (mode === "forgot") {
+        // برای فراموشی رمز، OTP در reset-password تایید می‌شود
+        // پس اینجا فقط به مرحله password می‌رویم
         setStep("password");
       } else {
-        setError(data.message || translator.verifyError);
+        // برای ثبت‌نام، OTP را تایید و کاربر را ثبت می‌کنیم
+        const res = await fetch("/api/auth/verification-register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": csrfToken
+          },
+          body: JSON.stringify({ mobile, iDevice, otpCode }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          setMessage(data.message || translator.otpVerified);
+          setStep("password");
+        } else {
+          setError(data.message || translator.verifyError);
+        }
       }
     } catch {
       setError(translator.serverError);
@@ -130,24 +194,41 @@ export default function VerificationComponent({
       return;
     }
 
-    if (password.length < 6) {
+    const minPasswordLength = mode === "forgot" ? 8 : 6;
+    if (password.length < minPasswordLength) {
       setError(translator.passwordMinLength);
       setLoading(false);
       return;
     }
 
     try {
-      const res = await fetch("/api/auth/verification-password", {
+      let endpoint = "/api/auth/verification-password";
+      if (mode === "forgot") {
+        endpoint = "/api/auth/reset-password";
+      }
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-csrf-token": csrfToken
         },
-        body: JSON.stringify({ mobile, iDevice, password, confirmPassword }),
+        body: JSON.stringify({ 
+          mobile, 
+          iDevice, 
+          ...(mode === "forgot" ? { otpCode } : {}),
+          password, 
+          confirmPassword 
+        }),
       });
       const data = await res.json();
 
       if (data.success) {
+        // ذخیره Access Token برای همه flowها
+        if (data.access_token) {
+          setAccessToken(data.access_token);
+        }
+        
         setStep("success");
         setMessage(translator.passwordSetSuccess);
         setTimeout(() => router.push("/" + lang + "/dashboard"), 1500);
@@ -166,7 +247,7 @@ export default function VerificationComponent({
       <div className="max-w-md w-full flex flex-col gap-012-3">
         <div className="text-center">
           <h2 className="text-H1 font-bold text-Text">
-            {translator.forgotTitle}
+            {mode === "forgot" ? translator.forgotTitle : translator.registerTitle}
           </h2>
           <p className="mt-008-2 text-B text-Mid">
             {step === "mobile" && translator.mobileDescription}
@@ -210,7 +291,7 @@ export default function VerificationComponent({
                 Size="lg"
                 onClick={() => router.push(`/${lang}/login`)}
               >
-                {translator.login}
+                {translator.backToLogin}
               </P.Button>
             </div>
           </form>
@@ -219,6 +300,17 @@ export default function VerificationComponent({
         {/* مرحله OTP */}
         {step === "otp" && (
           <form onSubmit={handleOtpSubmit} className="space-y-024-5">
+            {mobile && (
+              <div>
+                <P.Input
+                  Size="lg"
+                  type="text"
+                  value={mobile}
+                  disabled
+                  className="bg-Mid/10"
+                />
+              </div>
+            )}
             <P.Input
               Size="lg"
               type="text"
@@ -233,19 +325,55 @@ export default function VerificationComponent({
             <P.Button Size="lg" type="submit" className="w-full" disabled={loading}>
               {loading ? translator.verifyButtonLoading : translator.verifyButton}
             </P.Button>
+            {mobile && (
+              <div className="flex flex-col">
+                <P.Button
+                  Theme="primary"
+                  ThemeProps="link"
+                  Size="lg"
+                  onClick={() => router.push(`/${lang}/login`)}
+                >
+                  {translator.backToLogin}
+                </P.Button>
+              </div>
+            )}
           </form>
         )}
 
         {/* مرحله تنظیم پسورد */}
         {step === "password" && (
           <form onSubmit={handlePasswordSubmit} className="space-y-024-5">
+            {mobile && (
+              <div>
+                <P.Input
+                  Size="lg"
+                  type="text"
+                  value={mobile}
+                  disabled
+                  className="bg-Mid/10"
+                />
+              </div>
+            )}
+            {mode === "forgot" && (
+              <P.Input
+                Size="lg"
+                type="text"
+                value={otpCode}
+                onChange={(e) => setOtpCode(normalize("otp", e.target.value))}
+                placeholder={translator.otpPlaceholder}
+                className="text-center text-2xl tracking-widest"
+                required
+                maxLength={6}
+                inputMode="numeric"
+              />
+            )}
             <P.InputSecret
               Size="lg"
               value={password}
               onChange={(e) => setPassword(normalize("password", e.target.value))}
               placeholder={translator.passwordPlaceholder}
               required
-              minLength={6}
+              minLength={mode === "forgot" ? 8 : 6}
             />
             <P.InputSecret
               Size="lg"
@@ -253,10 +381,21 @@ export default function VerificationComponent({
               onChange={(e) => setConfirmPassword(normalize("password", e.target.value))}
               placeholder={translator.confirmPasswordPlaceholder}
               required
+              minLength={mode === "forgot" ? 8 : 6}
             />
             <P.Button Size="lg" type="submit" className="w-full" disabled={loading}>
               {loading ? translator.setPasswordButtonLoading : translator.setPasswordButton}
             </P.Button>
+            <div className="flex flex-col">
+              <P.Button
+                Theme="primary"
+                ThemeProps="link"
+                Size="lg"
+                onClick={() => router.push(`/${lang}/login`)}
+              >
+                {translator.changeMobile}
+              </P.Button>
+            </div>
           </form>
         )}
 

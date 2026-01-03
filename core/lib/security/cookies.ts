@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import crypto from 'crypto'
 import { COOKIE, TOKEN } from '@/core/config/security'
-import { ENV } from '@/core/config/env-merge'
+import { ENV } from '@/core/config/env'
 
 export const SECURE_COOKIE_OPTIONS = {
   ...COOKIE.CSRF,

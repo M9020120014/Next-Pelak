@@ -140,5 +140,11 @@ export const ERROR_MESSAGES = {
     title: 'Error',
     message: 'خطا در سرور.',
   },
+  
+  // iDevice refresh token verification
+  IDEVICE_REFRESH_TOKEN_REQUIRED: {
+    title: 'Authentication Required',
+    message: 'برای انجام این عملیات نیاز به احراز هویت دارید.',
+  },
 } as const
 

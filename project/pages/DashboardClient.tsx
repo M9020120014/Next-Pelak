@@ -6,6 +6,7 @@ import { useAuth } from '@/core/lib/auth/use-auth'
 import { getAccessToken } from '@/core/lib/auth/token-manager'
 import { decodeTokenPayload } from '@/core/lib/token/jwt-client'
 import ConnectionError from '@/core/components/auth/ConnectionError'
+import { UI as P } from '@/core/components/ui/Pelak'
 
 import { dashboardTranslator } from "@/project/data/translations/dashboard";
 import { LANGUAGE_TYPE } from "@/core/config/site";
@@ -69,8 +70,8 @@ export default function DashboardClient({ iDevice, lang }: DashboardClientProps)
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
+    <main className=" bg-Background pt-008-2 lg:pt-040-8">
+      <P.Container className='space-y-018-4'>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">{t.dashboard}</h1>
           <button
@@ -101,8 +102,8 @@ export default function DashboardClient({ iDevice, lang }: DashboardClientProps)
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </P.Container>
+    </main>
   )
 }
 

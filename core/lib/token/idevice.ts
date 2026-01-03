@@ -5,7 +5,7 @@ import crypto from "crypto";
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { SubmitLogServer } from '@/core/lib/log/logger'
 import { COOKIE, TOKEN } from '@/core/config/security'
-import { ENV } from '@/core/config/env-merge'
+import { ENV } from '@/core/config/env'
 import { runAsync } from '@/core/lib/utils/async'
 /* --- Constants -------------------------------------------------------------------------------- */
 const IDEVICE_STORAGE_KEY = ENV.IDEVICE_STORAGE_KEY

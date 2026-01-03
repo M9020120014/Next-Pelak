@@ -2,7 +2,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { COOKIE, TOKEN } from "@/core/config/security";
-import { ENV } from "@/core/config/env-merge";
+import { ENV } from "@/core/config/env";
 
 /**
  * Get refresh token cookie name

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 /* --- Types ------------------------------------------------------------------------------------ */
 import type { LanguageMap, LanguageObject, ConfigSiteLangObject, ConfigSiteObject, PageObjectType } from "./types";
 /* --- Lib -------------------------------------------------------------------------------------- */
-import { ENV } from "@/core/config/env-merge";
+import { ENV } from "@/core/config/env";
 /* --- Constants -------------------------------------------------------------------------------- */
 const BASE_URL = ENV.NEXT_PUBLIC_BASE_URL;
 /* --- Language ----------------------------------------------------- */
@@ -29,6 +29,10 @@ export const LANGUAGE_DATA = {
   direction: {
     fa: "rtl",
     en: "ltr"
+  },
+  langId: {
+    fa: "1",
+    en: "2"
   }
 } as const satisfies LanguageObject<typeof LANGUAGE.list>
 export function LANG_CHECK(lang: unknown): lang is LANGUAGE_TYPE {

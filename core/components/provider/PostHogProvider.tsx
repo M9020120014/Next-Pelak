@@ -4,7 +4,7 @@
 import { useEffect } from 'react'
 import posthog from 'posthog-js'
 /* --- Config ----------------------------------------------------------------------------------- */
-import { ENV, IS_DEVELOPMENT } from '@/core/config/env-merge'
+import { ENV, IS_DEVELOPMENT } from '@/core/config/env'
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { logInfo } from '@/core/lib/log/logger-utils'
 

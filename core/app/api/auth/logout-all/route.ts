@@ -9,6 +9,7 @@ import { sanitizeMobile, sanitizeOtpCode } from "@/core/lib/security/request-lim
 import { verifyOTP } from "@/core/lib/otp/service";
 import { validationError, invalidInputError, successResponse } from "@/core/lib/api/response";
 import { withErrorHandlingAndTracking } from "@/core/lib/performance/monitoring";
+import { guardWriteOperation } from "@/core/lib/security/write-operation-guard";
 
 /* --- POST logout-all ------------------------------------------------------------------------- */
 async function POSTHandler(request: NextRequest) {
@@ -53,19 +54,22 @@ async function POSTHandler(request: NextRequest) {
       );
     }
 
-    /* --- Revoke All Tokens ----------------- */
-    const result = await callRpc("auth_revoke_all_tokens", {
-      p_mobile: sanitizedMobile,
+    // Two-step verification: Step 1 - Verify iDevice has refresh token, Step 2 - Execute write operation
+    return guardWriteOperation(body, async () => {
+      /* --- Revoke All Tokens ----------------- */
+      const result = await callRpc("auth_revoke_all_tokens", {
+        p_mobile: sanitizedMobile,
+      });
+
+      let response = successResponse(result, result.message, result.success ? 200 : 400);
+
+      // پاک کردن کوکی محلی (برای این دستگاه)
+      if (result.success) {
+        response = clearRefreshTokenCookie(response);
+      }
+
+      return response;
     });
-
-    let response = successResponse(result, result.message, result.success ? 200 : 400);
-
-    // پاک کردن کوکی محلی (برای این دستگاه)
-    if (result.success) {
-      response = clearRefreshTokenCookie(response);
-    }
-
-    return response;
 }
 
 export const POST = withErrorHandlingAndTracking(POSTHandler, '/api/auth/logout-all')

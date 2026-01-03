@@ -2,6 +2,30 @@
 
 این مستندات شامل توضیحات کامل جداول، توابع و نحوه کار با پایگاه داده سیستم احراز هویت است.
 
+## ساختار فایل‌های دیتابیس
+
+فایل‌های دیتابیس بر اساس کارکرد به فایل‌های جداگانه تقسیم شده‌اند:
+
+### Schema Files (جداول)
+- `schema/01_auth_tables.sql` - جداول احراز هویت (users, refresh_tokens, refresh_tokens_history)
+- `schema/02_content_tables.sql` - جداول محتوا (selectortype, selector, page)
+- `schema/03_comments_tables.sql` - جداول نظرات (comments, comment_likes)
+- `schema/04_sequences.sql` - Sequences مشترک
+
+### Functions Files (توابع)
+- `functions/01_auth_functions.sql` - توابع احراز هویت
+- `functions/02_content_functions.sql` - توابع محتوا
+- `functions/03_comments_functions.sql` - توابع نظرات
+
+### Master File
+- `master.sql` - فایل master برای اجرای همه فایل‌ها به ترتیب
+
+### نحوه اجرا
+```bash
+# اجرای فایل master (پیشنهادی)
+psql -U htni_admin -d your_database -f core/database/master.sql
+```
+
 ## فهرست مطالب
 
 1. [ساختار جداول](#ساختار-جداول)

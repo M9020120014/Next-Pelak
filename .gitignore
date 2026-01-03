@@ -43,6 +43,6 @@ package-lock.json
 .env*
 
 # database
-database_tables.sql
-database_functions.sql
-database_migration.sql
+# database_tables.sql
+# database_functions.sql
+# database_migration.sql

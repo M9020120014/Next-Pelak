@@ -1,9 +1,6 @@
 /* --- Hooks Configuration Interface ------------------------------------------------------------ */
 /* This file provides a configurable interface for hook paths that projects can override */
 
-/* --- Base ------------------------------------------------------------------------------------- */
-import { ENV } from '@/core/config/env-merge'
-
 /* --- Hook Paths Configuration ----------------------------------------------------------------- */
 export interface HooksConfig {
   /** Array of hook file paths to load */
@@ -34,19 +31,20 @@ export const defaultHooksConfig: HooksConfig = {
  * Get hook paths from environment variable or config
  * Environment variable: CORE_HOOKS_PATHS (comma-separated)
  */
-export function getHookPathsFromEnv(): string[] {
-  const envPaths = ENV.CORE_HOOKS_PATHS;
-  if (envPaths) {
-    return envPaths.split(',').map(path => path.trim()).filter(Boolean);
-  }
-  return [];
-}
+// export function getHookPathsFromEnv(): string[] {
+//   const envPaths = [];
+//   if (envPaths) {
+//     return envPaths.split(',').map(path => path.trim()).filter(Boolean);
+//   }
+//   return [];
+// }
 
 /**
  * Merge hook paths from environment and config
  */
 export function mergeHookPaths(config: HooksConfig): string[] {
-  const envPaths = getHookPathsFromEnv();
-  return [...envPaths, ...config.paths];
+  // const envPaths = getHookPathsFromEnv();
+  // return [...envPaths, ...config.paths];
+  return config.paths || [];
 }
 

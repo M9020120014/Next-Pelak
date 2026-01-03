@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 import { SECURITY_HEADERS } from "./core/config/security";
-import { IS_PRODUCTION } from "./core/config/env-merge";
+import { IS_PRODUCTION } from "./core/config/env";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -86,6 +86,26 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: false,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // S3 Storage Configuration
+    remotePatterns: (() => {
+      const sssObject = process.env.SSS_OBJECT;
+      const patterns: Array<{ protocol: 'http' | 'https'; hostname: string; pathname: string }> = [];
+      
+      if (sssObject && sssObject.startsWith('http')) {
+        try {
+          const url = new URL(sssObject);
+          patterns.push({
+            protocol: url.protocol === 'https:' ? 'https' : 'http',
+            hostname: url.hostname,
+            pathname: '/**',
+          });
+        } catch (error) {
+          console.warn('Invalid SSS_OBJECT URL:', sssObject);
+        }
+      }
+      
+      return patterns;
+    })(),
   },
   // Performance optimizations
   experimental: {

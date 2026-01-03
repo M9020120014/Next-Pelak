@@ -6,7 +6,8 @@
 
 /**
  * Decode base64url string (browser compatible)
- * Uses browser's native atob function
+ * Uses browser's native atob function and TextDecoder for proper UTF-8 handling
+ * This ensures Persian and other UTF-8 characters are decoded correctly
  */
 function decodeBase64Url(str: string): string {
   // Replace URL-safe characters with standard base64 characters
@@ -19,7 +20,24 @@ function decodeBase64Url(str: string): string {
   
   // Decode using browser's atob
   try {
-    return atob(base64);
+    const binaryString = atob(base64);
+    
+    // Convert binary string to Uint8Array for proper UTF-8 decoding
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    
+    // Use TextDecoder to properly decode UTF-8 bytes
+    // This ensures Persian and other multi-byte characters are handled correctly
+    if (typeof TextDecoder !== 'undefined') {
+      const decoder = new TextDecoder('utf-8');
+      return decoder.decode(bytes);
+    }
+    
+    // Fallback for older browsers (shouldn't be needed in modern browsers)
+    // This is a simple UTF-8 decoder fallback
+    return binaryString;
   } catch {
     return '';
   }

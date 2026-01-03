@@ -17,6 +17,7 @@ import { Container } from './Container'
 import * as Dialog from './Dialog'
 import * as Card from './Card'
 import { Separator } from './Separator'
+import { Skeleton } from './Skeleton'
 /* --- Types -------------------------------------------------------- */
 type Properties = string | number | boolean | string[] | number[] | boolean[] ;
 export type ItemMap = Record<string, Properties>
@@ -41,6 +42,6 @@ export function ClassName(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 /* --- Exports ------------------------------------------------------ */
-export const UI = { Input, Button, Icon, InputSecret, AspectRatio, Container, ...Dialog, ...Card, Separator }
+export const UI = { Input, Button, Icon, InputSecret, AspectRatio, Container, ...Dialog, ...Card, Separator, Skeleton }
 /* --- q.:| ♢ |:.p -------------------------------------------------- */
 /* --- Thanks God --------------------------------------------------- */

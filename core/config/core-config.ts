@@ -3,12 +3,9 @@
 /* Projects can override these configurations via core/config/project-override.ts */
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import type { MetadataConfig } from './metadata';
-import type { HooksConfig } from './hooks';
-import type { MessagesConfig } from './messages';
-import { defaultMetadataConfig } from './metadata';
-import { defaultHooksConfig } from './hooks';
-import { defaultMessagesConfig } from './messages';
+import { defaultMetadataConfig , type MetadataConfig } from './metadata';
+import { defaultHooksConfig , type HooksConfig } from './hooks';
+import { defaultMessagesConfig , type MessagesConfig } from './messages';
 
 /* --- Core Configuration Interface ------------------------------------------------------------- */
 export interface CoreConfig {

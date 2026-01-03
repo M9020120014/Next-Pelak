@@ -28,7 +28,7 @@ export const MobileMenu: MenuItem[] = [
     icon: 'dashboard',
   },
   {
-    href: '/pages',
+    href: '/page',
     label: {
       fa: 'صفحه ها',
       en: 'Pages',

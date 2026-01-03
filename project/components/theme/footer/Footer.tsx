@@ -80,7 +80,7 @@ export default function Footer({ className }: FooterProps) {
                   asChild
                   className="justify-start w-full px-0 text-sm hover:text-Primary"
                 >
-                  <Link href={`/${lang}/pages`}>{t.newsAndEvents}</Link>
+                  <Link href={`/${lang}/page`}>{t.newsAndEvents}</Link>
                 </Button>
               </li>
               <li>

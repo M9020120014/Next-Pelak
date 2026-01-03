@@ -437,3 +437,30 @@ hookRegistry.register('auth:after-login', async (user) => {
 # project configs شما بدون تغییر باقی می‌مانند
 cp -r core/ new-project/
 ```
+
+## سیستم امنیتی دو مرحله‌ای برای عملیات نوشتن
+
+برای محافظت از عملیات نوشتن در دیتابیس (INSERT, UPDATE, DELETE)، سیستم دو مرحله‌ای پیاده‌سازی شده است که قبل از اجرای هر عملیات نوشتن، بررسی می‌کند که `idevice` درخواست‌دهنده دارای `refresh token` معتبر است.
+
+**مستندات کامل**: [docs/WRITE_OPERATION_GUARD.md](../docs/WRITE_OPERATION_GUARD.md)
+
+**استفاده سریع**:
+
+```typescript
+import { guardWriteOperation } from "@/core/lib/security/write-operation-guard"
+
+async function POSTHandler(request: NextRequest) {
+  const body = await request.json()
+  
+  return guardWriteOperation(body, async () => {
+    // عملیات نوشتن شما
+    const result = await callRpc("your_write_function", {...})
+    return successResponse({...})
+  })
+}
+```
+
+**نکات مهم**:
+- این سیستم فقط برای عملیات نوشتن استفاده می‌شود (به جز API های احراز هویت)
+- API های خواندن (GET) نیازی به این بررسی ندارند
+- برای جزئیات بیشتر به [مستندات کامل](../docs/WRITE_OPERATION_GUARD.md) مراجعه کنید

@@ -2,7 +2,7 @@
 /* Safe logging utilities that use console in development and logger service in production */
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { IS_DEVELOPMENT } from '@/core/config/env-merge'
+import { IS_DEVELOPMENT } from '@/core/config/env'
 import { SubmitLogServer } from './logger'
 
 /**

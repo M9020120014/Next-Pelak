@@ -3,7 +3,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 /* --- Config ----------------------------------------------------------------------------------- */
-import { ENV, IS_DEVELOPMENT } from '@/core/config/env-merge'
+import { ENV, IS_DEVELOPMENT } from '@/core/config/env'
 import { COOKIE, ROUTES } from '@/core/config/security'
 import { getCoreConfig } from '@/core/config/core-config'
 import { getMessages } from '@/core/config/messages'

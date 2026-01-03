@@ -3,7 +3,7 @@
 import type { Metadata, Viewport } from "next";
 import Security from "@/core/components/provider/Security";
 /* --- Config ----------------------------------------------------------------------------------- */
-import { IS_PRODUCTION, validateEnv } from "@/core/config/env-merge";
+import { IS_PRODUCTION, validateEnv } from "@/core/config/env";
 import { getCoreConfig } from "@/core/config/core-config";
 import { createMetadataFromConfig, createViewportFromConfig } from "@/core/config/metadata";
 /* --- Hooks ------------------------------------------------------------------------------------ */

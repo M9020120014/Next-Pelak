@@ -83,11 +83,23 @@ NODE_ENV=development
 ### راه‌اندازی دیتابیس
 
 ```bash
-# Run database migrations
-psql -U your_user -d your_database -f core/database/migrations/database_migration.sql
+# اجرای فایل master برای ایجاد تمام جداول و توابع
+psql -U your_user -d your_database -f core/database/master.sql
 
-# Run database functions
-psql -U your_user -d your_database -f core/database/functions/database_functions.sql
+# یا اجرای جداگانه فایل‌ها:
+# Schema (جداول)
+psql -U your_user -d your_database -f core/database/schema/01_auth_tables.sql
+psql -U your_user -d your_database -f core/database/schema/02_content_tables.sql
+psql -U your_user -d your_database -f core/database/schema/03_comments_tables.sql
+psql -U your_user -d your_database -f core/database/schema/04_sequences.sql
+
+# Functions (توابع)
+psql -U your_user -d your_database -f core/database/functions/01_auth_functions.sql
+psql -U your_user -d your_database -f core/database/functions/02_content_functions.sql
+psql -U your_user -d your_database -f core/database/functions/03_comments_functions.sql
+
+# Migration (در صورت نیاز)
+psql -U your_user -d your_database -f core/database/migrations/database_migration.sql
 ```
 
 برای جزئیات بیشتر، به [DATABASE.md](DATABASE.md) مراجعه کنید.

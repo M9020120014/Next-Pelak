@@ -29,7 +29,8 @@ const translator = {
     verifyError: "کد تأیید اشتباه است",
     passwordError: "خطا در تنظیم رمز عبور",
     serverError: "خطا در ارتباط با سرور",
-    login: "رفتن به صفحه ورود",
+    backToLogin: "بازگشت به ورود",
+    changeMobile: "اصلاح شماره موبایل",
   },
   en: {
     registerTitle: "Register",
@@ -57,13 +58,27 @@ const translator = {
     verifyError: "Invalid verification code",
     passwordError: "Error setting password",
     serverError: "Server connection error",
-    login: "Go to login page",
+    backToLogin: "Back to login",
+    changeMobile: "Change mobile number",
   },
 };
 
-export default async function VerificationPage({ params }: LANG_PARAMS) {
+export default async function VerificationPage({ 
+  params,
+  searchParams 
+}: LANG_PARAMS & { searchParams: Promise<{ mobile?: string; mode?: string }> }) {
   const { lang } = await LANG(params);
   const iDevice = await getIDeviceToken();
-  return <VerificationComponent iDevice={iDevice} lang={lang} translator={translator[lang as keyof typeof translator]} />;
+  const { mobile, mode } = await searchParams;
+  
+  return (
+    <VerificationComponent 
+      iDevice={iDevice} 
+      lang={lang} 
+      initialMobile={mobile}
+      mode={mode === "forgot" ? "forgot" : "register"}
+      translator={translator[lang as keyof typeof translator]} 
+    />
+  );
 }
 

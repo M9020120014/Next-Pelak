@@ -22,33 +22,42 @@
 
 ### دیتابیس
 
-#### مرحله 1: ایجاد جداول
+#### مرحله 1: ایجاد ساختار دیتابیس (جداول و توابع)
 ```bash
-# اجرای فایل database_tables.sql در دیتابیس
-psql -U htni_admin -d your_database -f database_tables.sql
+# روش 1: اجرای فایل master (پیشنهادی)
+psql -U htni_admin -d your_database -f core/database/master.sql
+
+# روش 2: اجرای جداگانه فایل‌ها
+# Schema (جداول)
+psql -U htni_admin -d your_database -f core/database/schema/01_auth_tables.sql
+psql -U htni_admin -d your_database -f core/database/schema/02_content_tables.sql
+psql -U htni_admin -d your_database -f core/database/schema/03_comments_tables.sql
+psql -U htni_admin -d your_database -f core/database/schema/04_sequences.sql
+
+# Functions (توابع)
+psql -U htni_admin -d your_database -f core/database/functions/01_auth_functions.sql
+psql -U htni_admin -d your_database -f core/database/functions/02_content_functions.sql
+psql -U htni_admin -d your_database -f core/database/functions/03_comments_functions.sql
 ```
 
 **بررسی**:
 - [ ] بررسی وجود جدول `refresh_tokens_history`
 - [ ] بررسی indexes ایجاد شده
+- [ ] بررسی وجود تمام جداول (users, refresh_tokens, selectortype, selector, page, comments, comment_likes)
+- [ ] بررسی وجود تمام sequences
 
-#### مرحله 2: ایجاد توابع
-```bash
-# اجرای فایل database_functions.sql در دیتابیس
-psql -U htni_admin -d your_database -f database_functions.sql
-```
-
-**بررسی**:
-- [ ] تست تابع `auth_revoke_token`
-- [ ] تست تابع `auth_cleanup_expired_tokens`
+**بررسی توابع**:
+- [ ] تست توابع احراز هویت (`auth_register_user`, `auth_set_password`, `auth_login`, `auth_refresh_token`, `auth_revoke_token`, `auth_revoke_all_tokens`, `auth_check_idevice_refresh_token`, `auth_cleanup_expired_tokens`)
+- [ ] تست توابع محتوا (`selectors_get_tree`, `selectors_get`, `selectors_get_selector`, `page_get_summaries`, `page_get_url`, `page_get_id`)
+- [ ] تست توابع نظرات (`comments_get_by_pageid`, `comments_create`, `comments_update`, `comments_delete`, `comments_toggle_like`)
 - [ ] تست تابع `auth_refresh_token` با IP معتبر
 - [ ] تست تابع `auth_refresh_token` با IP = 'unknown'
 - [ ] تست تابع `auth_login` برای انتقال توکن قدیمی
 
-#### مرحله 3: Migration داده‌های موجود
+#### مرحله 2: Migration داده‌های موجود
 ```bash
 # اگر توکن‌های منقضی شده وجود دارد
-psql -U htni_admin -d your_database -f database_migration.sql
+psql -U htni_admin -d your_database -f core/database/migrations/database_migration.sql
 ```
 
 **بررسی**:
@@ -173,9 +182,15 @@ hookRegistry.register('auth:after-login', async (user) => {
 
 - `ARCHITECTURE.md` - راهنمای معماری و استفاده از سیستم CMS
 - `DATABASE.md` - مستندات دیتابیس و توابع
-- `database_tables.sql` - اسکریپت ایجاد جداول
-- `database_functions.sql` - اسکریپت ایجاد توابع
-- `database_migration.sql` - اسکریپت migration
+- `master.sql` - فایل master برای اجرای همه فایل‌ها
+- `schema/01_auth_tables.sql` - جداول احراز هویت
+- `schema/02_content_tables.sql` - جداول محتوا
+- `schema/03_comments_tables.sql` - جداول نظرات
+- `schema/04_sequences.sql` - Sequences
+- `functions/01_auth_functions.sql` - توابع احراز هویت
+- `functions/02_content_functions.sql` - توابع محتوا
+- `functions/03_comments_functions.sql` - توابع نظرات
+- `migrations/database_migration.sql` - اسکریپت migration
 
 ## 🆘 Troubleshooting
 
