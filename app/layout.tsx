@@ -2,8 +2,8 @@
 import "@/app/globals.css";
 import CoreLayout from "@/core/app/layout";
 /* --- Config ----------------------------------------------------------------------------------- */
-import { getCoreConfig, setCoreConfig } from "@/core/config/core-config";
 import { projectCoreConfig } from "@/core/config/project-override";
+import { setCoreConfig } from "@/core/config/core-config";
 /* --- Set Core Configuration ------------------------------------------------------------------- */
 // Set project-specific core configuration before rendering
 // This must be called before CoreLayout is used

@@ -33,7 +33,7 @@
 \i schema/01_sequences.sql
 
 \echo ''
-\echo '--- ایجاد جداول پایه (selectortype, selector) ---'
+\echo '--- ایجاد جداول پایه (roles, profile_images, page_sections, page_types) ---'
 \i schema/02_base_tables.sql
 
 \echo ''

@@ -1,7 +1,7 @@
 -- ============================================================================
 -- ماژول: احراز هویت و مدیریت کاربران
 -- توضیحات: جداول مربوط به کاربران و مدیریت توکن‌های احراز هویت
--- این جداول به selector وابسته هستند و باید بعد از آن ساخته شوند
+-- این جداول به roles و profile_images وابسته هستند و باید بعد از آن‌ها ساخته شوند
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
@@ -58,16 +58,16 @@ CREATE TABLE IF NOT EXISTS "pelak"."users" (
   -- زمان آخرین به‌روزرسانی (Default: زمان فعلی)
   "updated_at" timestamptz(6) DEFAULT now(),
   
-  -- شناسه تصویر پروفایل از لیست سلکتور (Foreign Key → pelak.selector.id)
-  -- تصویر از لیست سلکتورهای pelak انتخاب می‌شود
+  -- شناسه تصویر پروفایل از لیست تصاویر پیش‌فرض (Foreign Key → pelak.profile_images.id)
+  -- تصویر از لیست تصاویر پیش‌فرض pelak انتخاب می‌شود
   "profile_image_id" int4,
   
   -- URL تصویر پروفایل از سامانه خارجی
   -- در صورت آپلود تصویر از سامانه دیگر، این فیلد پر می‌شود
   "profile_image_url" text COLLATE "pg_catalog"."default",
   
-  -- شناسه نقش کاربر (Foreign Key → pelak.selector.id)
-  -- نقش از سلکتورهای pelak انتخاب می‌شود
+  -- شناسه نقش کاربر (Foreign Key → pelak.roles.id)
+  -- نقش از جدول roles انتخاب می‌شود
   "role_id" int4,
   
   -- Primary Key
@@ -76,11 +76,11 @@ CREATE TABLE IF NOT EXISTS "pelak"."users" (
   -- Unique Constraint: هر شماره موبایل فقط یک بار می‌تواند ثبت شود
   CONSTRAINT "users_mobile_key" UNIQUE ("mobile"),
   
-  -- Foreign Key: تصویر پروفایل از سلکتور (CASCADE در صورت حذف سلکتور)
-  CONSTRAINT "users_profile_image_id_fkey" FOREIGN KEY ("profile_image_id") REFERENCES "pelak"."selector" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+  -- Foreign Key: تصویر پروفایل از جدول profile_images (SET NULL در صورت حذف)
+  CONSTRAINT "users_profile_image_id_fkey" FOREIGN KEY ("profile_image_id") REFERENCES "pelak"."profile_images" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
   
-  -- Foreign Key: نقش کاربر از سلکتور (CASCADE در صورت حذف سلکتور)
-  CONSTRAINT "users_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "pelak"."selector" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+  -- Foreign Key: نقش کاربر از جدول roles (SET NULL در صورت حذف)
+  CONSTRAINT "users_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "pelak"."roles" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
   
   -- Constraint: فقط یکی از profile_image_id یا profile_image_url باید مقدار داشته باشد
   CONSTRAINT "users_profile_image_check" CHECK (

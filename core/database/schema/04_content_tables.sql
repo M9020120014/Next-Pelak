@@ -1,7 +1,7 @@
 -- ============================================================================
 -- ماژول: مدیریت محتوا
 -- توضیحات: جداول مربوط به صفحات سایت
--- این جداول به users و selector وابسته هستند و باید بعد از آن‌ها ساخته شوند
+-- این جداول به users و page_sections و page_types و languages وابسته هستند و باید بعد از آن‌ها ساخته شوند
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
@@ -41,11 +41,11 @@ CREATE TABLE IF NOT EXISTS "pelak"."page" (
   -- شناسه نویسنده (Foreign Key → users.id)
   "authors" int4,
   
-  -- شناسه بخش (Foreign Key → selector.id)
+  -- شناسه بخش (Foreign Key → page_sections.id)
   -- برای دسته‌بندی صفحات
   "section_id" int4,
   
-  -- شناسه نوع صفحه (Foreign Key → selector.id)
+  -- شناسه نوع صفحه (Foreign Key → page_types.id)
   -- برای تفکیک انواع صفحات (مقاله، خبر، و غیره)
   "type_id" int4,
   
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS "pelak"."page" (
   -- وضعیت صفحه (0 = پیش‌نویس, 1 = منتشر شده, 2 = بایگانی شده)
   "status" int2,
   
-  -- زبان صفحه (0 = فارسی, 1 = انگلیسی, و غیره)
+  -- زبان صفحه (Foreign Key → languages.id) (1 = فارسی, 2 = انگلیسی)
   "lang" int2,
   
   -- زمان ایجاد رکورد (Default: زمان فعلی)
@@ -73,11 +73,14 @@ CREATE TABLE IF NOT EXISTS "pelak"."page" (
   -- Foreign Key: نویسنده (CASCADE در صورت حذف کاربر)
   CONSTRAINT "page_authors_fkey" FOREIGN KEY ("authors") REFERENCES "pelak"."users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
   
-  -- Foreign Key: بخش (CASCADE در صورت حذف سلکتور)
-  CONSTRAINT "page_section_id_fkey" FOREIGN KEY ("section_id") REFERENCES "pelak"."selector" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  -- Foreign Key: بخش (SET NULL در صورت حذف)
+  CONSTRAINT "page_section_id_fkey" FOREIGN KEY ("section_id") REFERENCES "pelak"."page_sections" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
   
-  -- Foreign Key: نوع صفحه (CASCADE در صورت حذف سلکتور)
-  CONSTRAINT "page_type_id_fkey" FOREIGN KEY ("type_id") REFERENCES "pelak"."selector" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  -- Foreign Key: نوع صفحه (SET NULL در صورت حذف)
+  CONSTRAINT "page_type_id_fkey" FOREIGN KEY ("type_id") REFERENCES "pelak"."page_types" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+  
+  -- Foreign Key: زبان صفحه (SET NULL در صورت حذف)
+  CONSTRAINT "page_lang_fkey" FOREIGN KEY ("lang") REFERENCES "pelak"."languages" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 ALTER TABLE "pelak"."page" 

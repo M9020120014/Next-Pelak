@@ -802,26 +802,26 @@ $BODY$;
 -- ----------------------------------------------------------------------------
 -- تابع: user_update_profile_image
 -- توضیحات: ویرایش تصویر پروفایل کاربر
--- تصویر می‌تواند از لیست سلکتور pelak انتخاب شود یا از URL خارجی باشد
+-- تصویر می‌تواند از لیست تصاویر پیش‌فرض pelak انتخاب شود یا از URL خارجی باشد
 -- فقط یکی از profile_image_id یا profile_image_url باید مقدار داشته باشد
 -- 
 -- پارامترها:
 --   p_user_id: شناسه کاربر
---   p_profile_image_id: شناسه تصویر از سلکتور pelak (nullable)
+--   p_profile_image_id: شناسه تصویر از جدول profile_images pelak (nullable)
 --   p_profile_image_url: URL تصویر از سامانه خارجی (nullable)
 -- 
 -- منطق کاری:
 --   1. بررسی وجود کاربر
 --   2. اعتبارسنجی: فقط یکی از دو پارامتر باید مقدار داشته باشد
---   3. بررسی وجود selector در صورت استفاده از profile_image_id
+--   3. بررسی وجود تصویر در جدول profile_images در صورت استفاده از profile_image_id
 --   4. به‌روزرسانی تصویر پروفایل
 -- 
 -- مقادیر بازگشتی:
 --   موفق: {success: true, title: "Profile Image Updated", message: "..."}
---   خطا: {success: false, title: "User Not Found" | "Invalid Parameters" | "Selector Not Found" | "Error", message: "..."}
+--   خطا: {success: false, title: "User Not Found" | "Invalid Parameters" | "Profile Image Not Found" | "Error", message: "..."}
 -- 
 -- مثال استفاده:
---   SELECT user_update_profile_image(1, 5, NULL); -- استفاده از selector
+--   SELECT user_update_profile_image(1, 5, NULL); -- استفاده از تصویر پیش‌فرض
 --   SELECT user_update_profile_image(1, NULL, 'https://example.com/image.jpg'); -- استفاده از URL
 -- ----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION "public"."user_update_profile_image"(
@@ -876,17 +876,17 @@ BEGIN
     );
   END IF;
 
-  -- اگر از selector استفاده می‌شود، بررسی وجود آن
+  -- اگر از تصویر پیش‌فرض استفاده می‌شود، بررسی وجود آن
   IF p_profile_image_id IS NOT NULL THEN
-    IF NOT EXISTS (SELECT 1 FROM pelak.selector WHERE id = p_profile_image_id) THEN
+    IF NOT EXISTS (SELECT 1 FROM pelak.profile_images WHERE id = p_profile_image_id AND is_active = true) THEN
       RETURN json_build_object(
         'success', false,
-        'title', 'Selector Not Found',
-        'message', 'سلکتور تصویر پروفایل یافت نشد.'
+        'title', 'Profile Image Not Found',
+        'message', 'تصویر پروفایل انتخابی یافت نشد یا غیرفعال است.'
       );
     END IF;
 
-    -- به‌روزرسانی با selector
+    -- به‌روزرسانی با تصویر پیش‌فرض
     UPDATE pelak.users
     SET profile_image_id = p_profile_image_id,
         profile_image_url = NULL,

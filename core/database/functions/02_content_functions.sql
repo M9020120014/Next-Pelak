@@ -1,27 +1,28 @@
 -- ============================================================================
 -- ماژول: توابع مدیریت محتوا
--- توضیحات: توابع مربوط به سلکتورها و صفحات سایت
+-- توضیحات: توابع مربوط به سلکتورها (فقط برای شمای htni) و صفحات سایت
+-- توجه: شمای pelak دیگر از selector استفاده نمی‌کند و از جداول اختصاصی استفاده می‌کند
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- تابع helper: selector_tree
 -- توضیحات: ساخت JSON سلسله مراتبی برای یک selector با children
 -- این تابع به صورت recursive کار می‌کند و تمام فرزندان را می‌یابد
+-- توجه: این تابع فقط برای شمای htni کار می‌کند
 -- 
 -- پارامترها:
 --   p_selector_id: شناسه selector
 --   p_type_id: شناسه نوع selector
---   p_schema: نام schema (pelak یا htni) - پیش‌فرض: pelak
+--   p_schema: نام schema (فقط htni) - پیش‌فرض: htni
 -- 
 -- مقادیر بازگشتی:
 --   JSONB object شامل selector و children (recursive)
---   NULL در صورت عدم یافتن selector
+--   NULL در صورت عدم یافتن selector یا استفاده از schema نامعتبر
 -- 
 -- مثال استفاده:
---   SELECT selector_tree(1, 1, 'pelak');
 --   SELECT selector_tree(1, 1, 'htni');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."selector_tree"("p_selector_id" int4, "p_type_id" int4, "p_schema" varchar DEFAULT 'pelak')
+CREATE OR REPLACE FUNCTION "public"."selector_tree"("p_selector_id" int4, "p_type_id" int4, "p_schema" varchar DEFAULT 'htni')
 RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
@@ -31,10 +32,10 @@ DECLARE
   v_child_selector RECORD;
   v_children jsonb := '[]'::jsonb;
   v_child jsonb;
-  v_schema_name varchar := LOWER(COALESCE(p_schema, 'pelak'));
+  v_schema_name varchar := LOWER(COALESCE(p_schema, 'htni'));
 BEGIN
-  -- اعتبارسنجی schema
-  IF v_schema_name NOT IN ('pelak', 'htni') THEN
+  -- اعتبارسنجی schema - فقط htni مجاز است
+  IF v_schema_name != 'htni' THEN
     RETURN NULL;
   END IF;
 
@@ -83,25 +84,26 @@ $BODY$;
 -- تابع: selectors_get_tree
 -- توضیحات: دریافت selectorها بر اساس code یا title از selectortype با ساختار سلسله مراتبی
 -- این تابع selectorها را به صورت درختی با تمام فرزندان برمی‌گرداند
+-- توجه: این تابع فقط برای شمای htni کار می‌کند
 -- 
 -- پارامترها:
 --   p_type_identifier: code یا title از selectortype
---   p_schema: نام schema (pelak یا htni) - پیش‌فرض: pelak
+--   p_schema: نام schema (فقط htni) - پیش‌فرض: htni
 -- 
 -- منطق کاری:
---   1. پیدا کردن selectortype بر اساس code یا title
---   2. دریافت root selectorها (selectorid IS NULL)
---   3. ساخت JSON سلسله مراتبی با استفاده از selector_tree
+--   1. بررسی schema (فقط htni مجاز است)
+--   2. پیدا کردن selectortype بر اساس code یا title
+--   3. دریافت root selectorها (selectorid IS NULL)
+--   4. ساخت JSON سلسله مراتبی با استفاده از selector_tree
 -- 
 -- مقادیر بازگشتی:
 --   موفق: {success: true, title: "Selectors Retrieved", selectors: [...]}
---   خطا: {success: false, title: "Type Not Found" | "Error", selectors: []}
+--   خطا: {success: false, title: "Invalid Schema" | "Type Not Found" | "Error", selectors: []}
 -- 
 -- مثال استفاده:
---   SELECT selectors_get_tree('cat', 'pelak'); -- با code از pelak
 --   SELECT selectors_get_tree('province', 'htni'); -- با code از htni
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."selectors_get_tree"("p_type_identifier" varchar, "p_schema" varchar DEFAULT 'pelak')
+CREATE OR REPLACE FUNCTION "public"."selectors_get_tree"("p_type_identifier" varchar, "p_schema" varchar DEFAULT 'htni')
 RETURNS "pg_catalog"."json"
 LANGUAGE plpgsql
 VOLATILE
@@ -113,14 +115,14 @@ DECLARE
   v_selectors JSONB := '[]'::jsonb;
   v_root_selector RECORD;
   v_selector_json jsonb;
-  v_schema_name varchar := LOWER(COALESCE(p_schema, 'pelak'));
+  v_schema_name varchar := LOWER(COALESCE(p_schema, 'htni'));
 BEGIN
-  -- اعتبارسنجی schema
-  IF v_schema_name NOT IN ('pelak', 'htni') THEN
+  -- اعتبارسنجی schema - فقط htni مجاز است
+  IF v_schema_name != 'htni' THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Invalid Schema',
-      'message', 'Schema نامعتبر است. باید pelak یا htni باشد.',
+      'message', 'این تابع فقط برای شمای htni کار می‌کند. شمای pelak دیگر از selector استفاده نمی‌کند.',
       'selectors', '[]'::json
     );
   END IF;
@@ -196,24 +198,25 @@ $BODY$;
 -- تابع: selectors_get
 -- توضیحات: دریافت همه selectorها بر اساس code یا title از selectortype بدون ساختار سلسله مراتبی
 -- این تابع selectorها را به صورت flat list برمی‌گرداند (بدون children)
+-- توجه: این تابع فقط برای شمای htni کار می‌کند
 -- 
 -- پارامترها:
 --   p_type_identifier: code یا title از selectortype
---   p_schema: نام schema (pelak یا htni) - پیش‌فرض: pelak
+--   p_schema: نام schema (فقط htni) - پیش‌فرض: htni
 -- 
 -- منطق کاری:
---   1. پیدا کردن selectortype بر اساس code یا title
---   2. دریافت همه selectorها بدون فرزندان
+--   1. بررسی schema (فقط htni مجاز است)
+--   2. پیدا کردن selectortype بر اساس code یا title
+--   3. دریافت همه selectorها بدون فرزندان
 -- 
 -- مقادیر بازگشتی:
 --   موفق: {success: true, title: "Selectors Retrieved", selectors: [...]}
---   خطا: {success: false, title: "Type Not Found" | "Error", selectors: []}
+--   خطا: {success: false, title: "Invalid Schema" | "Type Not Found" | "Error", selectors: []}
 -- 
 -- مثال استفاده:
---   SELECT selectors_get('cat', 'pelak');
 --   SELECT selectors_get('province', 'htni');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."selectors_get"("p_type_identifier" varchar, "p_schema" varchar DEFAULT 'pelak')
+CREATE OR REPLACE FUNCTION "public"."selectors_get"("p_type_identifier" varchar, "p_schema" varchar DEFAULT 'htni')
 RETURNS "pg_catalog"."json"
 LANGUAGE plpgsql
 VOLATILE
@@ -223,14 +226,14 @@ AS $BODY$
 DECLARE
   v_type_id INTEGER;
   v_selectors JSONB := '[]'::jsonb;
-  v_schema_name varchar := LOWER(COALESCE(p_schema, 'pelak'));
+  v_schema_name varchar := LOWER(COALESCE(p_schema, 'htni'));
 BEGIN
-  -- اعتبارسنجی schema
-  IF v_schema_name NOT IN ('pelak', 'htni') THEN
+  -- اعتبارسنجی schema - فقط htni مجاز است
+  IF v_schema_name != 'htni' THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Invalid Schema',
-      'message', 'Schema نامعتبر است. باید pelak یا htni باشد.',
+      'message', 'این تابع فقط برای شمای htni کار می‌کند. شمای pelak دیگر از selector استفاده نمی‌کند.',
       'selectors', '[]'::json
     );
   END IF;
@@ -292,25 +295,26 @@ $BODY$;
 -- تابع: selectors_get_selector
 -- توضیحات: دریافت selectorها بر اساس code یا title از selectortype و selectorid بدون ساختار سلسله مراتبی
 -- این تابع selectorهای فرزند یک selector خاص را برمی‌گرداند
+-- توجه: این تابع فقط برای شمای htni کار می‌کند
 -- 
 -- پارامترها:
 --   p_type_identifier: code یا title از selectortype
 --   p_selectorid: شناسه selector والد
---   p_schema: نام schema (pelak یا htni) - پیش‌فرض: pelak
+--   p_schema: نام schema (فقط htni) - پیش‌فرض: htni
 -- 
 -- منطق کاری:
---   1. پیدا کردن selectortype بر اساس code یا title
---   2. دریافت selectorها با شرط type و selectorid
+--   1. بررسی schema (فقط htni مجاز است)
+--   2. پیدا کردن selectortype بر اساس code یا title
+--   3. دریافت selectorها با شرط type و selectorid
 -- 
 -- مقادیر بازگشتی:
 --   موفق: {success: true, title: "Selectors Retrieved", selectors: [...]}
---   خطا: {success: false, title: "Type Not Found" | "Error", selectors: []}
+--   خطا: {success: false, title: "Invalid Schema" | "Type Not Found" | "Error", selectors: []}
 -- 
 -- مثال استفاده:
---   SELECT selectors_get_selector('cat', 1, 'pelak'); -- فرزندان selector با id=1 از نوع 'cat' در pelak
 --   SELECT selectors_get_selector('city', 5, 'htni'); -- شهرهای استان با id=5 در htni
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."selectors_get_selector"("p_type_identifier" varchar, "p_selectorid" int4, "p_schema" varchar DEFAULT 'pelak')
+CREATE OR REPLACE FUNCTION "public"."selectors_get_selector"("p_type_identifier" varchar, "p_selectorid" int4, "p_schema" varchar DEFAULT 'htni')
 RETURNS "pg_catalog"."json"
 LANGUAGE plpgsql
 VOLATILE
@@ -320,14 +324,14 @@ AS $BODY$
 DECLARE
   v_type_id INTEGER;
   v_selectors JSONB := '[]'::jsonb;
-  v_schema_name varchar := LOWER(COALESCE(p_schema, 'pelak'));
+  v_schema_name varchar := LOWER(COALESCE(p_schema, 'htni'));
 BEGIN
-  -- اعتبارسنجی schema
-  IF v_schema_name NOT IN ('pelak', 'htni') THEN
+  -- اعتبارسنجی schema - فقط htni مجاز است
+  IF v_schema_name != 'htni' THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Invalid Schema',
-      'message', 'Schema نامعتبر است. باید pelak یا htni باشد.',
+      'message', 'این تابع فقط برای شمای htni کار می‌کند. شمای pelak دیگر از selector استفاده نمی‌کند.',
       'selectors', '[]'::json
     );
   END IF;
@@ -393,7 +397,7 @@ $BODY$;
 -- پارامترها:
 --   p_limit: تعداد صفحات در هر صفحه (pagination)
 --   p_offset: تعداد صفحات برای skip کردن (pagination)
---   p_lang: زبان صفحات (0 = فارسی, 1 = انگلیسی, ...)
+--   p_lang: زبان صفحات (1 = فارسی, 2 = انگلیسی) - Foreign Key به pelak.languages.id
 -- 
 -- منطق کاری:
 --   1. فیلتر صفحات با status=1 (منتشر شده) و lang مشخص شده
@@ -405,8 +409,8 @@ $BODY$;
 --   خطا: {success: false, title: "Error", pages: []}
 -- 
 -- مثال استفاده:
---   SELECT page_get_summaries(10, 0, 0); -- 10 صفحه اول فارسی
---   SELECT page_get_summaries(20, 20, 1); -- صفحات 21-40 انگلیسی
+--   SELECT page_get_summaries(10, 0, 1); -- 10 صفحه اول فارسی
+--   SELECT page_get_summaries(20, 20, 2); -- صفحات 21-40 انگلیسی
 -- ----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION "public"."page_get_summaries"("p_limit" int4, "p_offset" int4, "p_lang" int2)
 RETURNS "pg_catalog"."json"
