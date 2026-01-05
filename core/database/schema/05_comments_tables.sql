@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS "pelak"."comments" (
 );
 
 ALTER TABLE "pelak"."comments" 
-  OWNER TO "pelak_admin";
+  OWNER TO "htni_admin";
 
 -- Index for quick search of comments of a page
 CREATE INDEX "idx_comments_pageid" ON "pelak"."comments" USING btree (
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS "pelak"."commentlike" (
 );
 
 ALTER TABLE "pelak"."commentlike" 
-  OWNER TO "pelak_admin";
+  OWNER TO "htni_admin";
 
 -- Index for quick search of likes of a user
 CREATE INDEX "idx_commentlike_userid" ON "pelak"."commentlike" USING btree (

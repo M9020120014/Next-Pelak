@@ -464,7 +464,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
               </div>
 
               {/* Stage 2: Professional Information */}
-              {(additionalInfo.job || additionalInfo.motivation || additionalInfo.howknown || additionalInfo.collaboration) && (
+              {(additionalInfo.job || additionalInfo.political || additionalInfo.motivation || additionalInfo.howknown || additionalInfo.collaboration) && (
                 <div>
                   <h3 className="text-lg lg:text-xl font-bold mb-4 text-Text pb-2 border-b-2 border-Mid/30">{t.stage2}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
@@ -472,6 +472,12 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
                       <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
                         <span className="block text-sm font-semibold text-Mid mb-1">{t.job || 'شغل'}</span>
                         <span className="text-base text-Text">{displayValue(additionalInfo.job)}</span>
+                      </div>
+                    )}
+                    {additionalInfo.political && (
+                      <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
+                        <span className="block text-sm font-semibold text-Mid mb-1">{t.political || 'گرایش سیاسی'}</span>
+                        <span className="text-base text-Text">{displayValue(additionalInfo.political)}</span>
                       </div>
                     )}
                     {additionalInfo.motivation && (

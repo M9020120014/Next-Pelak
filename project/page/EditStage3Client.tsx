@@ -9,6 +9,8 @@ import { useSecurity } from '@/core/components/security/SecurityProvider'
 import ConnectionError from '@/core/components/auth/ConnectionError'
 import { UI as P } from '@/core/components/ui/Pelak'
 import { Selector } from '@/core/components/ui/Selector'
+import { FormField } from '@/core/components/ui/FormField'
+import { TextareaField } from '@/core/components/ui/TextareaField'
 import { profileTranslator } from '@/project/data/translations/profile'
 import { LANGUAGE_TYPE } from '@/project/config/site'
 
@@ -273,24 +275,17 @@ export default function EditStage3Client({ iDevice, lang }: EditStage3ClientProp
         <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
           <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
             {/* Skills */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.skills}
-              </label>
-              <textarea
+            <FormField label={t.skills}>
+              <TextareaField
                 value={skills}
-                onChange={(e) => setSkills(e.target.value)}
-                className="w-full px-3 py-2 border border-Border rounded-lg bg-Background text-Text focus:border-Mid focus:ring-Mid/20 focus:outline-none transition-all resize-none"
-                rows={5}
+                onChange={setSkills}
                 placeholder={t.optional}
+                rows={5}
               />
-            </div>
+            </FormField>
 
             {/* Degree */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.degree}
-              </label>
+            <FormField label={t.degree}>
               <Selector
                 type="degree"
                 value={degreeid || undefined}
@@ -298,13 +293,10 @@ export default function EditStage3Client({ iDevice, lang }: EditStage3ClientProp
                 placeholder={t.selectDegree || "انتخاب مدرک تحصیلی"}
                 isLoading={loading || additionalInfo === null}
               />
-            </div>
+            </FormField>
 
             {/* Study Place Type */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.studyPlaceType}
-              </label>
+            <FormField label={t.studyPlaceType}>
               <Selector
                 type="studyplacetype"
                 value={studyplacetypeid || undefined}
@@ -312,13 +304,10 @@ export default function EditStage3Client({ iDevice, lang }: EditStage3ClientProp
                 placeholder={t.selectStudyPlaceType || "انتخاب نوع محل تحصیل"}
                 isLoading={loading || additionalInfo === null}
               />
-            </div>
+            </FormField>
 
             {/* Study Place */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.studyPlace}
-              </label>
+            <FormField label={t.studyPlace}>
               <Selector
                 type="studyplace"
                 value={studyplaceid || undefined}
@@ -326,13 +315,10 @@ export default function EditStage3Client({ iDevice, lang }: EditStage3ClientProp
                 placeholder={t.selectStudyPlace || "انتخاب محل تحصیل"}
                 isLoading={loading || additionalInfo === null}
               />
-            </div>
+            </FormField>
 
             {/* Study Field */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.studyField}
-              </label>
+            <FormField label={t.studyField}>
               <Selector
                 type="studyfield"
                 value={studyfieldsid || undefined}
@@ -340,7 +326,7 @@ export default function EditStage3Client({ iDevice, lang }: EditStage3ClientProp
                 placeholder={t.selectStudyField || "انتخاب رشته تحصیلی"}
                 isLoading={loading || additionalInfo === null}
               />
-            </div>
+            </FormField>
 
             {/* Buttons */}
             <div className="flex gap-4 pt-4 border-t border-Border/30">

@@ -257,8 +257,9 @@ async function POSTHandler(request: NextRequest) {
       break;
 
     case 2:
-      // Stage 2: job, motivation, howknown, collaboration
+      // Stage 2: job, political, motivation, howknown, collaboration
       if (data.job !== undefined) rpcParams.p_job = data.job;
+      if (data.political !== undefined) rpcParams.p_political = data.political;
       if (data.motivation !== undefined) rpcParams.p_motivation = data.motivation;
       if (data.howknown !== undefined) rpcParams.p_howknown = data.howknown;
       if (data.collaboration !== undefined) rpcParams.p_collaboration = data.collaboration;

@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS "pelak"."userrole" (
 );
 
 ALTER TABLE "pelak"."userrole" 
-  OWNER TO "pelak_admin";
+  OWNER TO "htni_admin";
 
 -- Index for quick search of active roles
 CREATE INDEX "idx_userrole_active" ON "pelak"."userrole" USING btree (
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS "pelak"."userprofile" (
 );
 
 ALTER TABLE "pelak"."userprofile" 
-  OWNER TO "pelak_admin";
+  OWNER TO "htni_admin";
 
 -- Index for quick search of active images
 CREATE INDEX "idx_userprofile_active" ON "pelak"."userprofile" USING btree (
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS "pelak"."pagesection" (
 );
 
 ALTER TABLE "pelak"."pagesection" 
-  OWNER TO "pelak_admin";
+  OWNER TO "htni_admin";
 
 -- Index for quick search of active sections
 CREATE INDEX "idx_pagesection_active" ON "pelak"."pagesection" USING btree (
@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS "pelak"."pagetype" (
 );
 
 ALTER TABLE "pelak"."pagetype" 
-  OWNER TO "pelak_admin";
+  OWNER TO "htni_admin";
 
 -- Index for quick search of active page types
 CREATE INDEX "idx_pagetype_active" ON "pelak"."pagetype" USING btree (
@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS "pelak"."language" (
 );
 
 ALTER TABLE "pelak"."language" 
-  OWNER TO "pelak_admin";
+  OWNER TO "htni_admin";
 
 -- Index for quick search of active languages
 CREATE INDEX "idx_language_active" ON "pelak"."language" USING btree (

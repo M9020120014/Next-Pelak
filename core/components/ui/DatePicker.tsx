@@ -1,7 +1,7 @@
 "use client"
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { ClassName as cn } from "./Pelak"
 import { Input } from "./Input"
 import { Button } from "./Button"
@@ -123,8 +123,19 @@ function DatePickerCalendar({ year, month, selectedDate, onDateSelect }: DatePic
            selectedDate.day === day
   }
   
+  // Calculate number of rows needed (always 6 rows for consistent height)
+  const totalCells = days.length
+  const rowsNeeded = Math.ceil(totalCells / 7)
+  const cellsToShow = rowsNeeded * 7
+  
+  // Pad days array to always have 6 rows (42 cells)
+  const paddedDays = [...days]
+  while (paddedDays.length < cellsToShow) {
+    paddedDays.push(null)
+  }
+  
   return (
-    <div className="grid grid-cols-7 gap-1">
+    <div className="grid grid-cols-7 gap-1 min-h-[280px]">
       {/* Weekday headers */}
       {PERSIAN_WEEKDAYS.map((day) => (
         <div
@@ -136,17 +147,17 @@ function DatePickerCalendar({ year, month, selectedDate, onDateSelect }: DatePic
       ))}
       
       {/* Calendar days */}
-      {days.map((day, index) => (
+      {paddedDays.map((day, index) => (
         <button
           key={index}
           type="button"
           onClick={() => day && onDateSelect(year, month, day)}
           disabled={!day}
           className={cn(
-            "aspect-square text-sm rounded-lg transition-colors",
-            !day && "cursor-default",
-            day && "hover:bg-gray-100",
-            isSelected(day) && "bg-indigo-600 text-white hover:bg-indigo-700",
+            "aspect-square text-sm rounded-lg transition-colors min-h-[36px] flex items-center justify-center",
+            !day && "cursor-default opacity-0 pointer-events-none",
+            day && "hover:bg-Mid/10 cursor-pointer",
+            isSelected(day) && "bg-Mid text-white hover:bg-Mid/90",
             day && !isSelected(day) && "text-Text"
           )}
         >
@@ -179,21 +190,40 @@ function DatePickerHeader({
 }: DatePickerHeaderProps) {
   const [showYearInput, setShowYearInput] = useState(false)
   const [yearInput, setYearInput] = useState(year.toString())
+  const yearInputRef = useRef<HTMLInputElement>(null)
   
   useEffect(() => {
     setYearInput(year.toString())
   }, [year])
   
+  useEffect(() => {
+    if (showYearInput && yearInputRef.current) {
+      yearInputRef.current.select()
+    }
+  }, [showYearInput])
+  
   const handleYearSubmit = () => {
     const newYear = parseInt(yearInput, 10)
-    if (newYear >= 1300 && newYear <= 1500) {
+    if (!isNaN(newYear) && newYear >= 1300 && newYear <= 1500) {
       onYearSelect?.(newYear)
+      setShowYearInput(false)
+    } else {
+      // Reset to current year if invalid
+      setYearInput(year.toString())
       setShowYearInput(false)
     }
   }
   
+  const handleYearInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(/\D/g, '')
+    // Allow typing up to 4 digits without restriction
+    if (val === '' || val.length <= 4) {
+      setYearInput(val)
+    }
+  }
+  
   return (
-    <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center justify-between mb-4 px-1">
       <div className="flex items-center gap-2">
         <Button
           type="button"
@@ -217,37 +247,35 @@ function DatePickerHeader({
         {showYearInput ? (
           <div className="flex items-center gap-2">
             <Input
+              ref={yearInputRef}
               type="text"
               value={yearInput}
-              onChange={(e) => {
-                const val = e.target.value.replace(/\D/g, '')
-                if (val === '' || (parseInt(val, 10) >= 1300 && parseInt(val, 10) <= 1500)) {
-                  setYearInput(val)
-                }
-              }}
+              onChange={handleYearInputChange}
               onBlur={handleYearSubmit}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
+                  e.preventDefault()
                   handleYearSubmit()
                 } else if (e.key === 'Escape') {
                   setShowYearInput(false)
                   setYearInput(year.toString())
                 }
               }}
-              className="w-20 text-center"
+              className="w-20 text-center font-semibold"
               autoFocus
+              maxLength={4}
             />
           </div>
         ) : (
           <button
             type="button"
             onClick={() => setShowYearInput(true)}
-            className="px-3 py-1 text-lg font-semibold hover:bg-gray-100 rounded-lg"
+            className="px-3 py-1 text-lg font-semibold text-Text hover:bg-Mid/10 rounded-lg transition-colors"
           >
             {year}
           </button>
         )}
-        <span className="text-lg font-semibold">{PERSIAN_MONTHS[month]}</span>
+        <span className="text-lg font-semibold text-Text">{PERSIAN_MONTHS[month]}</span>
       </div>
       
       <div className="flex items-center gap-2">
@@ -387,19 +415,20 @@ export function DatePicker({
         selectedDate={parsedDate}
         onDateSelect={handleDateSelect}
       />
-      <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+      <div className="flex items-center justify-between mt-4 pt-4 border-t border-Border/30">
         {parsedDate && (
           <Button
             type="button"
             onClick={handleClear}
             className="text-sm"
             Size="sm"
+            Theme="ghost"
           >
             پاک کردن
           </Button>
         )}
         {displayError && (
-          <p className="text-sm text-red-600">{displayError}</p>
+          <p className="text-sm text-red-600 dark:text-red-400">{displayError}</p>
         )}
         {!parsedDate && !displayError && <div />}
       </div>
@@ -440,10 +469,7 @@ export function DatePicker({
             )}
           </div>
         </Dialog.DialogTrigger>
-        <Dialog.DialogContent className="max-w-sm">
-          <Dialog.DialogHeader>
-            <Dialog.DialogTitle>انتخاب تاریخ</Dialog.DialogTitle>
-          </Dialog.DialogHeader>
+        <Dialog.DialogContent className="max-w-sm p-0">
           {calendarContent}
         </Dialog.DialogContent>
       </Dialog.Dialog>

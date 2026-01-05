@@ -8,6 +8,8 @@ import { getAccessToken } from '@/core/lib/auth/token-manager'
 import { useSecurity } from '@/core/components/security/SecurityProvider'
 import ConnectionError from '@/core/components/auth/ConnectionError'
 import { UI as P } from '@/core/components/ui/Pelak'
+import { FormField } from '@/core/components/ui/FormField'
+import { TextareaField } from '@/core/components/ui/TextareaField'
 import { profileTranslator } from '@/project/data/translations/profile'
 import { LANGUAGE_TYPE } from '@/project/config/site'
 
@@ -18,6 +20,7 @@ interface EditStage2ClientProps {
 
 interface AdditionalInfoData {
   job: string | null
+  political: string | null
   motivation: string | null
   howknown: string | null
   collaboration: string | null
@@ -41,6 +44,7 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
   
   // Form state
   const [job, setJob] = useState<string>("")
+  const [political, setPolitical] = useState<string>("")
   const [motivation, setMotivation] = useState<string>("")
   const [howknown, setHowknown] = useState<string>("")
   const [collaboration, setCollaboration] = useState<string>("")
@@ -79,6 +83,7 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
           setAdditionalInfo(data.data)
           // Set form values
           setJob(data.data.job || "")
+          setPolitical(data.data.political || "")
           setMotivation(data.data.motivation || "")
           setHowknown(data.data.howknown || "")
           setCollaboration(data.data.collaboration || "")
@@ -136,6 +141,7 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
           stage: 2,
           data: {
             job: job.trim() || null,
+            political: political.trim() || null,
             motivation: motivation.trim() || null,
             howknown: howknown.trim() || null,
             collaboration: collaboration.trim() || null,
@@ -184,10 +190,10 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
         </div>
         <P.Card className="p-6 lg:p-8 shadow-md border-Border/50">
           <div className="space-y-6">
-            {[...Array(4)].map((_, i) => (
+            {[...Array(5)].map((_, i) => (
               <div key={i} className="space-y-2">
                 <P.Skeleton className="h-5 w-32" />
-                <P.Skeleton className={`h-${i === 1 ? '24' : '10'} w-full rounded-md`} />
+                <P.Skeleton className={`h-${i === 2 ? '24' : '10'} w-full rounded-md`} />
               </div>
             ))}
             <div className="flex gap-4 pt-4">
@@ -264,10 +270,7 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
         <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
           <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
             {/* Job */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.job}
-              </label>
+            <FormField label={t.job}>
               <P.Input
                 type="text"
                 value={job}
@@ -275,27 +278,31 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
                 className="w-full focus:border-Mid focus:ring-Mid/20 transition-all"
                 placeholder={t.optional}
               />
-            </div>
+            </FormField>
 
-            {/* Motivation */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.motivation}
-              </label>
-              <textarea
-                value={motivation}
-                onChange={(e) => setMotivation(e.target.value)}
-                className="w-full px-3 py-2 border border-Border rounded-lg bg-Background text-Text focus:border-Mid focus:ring-Mid/20 focus:outline-none transition-all resize-none"
-                rows={5}
+            {/* Political */}
+            <FormField label={t.political}>
+              <P.Input
+                type="text"
+                value={political}
+                onChange={(e) => setPolitical(e.target.value)}
+                className="w-full focus:border-Mid focus:ring-Mid/20 transition-all"
                 placeholder={t.optional}
               />
-            </div>
+            </FormField>
+
+            {/* Motivation */}
+            <FormField label={t.motivation}>
+              <TextareaField
+                value={motivation}
+                onChange={setMotivation}
+                placeholder={t.optional}
+                rows={5}
+              />
+            </FormField>
 
             {/* How Known */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.howKnown}
-              </label>
+            <FormField label={t.howKnown}>
               <P.Input
                 type="text"
                 value={howknown}
@@ -303,13 +310,10 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
                 className="w-full focus:border-Mid focus:ring-Mid/20 transition-all"
                 placeholder={t.optional}
               />
-            </div>
+            </FormField>
 
             {/* Collaboration */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.collaboration}
-              </label>
+            <FormField label={t.collaboration}>
               <P.Input
                 type="text"
                 value={collaboration}
@@ -317,7 +321,7 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
                 className="w-full focus:border-Mid focus:ring-Mid/20 transition-all"
                 placeholder={t.optional}
               />
-            </div>
+            </FormField>
 
             {/* Buttons */}
             <div className="flex gap-4 pt-4 border-t border-Border/30">

@@ -192,10 +192,15 @@ export function Selector({
               type="button"
               disabled={disabled}
               className={cn(
-                "w-full justify-between text-left font-normal border border-gray-300 bg-white hover:bg-gray-50",
+                "w-full justify-between text-left font-normal",
+                "bg-Lightness border border-Border",
+                "hover:bg-Background hover:border-Mid",
+                "transition-colors",
                 !selectedOption && "text-Mid",
+                selectedOption && "text-Text font-medium",
                 required && !selectedOption && "border-red-500",
-                selectedOption && !disabled && "pr-8"
+                selectedOption && !disabled && "pr-8",
+                disabled && "opacity-40 cursor-not-allowed"
               )}
             >
               <span className="truncate">
@@ -205,7 +210,7 @@ export function Selector({
                 Icon="back"
                 Stroke="sm"
                 className={cn(
-                  "size-4 transition-transform",
+                  "size-4 transition-transform text-Mid",
                   open ? "rotate-90" : "-rotate-90"
                 )}
               />

@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS "project"."selectortype" (
 );
 
 ALTER TABLE "project"."selectortype" 
-  OWNER TO "pelak_admin";
+  OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
 -- Table: selector (Project)
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS "project"."selector" (
 );
 
 ALTER TABLE "project"."selector" 
-  OWNER TO "pelak_admin";
+  OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
 -- Table: useradditionalinfo
@@ -167,7 +167,7 @@ CREATE TABLE IF NOT EXISTS "project"."useradditionalinfo" (
 );
 
 ALTER TABLE "project"."useradditionalinfo" 
-  OWNER TO "pelak_admin";
+  OWNER TO "htni_admin";
 
 -- Index for quick search by province
 CREATE INDEX "idx_useradditionalinfo_provinceid" ON "project"."useradditionalinfo" USING btree (

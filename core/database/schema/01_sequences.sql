@@ -33,7 +33,7 @@ CREATE SEQUENCE "pelak"."userrole_roleid_seq"
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE "pelak"."userrole_roleid_seq" OWNER TO "pelak_admin";
+ALTER SEQUENCE "pelak"."userrole_roleid_seq" OWNER TO "htni_admin";
 
 
 -- ----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ CREATE SEQUENCE "pelak"."user_userid_seq"
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE "pelak"."user_userid_seq" OWNER TO "pelak_admin";
+ALTER SEQUENCE "pelak"."user_userid_seq" OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
 -- Sequence: refreshtoken_refreshtokenid_seq
@@ -60,7 +60,7 @@ CREATE SEQUENCE "pelak"."refreshtoken_refreshtokenid_seq"
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE "pelak"."refreshtoken_refreshtokenid_seq" OWNER TO "pelak_admin";
+ALTER SEQUENCE "pelak"."refreshtoken_refreshtokenid_seq" OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
 -- Sequence: userprofile_profileid_seq
@@ -73,7 +73,7 @@ CREATE SEQUENCE "pelak"."userprofile_profileid_seq"
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE "pelak"."userprofile_profileid_seq" OWNER TO "pelak_admin";
+ALTER SEQUENCE "pelak"."userprofile_profileid_seq" OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
 -- Sequence: pagesection_sectionid_seq
@@ -86,7 +86,7 @@ CREATE SEQUENCE "pelak"."pagesection_sectionid_seq"
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE "pelak"."pagesection_sectionid_seq" OWNER TO "pelak_admin";
+ALTER SEQUENCE "pelak"."pagesection_sectionid_seq" OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
 -- Sequence: pagetype_typeid_seq
@@ -99,7 +99,7 @@ CREATE SEQUENCE "pelak"."pagetype_typeid_seq"
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE "pelak"."pagetype_typeid_seq" OWNER TO "pelak_admin";
+ALTER SEQUENCE "pelak"."pagetype_typeid_seq" OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
 -- Sequence: language_languageid_seq
@@ -112,7 +112,7 @@ CREATE SEQUENCE "pelak"."language_languageid_seq"
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE "pelak"."language_languageid_seq" OWNER TO "pelak_admin";
+ALTER SEQUENCE "pelak"."language_languageid_seq" OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
 -- Sequence: page_pageid_seq
@@ -125,7 +125,7 @@ CREATE SEQUENCE "pelak"."page_pageid_seq"
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE "pelak"."page_pageid_seq" OWNER TO "pelak_admin";
+ALTER SEQUENCE "pelak"."page_pageid_seq" OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
 -- Sequence: comments_commentid_seq
@@ -138,7 +138,7 @@ CREATE SEQUENCE "pelak"."comments_commentid_seq"
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE "pelak"."comments_commentid_seq" OWNER TO "pelak_admin";
+ALTER SEQUENCE "pelak"."comments_commentid_seq" OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
 -- Sequence: commentlike_commentlikeid_seq
@@ -151,7 +151,7 @@ CREATE SEQUENCE "pelak"."commentlike_commentlikeid_seq"
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE "pelak"."commentlike_commentlikeid_seq" OWNER TO "pelak_admin";
+ALTER SEQUENCE "pelak"."commentlike_commentlikeid_seq" OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
 -- Sequence: project.selectortype_selectortypeid_seq
@@ -164,7 +164,7 @@ CREATE SEQUENCE "project"."selectortype_selectortypeid_seq"
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE "project"."selectortype_selectortypeid_seq" OWNER TO "pelak_admin";
+ALTER SEQUENCE "project"."selectortype_selectortypeid_seq" OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
 -- Sequence: project.selector_selectorid_seq
@@ -177,7 +177,7 @@ CREATE SEQUENCE "project"."selector_selectorid_seq"
     NO MAXVALUE
     CACHE 1;
 
-ALTER SEQUENCE "project"."selector_selectorid_seq" OWNER TO "pelak_admin";
+ALTER SEQUENCE "project"."selector_selectorid_seq" OWNER TO "htni_admin";
 
 -- ============================================================================
 -- ✅ All sequences have been created!

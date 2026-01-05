@@ -27,23 +27,23 @@
 ### نحوه اجرا
 ```bash
 # اجرای فایل master (پیشنهادی)
-psql -U pelak_admin -d your_database -f core/database/migrations/database_migration.sql
+psql -U htni_admin -d your_database -f core/database/migrations/database_migration.sql
 
 # یا اجرای جداگانه فایل‌ها:
 # Schema (جداول)
-psql -U pelak_admin -d your_database -f core/database/schema/00_create_schema.sql
-psql -U pelak_admin -d your_database -f core/database/schema/01_sequences.sql
-psql -U pelak_admin -d your_database -f core/database/schema/02_base_tables.sql
-psql -U pelak_admin -d your_database -f core/database/schema/03_auth_tables.sql
-psql -U pelak_admin -d your_database -f core/database/schema/04_content_tables.sql
-psql -U pelak_admin -d your_database -f core/database/schema/05_comments_tables.sql
-psql -U pelak_admin -d your_database -f core/database/schema/06_project_tables.sql
+psql -U htni_admin -d your_database -f core/database/schema/00_create_schema.sql
+psql -U htni_admin -d your_database -f core/database/schema/01_sequences.sql
+psql -U htni_admin -d your_database -f core/database/schema/02_base_tables.sql
+psql -U htni_admin -d your_database -f core/database/schema/03_auth_tables.sql
+psql -U htni_admin -d your_database -f core/database/schema/04_content_tables.sql
+psql -U htni_admin -d your_database -f core/database/schema/05_comments_tables.sql
+psql -U htni_admin -d your_database -f core/database/schema/06_project_tables.sql
 
 # Functions (توابع)
-psql -U pelak_admin -d your_database -f core/database/functions/01_auth_functions.sql
-psql -U pelak_admin -d your_database -f core/database/functions/02_content_functions.sql
-psql -U pelak_admin -d your_database -f core/database/functions/03_comments_functions.sql
-psql -U pelak_admin -d your_database -f core/database/functions/04_user_functions.sql
+psql -U htni_admin -d your_database -f core/database/functions/01_auth_functions.sql
+psql -U htni_admin -d your_database -f core/database/functions/02_content_functions.sql
+psql -U htni_admin -d your_database -f core/database/functions/03_comments_functions.sql
+psql -U htni_admin -d your_database -f core/database/functions/04_user_functions.sql
 ```
 
 ## فهرست مطالب
@@ -1026,10 +1026,10 @@ SELECT cron.unschedule('archive-inactive-tokens');
 ```bash
 # در crontab (crontab -e)
 # اجرای هر ساعت
-0 * * * * psql -U pelak_admin -d your_database_name -c "SELECT pelak_auth_archive_inactive_tokens();"
+0 * * * * psql -U htni_admin -d your_database_name -c "SELECT pelak_auth_archive_inactive_tokens();"
 
 # یا با استفاده از PGPASSWORD
-0 * * * * PGPASSWORD=your_password psql -U pelak_admin -d your_database_name -c "SELECT pelak_auth_archive_inactive_tokens();"
+0 * * * * PGPASSWORD=your_password psql -U htni_admin -d your_database_name -c "SELECT pelak_auth_archive_inactive_tokens();"
 ```
 
 ---
@@ -1044,7 +1044,7 @@ SELECT cron.unschedule('archive-inactive-tokens');
 
 ```bash
 # با psql
-psql -U pelak_admin -d your_database_name -f core/database/migrations/database_migration.sql
+psql -U htni_admin -d your_database_name -f core/database/migrations/database_migration.sql
 
 # یا در psql
 \i core/database/migrations/database_migration.sql

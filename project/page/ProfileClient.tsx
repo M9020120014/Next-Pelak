@@ -248,7 +248,7 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
   const getEditStage = (): number => {
     if (!additionalInfo) return 1
     if (!additionalInfo.nationalcode || !additionalInfo.birthday || !additionalInfo.gender || !additionalInfo.married || !additionalInfo.provinceid) return 1
-    if (!additionalInfo.job && !additionalInfo.motivation && !additionalInfo.howknown && !additionalInfo.collaboration) return 2
+    if (!additionalInfo.job && !additionalInfo.political && !additionalInfo.motivation && !additionalInfo.howknown && !additionalInfo.collaboration) return 2
     if (!additionalInfo.skills && !additionalInfo.degreeid && !additionalInfo.studyplacetypeid && !additionalInfo.studyplaceid && !additionalInfo.studyfieldsid) return 3
     if (!additionalInfo.consent) return 4
     return 1 // All completed, start from beginning
@@ -537,22 +537,36 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
                     {t.stage2}
                   </h3>
                   <div className="space-y-4">
-                    <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
-                      <span className="block text-sm font-semibold text-Mid mb-1">{t.job}</span>
-                      <span className="text-base text-Text">{displayValue(additionalInfo?.job)}</span>
-                    </div>
-                    <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
-                      <span className="block text-sm font-semibold text-Mid mb-1">{t.motivation}</span>
-                      <p className="text-base text-Text mt-2 leading-relaxed whitespace-pre-wrap">{displayValue(additionalInfo?.motivation)}</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
-                      <span className="block text-sm font-semibold text-Mid mb-1">{t.howKnown}</span>
-                      <span className="text-base text-Text">{displayValue(additionalInfo?.howknown)}</span>
-                    </div>
-                    <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
-                      <span className="block text-sm font-semibold text-Mid mb-1">{t.collaboration}</span>
-                      <span className="text-base text-Text">{displayValue(additionalInfo?.collaboration)}</span>
-                    </div>
+                    {additionalInfo?.job && (
+                      <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
+                        <span className="block text-sm font-semibold text-Mid mb-1">{t.job}</span>
+                        <span className="text-base text-Text">{displayValue(additionalInfo.job)}</span>
+                      </div>
+                    )}
+                    {additionalInfo?.political && (
+                      <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
+                        <span className="block text-sm font-semibold text-Mid mb-1">{t.political}</span>
+                        <span className="text-base text-Text">{displayValue(additionalInfo.political)}</span>
+                      </div>
+                    )}
+                    {additionalInfo?.motivation && (
+                      <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
+                        <span className="block text-sm font-semibold text-Mid mb-1">{t.motivation}</span>
+                        <p className="text-base text-Text mt-2 leading-relaxed whitespace-pre-wrap">{displayValue(additionalInfo.motivation)}</p>
+                      </div>
+                    )}
+                    {additionalInfo?.howknown && (
+                      <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
+                        <span className="block text-sm font-semibold text-Mid mb-1">{t.howKnown}</span>
+                        <span className="text-base text-Text">{displayValue(additionalInfo.howknown)}</span>
+                      </div>
+                    )}
+                    {additionalInfo?.collaboration && (
+                      <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
+                        <span className="block text-sm font-semibold text-Mid mb-1">{t.collaboration}</span>
+                        <span className="text-base text-Text">{displayValue(additionalInfo.collaboration)}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 

@@ -207,11 +207,12 @@ $BODY$;
 -- ----------------------------------------------------------------------------
 -- Function: project_user_additionalb
 -- Description: Complete stage 2 of user additional information
--- Stage 2 includes: Job, motivation, how known, collaboration type
+-- Stage 2 includes: Job, political orientation, motivation, how known, collaboration type
 -- 
 -- Parameters:
 --   p_userid: User identifier
 --   p_job: Job (text)
+--   p_political: Political orientation (text)
 --   p_motivation: Motivation (text)
 --   p_howknown: How known (varchar(150))
 --   p_collaboration: Collaboration type (varchar(100))
@@ -226,11 +227,12 @@ $BODY$;
 --   Error: {success: false, title: "User Not Found" | "Stage 1 Not Completed" | "Error", message: "..."}
 -- 
 -- Usage Example:
---   SELECT project_user_additionalb(1, 'Software Engineer', 'Interest in politics', 'Internet', 'Active');
+--   SELECT project_user_additionalb(1, 'Software Engineer', 'Conservative', 'Interest in politics', 'Internet', 'Active');
 -- ----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION "public"."project_user_additionalb"(
   "p_userid" int4,
   "p_job" text DEFAULT NULL,
+  "p_political" text DEFAULT NULL,
   "p_motivation" text DEFAULT NULL,
   "p_howknown" varchar(150) DEFAULT NULL,
   "p_collaboration" varchar(100) DEFAULT NULL
@@ -263,6 +265,7 @@ BEGIN
   -- Update stage 2 fields
   UPDATE project.useradditionalinfo
   SET job = COALESCE(p_job, job),
+      political = COALESCE(p_political, political),
       motivation = COALESCE(p_motivation, motivation),
       howknown = COALESCE(p_howknown, howknown),
       collaboration = COALESCE(p_collaboration, collaboration),

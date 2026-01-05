@@ -10,6 +10,8 @@ import ConnectionError from '@/core/components/auth/ConnectionError'
 import { UI as P } from '@/core/components/ui/Pelak'
 import { Selector } from '@/core/components/ui/Selector'
 import { DatePicker } from '@/core/components/ui/DatePicker'
+import { FormField } from '@/core/components/ui/FormField'
+import { SelectField } from '@/core/components/ui/SelectField'
 import { profileTranslator } from '@/project/data/translations/profile'
 import { LANGUAGE_TYPE } from '@/project/config/site'
 import { normalizeNationalCode } from '@/core/lib/normalize'
@@ -144,9 +146,19 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
       newErrors.married = t.marriedRequired || "وضعیت تاهل اجباری است"
     }
 
+    // Validate countryid (required)
+    if (!countryid) {
+      newErrors.countryid = t.countryRequired || "کشور اجباری است"
+    }
+
     // Validate provinceid (required)
     if (!provinceid) {
       newErrors.provinceid = t.provinceRequired || "استان اجباری است"
+    }
+
+    // Validate cityid (required)
+    if (!cityid) {
+      newErrors.cityid = t.cityRequired || "شهر اجباری است"
     }
 
     setErrors(newErrors)
@@ -304,10 +316,11 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
         <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
           <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
             {/* National Code */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.nationalCode} <span className="text-red-500">*</span>
-              </label>
+            <FormField
+              label={t.nationalCode}
+              required={true}
+              error={errors.nationalcode}
+            >
               <P.Input
                 type="text"
                 value={nationalcode}
@@ -331,19 +344,14 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
                 }`}
                 placeholder="1234567890"
               />
-              {errors.nationalcode && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-                  <span>⚠</span>
-                  {errors.nationalcode}
-                </p>
-              )}
-            </div>
+            </FormField>
 
             {/* Birthday */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.birthday} <span className="text-red-500">*</span>
-              </label>
+            <FormField
+              label={t.birthday}
+              required={true}
+              error={errors.birthday}
+            >
               <DatePicker
                 value={birthday || undefined}
                 onChange={(date) => {
@@ -368,129 +376,91 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
                 error={errors.birthday}
                 isLoading={loading || additionalInfo === null}
               />
-            </div>
+            </FormField>
 
             {/* Gender */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.gender} <span className="text-red-500">*</span>
-              </label>
-              <div className="flex gap-6 p-3 rounded-lg bg-Mid/5 border border-Border/30">
-                <label className="flex items-center cursor-pointer hover:text-Mid transition-colors">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="male"
-                    checked={gender === true}
-                    onChange={() => {
-                      setGender(true)
-                      if (errors.gender) {
-                        const newErrors = { ...errors }
-                        delete newErrors.gender
-                        setErrors(newErrors)
-                      }
-                    }}
-                    className="mr-2 w-4 h-4 text-Mid focus:ring-Mid"
-                  />
-                  <span className="text-Text">{t.genderMale}</span>
-                </label>
-                <label className="flex items-center cursor-pointer hover:text-Mid transition-colors">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="female"
-                    checked={gender === false}
-                    onChange={() => {
-                      setGender(false)
-                      if (errors.gender) {
-                        const newErrors = { ...errors }
-                        delete newErrors.gender
-                        setErrors(newErrors)
-                      }
-                    }}
-                    className="mr-2 w-4 h-4 text-Mid focus:ring-Mid"
-                  />
-                  <span className="text-Text">{t.genderFemale}</span>
-                </label>
-              </div>
-              {errors.gender && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-                  <span>⚠</span>
-                  {errors.gender}
-                </p>
-              )}
-            </div>
+            <FormField
+              label={t.gender}
+              required={true}
+              error={errors.gender}
+            >
+              <SelectField
+                value={gender === null ? null : gender ? "male" : "female"}
+                onChange={(value) => {
+                  const newGender = value === null ? null : value === "male" ? true : false
+                  setGender(newGender)
+                  if (errors.gender && newGender !== null) {
+                    const newErrors = { ...errors }
+                    delete newErrors.gender
+                    setErrors(newErrors)
+                  }
+                }}
+                options={[
+                  { value: "male", label: t.genderMale },
+                  { value: "female", label: t.genderFemale },
+                ]}
+                placeholder={t.gender}
+                required={true}
+                error={errors.gender}
+              />
+            </FormField>
 
             {/* Married Status */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.married} <span className="text-red-500">*</span>
-              </label>
-              <div className="flex gap-6 p-3 rounded-lg bg-Mid/5 border border-Border/30">
-                <label className="flex items-center cursor-pointer hover:text-Mid transition-colors">
-                  <input
-                    type="radio"
-                    name="married"
-                    value="married"
-                    checked={married === true}
-                    onChange={() => {
-                      setMarried(true)
-                      if (errors.married) {
-                        const newErrors = { ...errors }
-                        delete newErrors.married
-                        setErrors(newErrors)
-                      }
-                    }}
-                    className="mr-2 w-4 h-4 text-Mid focus:ring-Mid"
-                  />
-                  <span className="text-Text">{t.marriedStatus}</span>
-                </label>
-                <label className="flex items-center cursor-pointer hover:text-Mid transition-colors">
-                  <input
-                    type="radio"
-                    name="married"
-                    value="single"
-                    checked={married === false}
-                    onChange={() => {
-                      setMarried(false)
-                      if (errors.married) {
-                        const newErrors = { ...errors }
-                        delete newErrors.married
-                        setErrors(newErrors)
-                      }
-                    }}
-                    className="mr-2 w-4 h-4 text-Mid focus:ring-Mid"
-                  />
-                  <span className="text-Text">{t.singleStatus}</span>
-                </label>
-              </div>
-              {errors.married && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-                  <span>⚠</span>
-                  {errors.married}
-                </p>
-              )}
-            </div>
+            <FormField
+              label={t.married}
+              required={true}
+              error={errors.married}
+            >
+              <SelectField
+                value={married === null ? null : married ? "married" : "single"}
+                onChange={(value) => {
+                  const newMarried = value === null ? null : value === "married" ? true : false
+                  setMarried(newMarried)
+                  if (errors.married && newMarried !== null) {
+                    const newErrors = { ...errors }
+                    delete newErrors.married
+                    setErrors(newErrors)
+                  }
+                }}
+                options={[
+                  { value: "married", label: t.marriedStatus },
+                  { value: "single", label: t.singleStatus },
+                ]}
+                placeholder={t.married}
+                required={true}
+                error={errors.married}
+              />
+            </FormField>
 
             {/* Country */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.country}
-              </label>
+            <FormField
+              label={t.country}
+              required={true}
+              error={errors.countryid}
+            >
               <Selector
                 type="country"
                 value={countryid || undefined}
-                onChange={(id) => setCountryid(id)}
+                onChange={(id) => {
+                  setCountryid(id)
+                  if (errors.countryid) {
+                    const newErrors = { ...errors }
+                    delete newErrors.countryid
+                    setErrors(newErrors)
+                  }
+                }}
                 placeholder={t.selectCountry || "انتخاب کشور"}
+                required={true}
                 isLoading={loading || additionalInfo === null}
               />
-            </div>
+            </FormField>
 
             {/* Province */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-Text">
-                {t.province} <span className="text-red-500">*</span>
-              </label>
+            <FormField
+              label={t.province}
+              required={true}
+              error={errors.provinceid}
+            >
               <Selector
                 type="province"
                 value={provinceid || undefined}
@@ -507,29 +477,32 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
                 required={true}
                 isLoading={loading || additionalInfo === null}
               />
-              {errors.provinceid && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-                  <span>⚠</span>
-                  {errors.provinceid}
-                </p>
-              )}
-            </div>
+            </FormField>
 
             {/* City */}
             {provinceid && (
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-Text">
-                  {t.city}
-                </label>
+              <FormField
+                label={t.city}
+                required={true}
+                error={errors.cityid}
+              >
                 <Selector
                   type="city"
                   parentId={provinceid}
                   value={cityid || undefined}
-                  onChange={(id) => setCityid(id)}
+                  onChange={(id) => {
+                    setCityid(id)
+                    if (errors.cityid) {
+                      const newErrors = { ...errors }
+                      delete newErrors.cityid
+                      setErrors(newErrors)
+                    }
+                  }}
                   placeholder={t.selectCity || "انتخاب شهر"}
+                  required={true}
                   isLoading={loading || additionalInfo === null}
                 />
-              </div>
+              </FormField>
             )}
 
             {/* Buttons */}

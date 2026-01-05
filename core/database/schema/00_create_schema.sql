@@ -19,11 +19,11 @@ DROP SCHEMA IF EXISTS "pelak" CASCADE;
 CREATE SCHEMA "pelak";
 
 -- Set pelak schema owner
-ALTER SCHEMA "pelak" OWNER TO "pelak_admin";
+ALTER SCHEMA "pelak" OWNER TO "htni_admin";
 
 -- Grant necessary permissions
-GRANT USAGE ON SCHEMA "pelak" TO "pelak_admin";
-GRANT ALL ON SCHEMA "pelak" TO "pelak_admin";
+GRANT USAGE ON SCHEMA "pelak" TO "htni_admin";
+GRANT ALL ON SCHEMA "pelak" TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
 -- Recreate project schema
@@ -31,11 +31,11 @@ GRANT ALL ON SCHEMA "pelak" TO "pelak_admin";
 CREATE SCHEMA "project";
 
 -- Set project schema owner
-ALTER SCHEMA "project" OWNER TO "pelak_admin";
+ALTER SCHEMA "project" OWNER TO "htni_admin";
 
 -- Grant necessary permissions
-GRANT USAGE ON SCHEMA "project" TO "pelak_admin";
-GRANT ALL ON SCHEMA "project" TO "pelak_admin";
+GRANT USAGE ON SCHEMA "project" TO "htni_admin";
+GRANT ALL ON SCHEMA "project" TO "htni_admin";
 
 -- ============================================================================
 -- ✅ All schemas and data have been dropped and recreated!
