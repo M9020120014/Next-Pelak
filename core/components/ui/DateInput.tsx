@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { ClassName as cn } from "./Pelak"
 import { Input } from "./Input"
 import { validateShortDate } from "@/core/lib/validation"
-import { greToPer } from "@/core/lib/date"
+import { greToPer, isJalaliLeapYear } from "@/core/lib/date"
 
 /* --- Types ------------------------------------------------------------------------------------ */
 interface DateInputProps {
@@ -63,6 +63,14 @@ export function DateInput({
     }
   }, [value])
 
+  // Get maximum days in a Persian month based on year and month
+  const getDaysInMonth = (year: number, month: number): number => {
+    if (month < 1 || month > 12) return 31
+    const leap = isJalaliLeapYear(year)
+    const daysInMonth = [0, 31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, leap ? 30 : 29]
+    return daysInMonth[month]
+  }
+
   const formatDate = (y: string, m: string, d: string): string | null => {
     if (!y || !m || !d) return null
     
@@ -80,6 +88,34 @@ export function DateInput({
     const val = e.target.value.replace(/\D/g, '') // Only digits
     if (val === '' || (parseInt(val, 10) >= 1300 && parseInt(val, 10) <= 1500)) {
       setYear(val)
+      
+      // If year changed, validate day is still valid for new year (especially for Esfand)
+      if (val && month && day) {
+        const yearNum = parseInt(val, 10)
+        const monthNum = parseInt(month, 10)
+        const dayNum = parseInt(day, 10)
+        const maxDays = getDaysInMonth(yearNum, monthNum)
+        
+        // If current day exceeds max days for new year (e.g., Esfand 30 in non-leap year), adjust it
+        if (dayNum > maxDays) {
+          setDay(maxDays.toString())
+          const newDate = formatDate(val, month, maxDays.toString())
+          if (newDate) {
+            const validation = validateShortDate(newDate)
+            if (!validation.success) {
+              setLocalError(validation.message)
+            } else {
+              setLocalError("")
+            }
+            onChange(newDate)
+          } else {
+            onChange(null)
+            setLocalError("")
+          }
+          return
+        }
+      }
+      
       const newDate = formatDate(val, month, day)
       if (newDate) {
         const validation = validateShortDate(newDate)
@@ -100,6 +136,34 @@ export function DateInput({
     const val = e.target.value.replace(/\D/g, '') // Only digits
     if (val === '' || (parseInt(val, 10) >= 1 && parseInt(val, 10) <= 12)) {
       setMonth(val)
+      
+      // If month changed, validate day is still valid for new month
+      if (val && year && day) {
+        const yearNum = parseInt(year, 10)
+        const monthNum = parseInt(val, 10)
+        const dayNum = parseInt(day, 10)
+        const maxDays = getDaysInMonth(yearNum, monthNum)
+        
+        // If current day exceeds max days for new month, adjust it
+        if (dayNum > maxDays) {
+          setDay(maxDays.toString())
+          const newDate = formatDate(year, val, maxDays.toString())
+          if (newDate) {
+            const validation = validateShortDate(newDate)
+            if (!validation.success) {
+              setLocalError(validation.message)
+            } else {
+              setLocalError("")
+            }
+            onChange(newDate)
+          } else {
+            onChange(null)
+            setLocalError("")
+          }
+          return
+        }
+      }
+      
       const newDate = formatDate(year, val, day)
       if (newDate) {
         const validation = validateShortDate(newDate)
@@ -118,7 +182,19 @@ export function DateInput({
 
   const handleDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/\D/g, '') // Only digits
-    if (val === '' || (parseInt(val, 10) >= 1 && parseInt(val, 10) <= 31)) {
+    
+    // Get max days for current month and year
+    let maxDays = 31 // default
+    if (year && month) {
+      const yearNum = parseInt(year, 10)
+      const monthNum = parseInt(month, 10)
+      if (!isNaN(yearNum) && !isNaN(monthNum)) {
+        maxDays = getDaysInMonth(yearNum, monthNum)
+      }
+    }
+    
+    // Validate day is within valid range for the month
+    if (val === '' || (parseInt(val, 10) >= 1 && parseInt(val, 10) <= maxDays)) {
       setDay(val)
       const newDate = formatDate(year, month, val)
       if (newDate) {

@@ -1,14 +1,15 @@
-// /project/pages/EditStage1Client.tsx
+// /project/page/EditStage1Client.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/core/lib/auth/use-auth'
 import { getAccessToken } from '@/core/lib/auth/token-manager'
+import { useSecurity } from '@/core/components/security/SecurityProvider'
 import ConnectionError from '@/core/components/auth/ConnectionError'
 import { UI as P } from '@/core/components/ui/Pelak'
 import { Selector } from '@/core/components/ui/Selector'
-import { DateInput } from '@/core/components/ui/DateInput'
+import { DatePicker } from '@/core/components/ui/DatePicker'
 import { profileTranslator } from '@/project/data/translations/profile'
 import { LANGUAGE_TYPE } from '@/project/config/site'
 import { normalizeNationalCode } from '@/core/lib/normalize'
@@ -32,6 +33,7 @@ interface AdditionalInfoData {
 export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProps) {
   const router = useRouter()
   const { authState, error, refreshAccessToken } = useAuth(iDevice)
+  const { csrfToken } = useSecurity()
   const [retrying, setRetrying] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -170,12 +172,12 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
 
     try {
       const normalizedNationalCode = normalizeNationalCode(nationalcode)
-      
       const response = await fetch('/api/user/additional-info', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken,
         },
         body: JSON.stringify({
           stage: 1,
@@ -204,6 +206,10 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
         if (refreshData.success && refreshData.data) {
           setAdditionalInfo(refreshData.data)
         }
+        // Navigate to next stage after a short delay
+        setTimeout(() => {
+          router.push(`/${lang}/profile/edit/2`)
+        }, 1000)
       } else {
         setSaveMessage({ type: 'error', text: result.message || t.error })
       }
@@ -214,20 +220,40 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
     }
   }
 
-  const handleNext = () => {
-    router.push(`/${lang}/profile/edit/2`)
-  }
-
-  if (authState === 'loading' || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          <p className="mt-4 text-gray-600">{t.loading}</p>
+  // Skeleton component for edit form
+  const EditFormSkeleton = () => (
+    <main className="bg-Background pt-008-2 lg:pt-040-8 min-h-screen">
+      <P.Container className="space-y-018-4 lg:space-y-024-6">
+        <div className="mb-6">
+          <P.Skeleton className="h-9 w-48 mb-2" />
+          <P.Skeleton className="h-1 w-20 rounded-full" />
         </div>
-      </div>
-    )
-  }
+        <P.Card className="p-6 lg:p-8 shadow-md border-Border/50">
+          <div className="space-y-6">
+            {[...Array(7)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <P.Skeleton className="h-5 w-32" />
+                {i === 1 ? (
+                  <P.Skeleton className="h-10 w-full rounded-md" />
+                ) : i === 2 || i === 3 ? (
+                  <div className="flex gap-4">
+                    <P.Skeleton className="h-6 w-24" />
+                    <P.Skeleton className="h-6 w-24" />
+                  </div>
+                ) : (
+                  <P.Skeleton className="h-10 w-full rounded-md" />
+                )}
+              </div>
+            ))}
+            <div className="flex gap-4 pt-4">
+              <P.Skeleton className="h-10 flex-1 rounded-md" />
+              <P.Skeleton className="h-10 flex-1 rounded-md" />
+            </div>
+          </div>
+        </P.Card>
+      </P.Container>
+    </main>
+  )
 
   if (authState === 'error' && error) {
     return (
@@ -249,24 +275,37 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
     )
   }
 
+  // Show skeleton until data is loaded
+  if (authState === 'loading' || loading || additionalInfo === null) {
+    return <EditFormSkeleton />
+  }
+
   return (
-    <main className="bg-Background pt-008-2 lg:pt-040-8">
-      <P.Container className="space-y-018-4">
-        <h1 className="text-3xl font-bold text-gray-900">{t.stage1}</h1>
+    <main className="bg-Background pt-008-2 lg:pt-040-8 min-h-screen">
+      <P.Container className="space-y-018-4 lg:space-y-024-6">
+        <div className="mb-6">
+          <h1 className="text-3xl lg:text-4xl font-bold text-Text mb-2">{t.stage1}</h1>
+          <div className="h-1 w-20 bg-Mid/30 rounded-full"></div>
+        </div>
 
         {saveMessage && (
-          <div className={`p-4 rounded-lg ${
-            saveMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+          <div className={`p-4 lg:p-5 rounded-lg shadow-sm border-2 transition-all ${
+            saveMessage.type === 'success' 
+              ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800' 
+              : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800'
           }`}>
-            {saveMessage.text}
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${saveMessage.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <p className="font-medium">{saveMessage.text}</p>
+            </div>
           </div>
         )}
 
-        <P.Card className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
+          <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
             {/* National Code */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-Text">
                 {t.nationalCode} <span className="text-red-500">*</span>
               </label>
               <P.Input
@@ -285,44 +324,59 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
                   }
                 }}
                 maxLength={10}
-                className={`w-full ${errors.nationalcode ? 'border-red-500' : ''}`}
+                className={`w-full transition-all ${
+                  errors.nationalcode 
+                    ? 'border-red-500 focus:border-red-600 focus:ring-red-500' 
+                    : 'focus:border-Mid focus:ring-Mid/20'
+                }`}
                 placeholder="1234567890"
               />
               {errors.nationalcode && (
-                <p className="mt-1 text-sm text-red-600">{errors.nationalcode}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                  <span>⚠</span>
+                  {errors.nationalcode}
+                </p>
               )}
             </div>
 
             {/* Birthday */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-Text">
                 {t.birthday} <span className="text-red-500">*</span>
               </label>
-              <DateInput
+              <DatePicker
                 value={birthday || undefined}
                 onChange={(date) => {
                   setBirthday(date)
-                  if (errors.birthday && date) {
-                    const validation = validateShortDate(date)
-                    if (validation.success) {
-                      const newErrors = { ...errors }
-                      delete newErrors.birthday
-                      setErrors(newErrors)
+                  if (errors.birthday) {
+                    if (date) {
+                      const validation = validateShortDate(date)
+                      if (validation.success) {
+                        const newErrors = { ...errors }
+                        delete newErrors.birthday
+                        setErrors(newErrors)
+                      }
+                    } else {
+                      // If date is cleared, keep the error for required field
+                      // The form validation will handle it on submit
                     }
                   }
                 }}
+                mode="popup"
+                placeholder={t.birthday}
                 required={true}
                 error={errors.birthday}
+                isLoading={loading || additionalInfo === null}
               />
             </div>
 
             {/* Gender */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-Text">
                 {t.gender} <span className="text-red-500">*</span>
               </label>
-              <div className="flex gap-4">
-                <label className="flex items-center">
+              <div className="flex gap-6 p-3 rounded-lg bg-Mid/5 border border-Border/30">
+                <label className="flex items-center cursor-pointer hover:text-Mid transition-colors">
                   <input
                     type="radio"
                     name="gender"
@@ -336,11 +390,11 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
                         setErrors(newErrors)
                       }
                     }}
-                    className="mr-2"
+                    className="mr-2 w-4 h-4 text-Mid focus:ring-Mid"
                   />
-                  {t.genderMale}
+                  <span className="text-Text">{t.genderMale}</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer hover:text-Mid transition-colors">
                   <input
                     type="radio"
                     name="gender"
@@ -354,23 +408,26 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
                         setErrors(newErrors)
                       }
                     }}
-                    className="mr-2"
+                    className="mr-2 w-4 h-4 text-Mid focus:ring-Mid"
                   />
-                  {t.genderFemale}
+                  <span className="text-Text">{t.genderFemale}</span>
                 </label>
               </div>
               {errors.gender && (
-                <p className="mt-1 text-sm text-red-600">{errors.gender}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                  <span>⚠</span>
+                  {errors.gender}
+                </p>
               )}
             </div>
 
             {/* Married Status */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-Text">
                 {t.married} <span className="text-red-500">*</span>
               </label>
-              <div className="flex gap-4">
-                <label className="flex items-center">
+              <div className="flex gap-6 p-3 rounded-lg bg-Mid/5 border border-Border/30">
+                <label className="flex items-center cursor-pointer hover:text-Mid transition-colors">
                   <input
                     type="radio"
                     name="married"
@@ -384,11 +441,11 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
                         setErrors(newErrors)
                       }
                     }}
-                    className="mr-2"
+                    className="mr-2 w-4 h-4 text-Mid focus:ring-Mid"
                   />
-                  {t.marriedStatus}
+                  <span className="text-Text">{t.marriedStatus}</span>
                 </label>
-                <label className="flex items-center">
+                <label className="flex items-center cursor-pointer hover:text-Mid transition-colors">
                   <input
                     type="radio"
                     name="married"
@@ -402,19 +459,22 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
                         setErrors(newErrors)
                       }
                     }}
-                    className="mr-2"
+                    className="mr-2 w-4 h-4 text-Mid focus:ring-Mid"
                   />
-                  {t.singleStatus}
+                  <span className="text-Text">{t.singleStatus}</span>
                 </label>
               </div>
               {errors.married && (
-                <p className="mt-1 text-sm text-red-600">{errors.married}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                  <span>⚠</span>
+                  {errors.married}
+                </p>
               )}
             </div>
 
             {/* Country */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-Text">
                 {t.country}
               </label>
               <Selector
@@ -422,12 +482,13 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
                 value={countryid || undefined}
                 onChange={(id) => setCountryid(id)}
                 placeholder={t.selectCountry || "انتخاب کشور"}
+                isLoading={loading || additionalInfo === null}
               />
             </div>
 
             {/* Province */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-Text">
                 {t.province} <span className="text-red-500">*</span>
               </label>
               <Selector
@@ -444,16 +505,20 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
                 }}
                 placeholder={t.selectProvince || "انتخاب استان"}
                 required={true}
+                isLoading={loading || additionalInfo === null}
               />
               {errors.provinceid && (
-                <p className="mt-1 text-sm text-red-600">{errors.provinceid}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                  <span>⚠</span>
+                  {errors.provinceid}
+                </p>
               )}
             </div>
 
             {/* City */}
             {provinceid && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-Text">
                   {t.city}
                 </label>
                 <Selector
@@ -462,33 +527,26 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
                   value={cityid || undefined}
                   onChange={(id) => setCityid(id)}
                   placeholder={t.selectCity || "انتخاب شهر"}
+                  isLoading={loading || additionalInfo === null}
                 />
               </div>
             )}
 
             {/* Buttons */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-4 pt-4 border-t border-Border/30">
               <P.Button
                 type="button"
                 onClick={() => router.push(`/${lang}/profile`)}
-                className="flex-1 border border-gray-300 bg-white hover:bg-gray-50"
+                className="flex-1 border border-Border bg-Background hover:bg-Mid/10 transition-all"
               >
-                {t.cancel || "انصراف"}
+                بازگشت به پروفایل
               </P.Button>
               <P.Button
                 type="submit"
                 disabled={saving}
-                className="flex-1"
+                className="flex-1 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {saving ? t.saving : t.save}
-              </P.Button>
-              <P.Button
-                type="button"
-                onClick={handleNext}
-                disabled={saving}
-                className="flex-1"
-              >
-                {t.next}
+                {saving ? t.saving : "ثبت و ادامه"}
               </P.Button>
             </div>
           </form>

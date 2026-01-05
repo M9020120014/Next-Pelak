@@ -1,18 +1,24 @@
-// /app/api/user/additional-info/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { validateAPIRequest } from "@/core/lib/security/api-middleware";
-import { verifyAccessToken } from "@/core/lib/token/jwt";
-import { checkAuthorization } from "@/core/lib/security/authorization";
-import { callRpc } from "@/core/lib/rest/rpc";
-import { successResponse, unauthorizedError, invalidInputError } from "@/core/lib/api/response";
-import { RATE_LIMIT } from "@/core/config/security";
-import { withErrorHandlingAndTracking } from "@/core/lib/performance/monitoring";
-import { guardWriteOperation } from "@/core/lib/security/write-operation-guard";
-import { getIDeviceToken } from "@/core/lib/token/idevice";
-import { normalizeNationalCode } from "@/core/lib/normalize";
-import { validateNationalCode, validateShortDate } from "@/core/lib/validation";
+/* --- Base ------------------------------------------------------------------------------------- */
+import { NextRequest, NextResponse } from "next/server"
+/* --- Lib -------------------------------------------------------------------------------------- */
+import { validateAPIRequest } from "@/core/lib/security/api-middleware"
+import { verifyAccessToken } from "@/core/lib/token/jwt"
+import { checkAuthorization } from "@/core/lib/security/authorization"
+import { callRpc } from "@/core/lib/rest/rpc"
+import { successResponse, unauthorizedError, invalidInputError, serverError } from "@/core/lib/api/response"
+import { RATE_LIMIT } from "@/core/config/security"
+import { withErrorHandlingAndTracking } from "@/core/lib/performance/monitoring"
+import { guardWriteOperation } from "@/core/lib/security/write-operation-guard"
+import { normalizeNationalCode } from "@/core/lib/normalize"
+import { validateNationalCode, validateShortDate } from "@/core/lib/validation"
+import { logError } from "@/core/lib/log/logger-utils"
+/* --- Functions -------------------------------------------------------------------------------- */
 
+/* --- GET Additional Info ---------------------------------------------------------------------- */
 async function GETHandler(request: NextRequest) {
+  const startTime = Date.now()
+  const routeEndpoint = '/api/user/additional-info'
+
   // Security validation - GET requests don't require CSRF
   const securityCheck = await validateAPIRequest(request, false, {
     maxRequests: RATE_LIMIT.GENERAL.maxRequests,
@@ -38,29 +44,62 @@ async function GETHandler(request: NextRequest) {
   }
   const userId = tokenPayload.userid;
 
-  // Call database function to get additional info
-  const result = await callRpc("project_user_additional", {
-    p_userid: userId,
-  });
 
-  if (!result.success) {
-    return NextResponse.json(
-      { success: false, title: result.title || "Error", message: result.message || "خطا در دریافت اطلاعات تکمیلی" },
-      { status: 500 }
+  try {
+    // Call database function to get additional info
+    const result = await callRpc("project_user_additional", {
+      p_userid: userId,
+    });
+
+    if (!result.success) {
+      logError(
+        'Failed to fetch additional info from database',
+        {
+          userId,
+          errorTitle: result.title,
+          errorMessage: result.message,
+        },
+        routeEndpoint
+      );
+      return serverError(result.message || "خطا در دریافت اطلاعات تکمیلی");
+    }
+
+    const response = successResponse(
+      {
+        title: "Additional Info Retrieved",
+        message: "اطلاعات تکمیلی با موفقیت دریافت شد.",
+        data: result.data,
+      },
+      "اطلاعات تکمیلی با موفقیت دریافت شد.",
+      200,
+      securityCheck.rateLimitHeaders
     );
-  }
 
-  return successResponse(
-    {
-      title: "Additional Info Retrieved",
-      message: "اطلاعات تکمیلی با موفقیت دریافت شد.",
-      data: result.data,
-    },
-    "اطلاعات تکمیلی با موفقیت دریافت شد."
-  );
+    // Track performance (non-blocking)
+    const duration = Date.now() - startTime
+    void import('@/core/lib/performance/monitoring').then(({ trackPerformance }) => {
+      trackPerformance(routeEndpoint, request.method, duration, response.status).catch(() => {
+        // Silently fail if tracking fails
+      })
+    })
+
+    return response
+  } catch (error) {
+    logError(
+      'Unexpected error in GET additional info handler',
+      error,
+      routeEndpoint,
+      { userId }
+    );
+    return serverError("خطای غیرمنتظره در دریافت اطلاعات تکمیلی.");
+  }
 }
 
+/* --- POST Additional Info --------------------------------------------------------------------- */
 async function POSTHandler(request: NextRequest) {
+  const startTime = Date.now()
+  const routeEndpoint = '/api/user/additional-info'
+
   // Security validation - POST requests require CSRF
   const securityCheck = await validateAPIRequest(request, true, {
     maxRequests: RATE_LIMIT.GENERAL.maxRequests,
@@ -95,51 +134,48 @@ async function POSTHandler(request: NextRequest) {
   }
 
   const { stage, data } = body;
+  // Validate body structure
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    return invalidInputError("بدنه درخواست نامعتبر است.");
+  }
 
   // Validate stage
   if (!stage || typeof stage !== 'number' || stage < 1 || stage > 4) {
     return invalidInputError("مرحله باید عددی بین 1 تا 4 باشد.");
   }
 
-  // Extract iDevice for write operation guard
-  const iDevice = await getIDeviceToken();
-
   // Two-step verification: Step 1 - Verify iDevice has refresh token, Step 2 - Execute write operation
-  const guardResult = await guardWriteOperation(iDevice, userId, body);
-  if (!guardResult.allowed) {
-    return NextResponse.json(
-      { success: false, title: guardResult.title || "Unauthorized", message: guardResult.message || "دسترسی غیرمجاز" },
-      { status: guardResult.statusCode || 403 }
-    );
-  }
+  return guardWriteOperation(body, async () => {
 
-  // For stages 2-4, check if stage 1 is completed
-  if (stage > 1) {
-    const existingInfoResult = await callRpc("project_user_additional", {
-      p_userid: userId,
-    });
-    
-    if (!existingInfoResult.success || !existingInfoResult.data) {
-      return invalidInputError("لطفاً ابتدا مرحله 1 را تکمیل کنید.");
+    // For stages 2-4, check if stage 1 is completed
+    if (stage > 1) {
+      const existingInfoResult = await callRpc("project_user_additional", {
+        p_userid: userId,
+      });
+      
+      if (!existingInfoResult.success || !existingInfoResult.data) {
+        return invalidInputError("لطفاً ابتدا مرحله 1 را تکمیل کنید.");
+      }
+      
+      const existingInfo = existingInfoResult.data as unknown as Record<string, unknown> | null;
+      const stage1Completed = !!(
+        existingInfo?.nationalcode &&
+        existingInfo?.birthday &&
+        existingInfo?.gender !== null &&
+        existingInfo?.gender !== undefined &&
+        existingInfo?.married !== null &&
+        existingInfo?.married !== undefined &&
+        existingInfo?.provinceid
+      );
+      
+      if (!stage1Completed) {
+        return invalidInputError("لطفاً ابتدا مرحله 1 را تکمیل کنید.");
+      }
     }
-    
-    const existingInfo = existingInfoResult.data;
-    const stage1Completed = !!(
-      existingInfo.nationalcode &&
-      existingInfo.birthday &&
-      existingInfo.gender !== null &&
-      existingInfo.married !== null &&
-      existingInfo.provinceid
-    );
-    
-    if (!stage1Completed) {
-      return invalidInputError("لطفاً ابتدا مرحله 1 را تکمیل کنید.");
-    }
-  }
 
-  // Call appropriate database function based on stage
-  let result;
-  const rpcParams: Record<string, any> = { p_userid: userId };
+    // Call appropriate database function based on stage
+    let result;
+    const rpcParams: Record<string, any> = { p_userid: userId };
 
   switch (stage) {
     case 1:
@@ -157,7 +193,8 @@ async function POSTHandler(request: NextRequest) {
         const existingInfoResult = await callRpc("project_user_additional", {
           p_userid: userId,
         });
-        if (!existingInfoResult.success || !existingInfoResult.data?.nationalcode) {
+        const existingData = existingInfoResult.data as unknown as Record<string, unknown> | null;
+        if (!existingInfoResult.success || !existingData?.nationalcode) {
           return invalidInputError("کد ملی اجباری است.");
         }
       }
@@ -172,7 +209,8 @@ async function POSTHandler(request: NextRequest) {
         const existingInfoResult = await callRpc("project_user_additional", {
           p_userid: userId,
         });
-        if (!existingInfoResult.success || !existingInfoResult.data?.birthday) {
+        const existingData = existingInfoResult.data as unknown as Record<string, unknown> | null;
+        if (!existingInfoResult.success || !existingData?.birthday) {
           return invalidInputError("تاریخ تولد اجباری است.");
         }
       }
@@ -181,7 +219,8 @@ async function POSTHandler(request: NextRequest) {
         const existingInfoResult = await callRpc("project_user_additional", {
           p_userid: userId,
         });
-        if (!existingInfoResult.success || existingInfoResult.data?.gender === null || existingInfoResult.data?.gender === undefined) {
+        const existingData = existingInfoResult.data as unknown as Record<string, unknown> | null;
+        if (!existingInfoResult.success || existingData?.gender === null || existingData?.gender === undefined) {
           return invalidInputError("جنسیت اجباری است.");
         }
       } else {
@@ -192,7 +231,8 @@ async function POSTHandler(request: NextRequest) {
         const existingInfoResult = await callRpc("project_user_additional", {
           p_userid: userId,
         });
-        if (!existingInfoResult.success || existingInfoResult.data?.married === null || existingInfoResult.data?.married === undefined) {
+        const existingData = existingInfoResult.data as unknown as Record<string, unknown> | null;
+        if (!existingInfoResult.success || existingData?.married === null || existingData?.married === undefined) {
           return invalidInputError("وضعیت تاهل اجباری است.");
         }
       } else {
@@ -203,7 +243,8 @@ async function POSTHandler(request: NextRequest) {
         const existingInfoResult = await callRpc("project_user_additional", {
           p_userid: userId,
         });
-        if (!existingInfoResult.success || !existingInfoResult.data?.provinceid) {
+        const existingData = existingInfoResult.data as unknown as Record<string, unknown> | null;
+        if (!existingInfoResult.success || !existingData?.provinceid) {
           return invalidInputError("استان اجباری است.");
         }
       } else {
@@ -250,21 +291,41 @@ async function POSTHandler(request: NextRequest) {
       return invalidInputError("مرحله نامعتبر است.");
   }
 
-  if (!result.success) {
-    return NextResponse.json(
-      { success: false, title: result.title || "Error", message: result.message || "خطا در به‌روزرسانی اطلاعات تکمیلی" },
-      { status: 500 }
-    );
-  }
+    if (!result.success) {
+      logError(
+        'Failed to update additional info in database',
+        {
+          userId,
+          stage,
+          errorTitle: result.title,
+          errorMessage: result.message,
+        },
+        routeEndpoint
+      );
+      return serverError(result.message || "خطا در به‌روزرسانی اطلاعات تکمیلی");
+    }
 
-  return successResponse(
-    {
-      title: result.title || "Success",
-      message: result.message || "اطلاعات با موفقیت به‌روزرسانی شد.",
-      form_completed: result.form_completed || false,
-    },
-    result.message || "اطلاعات با موفقیت به‌روزرسانی شد."
-  );
+    const response = successResponse(
+      {
+        title: result.title || "Success",
+        message: result.message || "اطلاعات با موفقیت به‌روزرسانی شد.",
+        form_completed: result.form_completed || false,
+      },
+      result.message || "اطلاعات با موفقیت به‌روزرسانی شد.",
+      200,
+      securityCheck.rateLimitHeaders
+    );
+
+    // Track performance (non-blocking)
+    const duration = Date.now() - startTime
+    void import('@/core/lib/performance/monitoring').then(({ trackPerformance }) => {
+      trackPerformance(routeEndpoint, request.method, duration, response.status).catch(() => {
+        // Silently fail if tracking fails
+      })
+    })
+
+    return response
+  });
 }
 
 export const GET = withErrorHandlingAndTracking(GETHandler, '/api/user/additional-info')

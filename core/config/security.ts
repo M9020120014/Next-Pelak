@@ -61,7 +61,7 @@ export const TOKEN = {
 /* --- Rate Limiting Configuration ---------------------------------------------------------------- */
 export const RATE_LIMIT = {
   GENERAL: {
-    maxRequests: 500,
+    maxRequests: 5000,
     windowMs: TIME.MINUTE * 1000, // 1 minute in milliseconds
   },
   LOGIN: {

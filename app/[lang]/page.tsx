@@ -5,7 +5,7 @@ import { LANGUAGE_DATA, LANG_PARAMS, LANG, LANGUAGE } from "@/project/config/sit
 import { HOME_SEO_LANG } from "@/project/config/metadata";
 import { ROBOTS_ON } from "@/core/config/metadata";
 /* --- Components ------------------------------------------------------------------------------ */
-import Home from "@/project/pages/Home";
+import Home from "@/project/page/Home";
 import { redirect } from "next/navigation";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Locale Page Metadata ----------------------------------------- */

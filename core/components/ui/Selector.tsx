@@ -1,12 +1,13 @@
 "use client"
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { ClassName as cn } from "./Pelak"
 import { Input } from "./Input"
 import { Button } from "./Button"
 import * as Dialog from "./Dialog"
 import { Icon } from "./Icon"
+import { Skeleton } from "./Skeleton"
 
 /* --- Types ------------------------------------------------------------------------------------ */
 interface SelectorOption {
@@ -28,6 +29,7 @@ interface SelectorProps {
   searchable?: boolean // پیش‌فرض: true
   className?: string
   disabled?: boolean
+  isLoading?: boolean // نمایش اسکلتون به جای selector
 }
 
 /* --- Selector Component ----------------------------------------------------------------------- */
@@ -41,6 +43,7 @@ export function Selector({
   searchable = true,
   className,
   disabled = false,
+  isLoading = false,
 }: SelectorProps) {
   const [open, setOpen] = useState(false)
   const [options, setOptions] = useState<SelectorOption[]>([])
@@ -48,25 +51,11 @@ export function Selector({
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedOption, setSelectedOption] = useState<SelectorOption | null>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const prevParentIdRef = useRef<number | undefined>(parentId)
 
-  // Fetch options when dialog opens or parentId changes
-  useEffect(() => {
-    if (open && !disabled) {
-      fetchOptions()
-    }
-  }, [open, parentId, type, disabled])
-
-  // Set selected option when value changes
-  useEffect(() => {
-    if (value && options.length > 0) {
-      const option = options.find((opt) => opt.id === value)
-      setSelectedOption(option || null)
-    } else {
-      setSelectedOption(null)
-    }
-  }, [value, options])
-
-  const fetchOptions = async () => {
+  const fetchOptions = useCallback(async () => {
+    if (disabled) return
+    
     setLoading(true)
     try {
       const params = new URLSearchParams({ type })
@@ -88,7 +77,72 @@ export function Selector({
     } finally {
       setLoading(false)
     }
-  }
+  }, [type, parentId, disabled])
+
+  // Fetch options when dialog opens
+  useEffect(() => {
+    if (open && !disabled && !isLoading) {
+      fetchOptions()
+    }
+  }, [open, disabled, isLoading, fetchOptions])
+
+  // Reset options when parentId changes (for dependent selectors like city)
+  useEffect(() => {
+    if (!isLoading && prevParentIdRef.current !== parentId && parentId !== undefined && !disabled && !open) {
+      setOptions([])
+      setSelectedOption(null)
+      prevParentIdRef.current = parentId
+      // Fetch new options if value exists
+      if (value) {
+        fetchOptions()
+      }
+    } else {
+      prevParentIdRef.current = parentId
+    }
+  }, [isLoading, parentId, disabled, open, value, fetchOptions])
+
+  // Fetch options when value exists but options are empty (for initial load)
+  useEffect(() => {
+    if (!isLoading && value && options.length === 0 && !disabled && !open) {
+      // Only fetch if parentId is available for dependent selectors (or not needed)
+      if (parentId === undefined || parentId !== null) {
+        fetchOptions()
+      }
+    }
+  }, [isLoading, value, options.length, disabled, open, parentId, fetchOptions])
+
+  // Fetch options when isLoading changes from true to false (for initial load)
+  useEffect(() => {
+    if (!isLoading && !disabled && options.length === 0 && !open) {
+      // Only fetch if parentId is available for dependent selectors (or not needed)
+      if (parentId === undefined || parentId !== null) {
+        fetchOptions()
+      }
+    }
+  }, [isLoading, disabled, options.length, open, parentId, fetchOptions])
+
+  // Fetch options immediately when value exists but selectedOption is not set (priority fetch)
+  useEffect(() => {
+    if (!isLoading && value && !selectedOption && options.length === 0 && !disabled && !open && !loading) {
+      // Only fetch if parentId is available for dependent selectors (or not needed)
+      if (parentId === undefined || parentId !== null) {
+        fetchOptions()
+      }
+    }
+  }, [isLoading, value, selectedOption, options.length, disabled, open, loading, parentId, fetchOptions])
+
+  // Set selected option when value or options change
+  useEffect(() => {
+    if (value && options.length > 0) {
+      const option = options.find((opt) => opt.id === value)
+      setSelectedOption(option || null)
+    } else if (!value) {
+      setSelectedOption(null)
+    }
+  }, [value, options])
+
+  // Track if we're still loading the selected value
+  const isLoadingValue = value !== undefined && value !== null && !selectedOption && (options.length === 0 || loading)
 
   const filteredOptions = searchable && searchQuery
     ? options.filter((option) =>
@@ -117,6 +171,17 @@ export function Selector({
       }, 100)
     }
   }, [open, searchable])
+
+  // Show skeleton if isLoading is true OR if value exists but selectedOption is not set yet
+  const shouldShowSkeleton = isLoading || isLoadingValue
+
+  if (shouldShowSkeleton) {
+    return (
+      <div className={cn("relative", className)}>
+        <Skeleton className="h-10 w-full rounded-md" />
+      </div>
+    )
+  }
 
   return (
     <div className={cn("relative", className)}>

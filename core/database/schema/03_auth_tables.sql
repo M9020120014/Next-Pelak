@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS "pelak"."user" (
 );
 
 ALTER TABLE "pelak"."user" 
-  OWNER TO "htni_admin";
+  OWNER TO "pelak_admin";
 
 -- Index for quick search of active users
 CREATE INDEX "idx_user_active" ON "pelak"."user" USING btree (
@@ -157,7 +157,7 @@ CREATE TABLE "pelak"."refreshtoken" (
 );
 
 ALTER TABLE "pelak"."refreshtoken" 
-  OWNER TO "htni_admin";
+  OWNER TO "pelak_admin";
 
 -- Index for quick search of expired tokens
 CREATE INDEX "idx_refreshtoken_expiresat" ON "pelak"."refreshtoken" USING btree (
@@ -220,7 +220,7 @@ CREATE TABLE "pelak"."refreshtokenhistory" (
 );
 
 ALTER TABLE "pelak"."refreshtokenhistory" 
-  OWNER TO "htni_admin";
+  OWNER TO "pelak_admin";
 
 -- Index for searching history by archive time
 CREATE INDEX "idx_refreshtokenhistory_archivedat" ON "pelak"."refreshtokenhistory" USING btree (

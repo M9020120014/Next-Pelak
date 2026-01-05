@@ -25,23 +25,23 @@
 #### مرحله 1: ایجاد ساختار دیتابیس (جداول و توابع)
 ```bash
 # روش 1: اجرای فایل master (پیشنهادی)
-psql -U htni_admin -d your_database -f core/database/master.sql
+psql -U pelak_admin -d your_database -f core/database/master.sql
 
 # روش 2: اجرای جداگانه فایل‌ها
 # Schema (جداول)
-psql -U htni_admin -d your_database -f core/database/schema/00_create_schema.sql
-psql -U htni_admin -d your_database -f core/database/schema/01_sequences.sql
-psql -U htni_admin -d your_database -f core/database/schema/02_base_tables.sql
-psql -U htni_admin -d your_database -f core/database/schema/03_auth_tables.sql
-psql -U htni_admin -d your_database -f core/database/schema/04_content_tables.sql
-psql -U htni_admin -d your_database -f core/database/schema/05_comments_tables.sql
-psql -U htni_admin -d your_database -f core/database/schema/06_project_tables.sql
+psql -U pelak_admin -d your_database -f core/database/schema/00_create_schema.sql
+psql -U pelak_admin -d your_database -f core/database/schema/01_sequences.sql
+psql -U pelak_admin -d your_database -f core/database/schema/02_base_tables.sql
+psql -U pelak_admin -d your_database -f core/database/schema/03_auth_tables.sql
+psql -U pelak_admin -d your_database -f core/database/schema/04_content_tables.sql
+psql -U pelak_admin -d your_database -f core/database/schema/05_comments_tables.sql
+psql -U pelak_admin -d your_database -f core/database/schema/06_project_tables.sql
 
 # Functions (توابع)
-psql -U htni_admin -d your_database -f core/database/functions/01_auth_functions.sql
-psql -U htni_admin -d your_database -f core/database/functions/02_content_functions.sql
-psql -U htni_admin -d your_database -f core/database/functions/03_comments_functions.sql
-psql -U htni_admin -d your_database -f core/database/functions/04_user_functions.sql
+psql -U pelak_admin -d your_database -f core/database/functions/01_auth_functions.sql
+psql -U pelak_admin -d your_database -f core/database/functions/02_content_functions.sql
+psql -U pelak_admin -d your_database -f core/database/functions/03_comments_functions.sql
+psql -U pelak_admin -d your_database -f core/database/functions/04_user_functions.sql
 ```
 
 **بررسی**:
@@ -64,7 +64,7 @@ psql -U htni_admin -d your_database -f core/database/functions/04_user_functions
 #### مرحله 2: Migration داده‌های موجود
 ```bash
 # اگر توکن‌های منقضی شده وجود دارد
-psql -U htni_admin -d your_database -f core/database/migrations/database_migration.sql
+psql -U pelak_admin -d your_database -f core/database/migrations/database_migration.sql
 ```
 
 **بررسی**:
@@ -116,7 +116,7 @@ SELECT cron.schedule(
 #### با سیستم cron خارجی
 ```bash
 # اضافه کردن به crontab
-0 * * * * psql -U htni_admin -d your_database -c "SELECT pelak_auth_archive_inactive_tokens();"
+0 * * * * psql -U pelak_admin -d your_database -c "SELECT pelak_auth_archive_inactive_tokens();"
 ```
 
 **بررسی**:
@@ -207,7 +207,7 @@ hookRegistry.register('auth:after-login', async (user) => {
 
 ### مشکل: توابع دیتابیس کار نمی‌کنند
 - بررسی کنید که schema های `pelak` و `project` وجود دارند
-- بررسی کنید که owner صحیح است (`htni_admin`)
+- بررسی کنید که owner صحیح است (`pelak_admin`)
 - بررسی کنید که extension `pgcrypto` نصب شده است
 
 ### مشکل: IP tracking کار نمی‌کند

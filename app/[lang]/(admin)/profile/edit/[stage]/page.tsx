@@ -1,10 +1,10 @@
 // /app/[lang]/(admin)/profile/edit/[stage]/page.tsx
 import { LANG_PARAMS, LANG } from '@/project/config/site'
 import { getIDeviceToken } from '@/core/lib/token/idevice'
-import EditStage1Client from '@/project/pages/EditStage1Client'
-import EditStage2Client from '@/project/pages/EditStage2Client'
-import EditStage3Client from '@/project/pages/EditStage3Client'
-import EditStage4Client from '@/project/pages/EditStage4Client'
+import EditStage1Client from '@/project/page/EditStage1Client'
+import EditStage2Client from '@/project/page/EditStage2Client'
+import EditStage3Client from '@/project/page/EditStage3Client'
+import EditStage4Client from '@/project/page/EditStage4Client'
 import { notFound } from 'next/navigation'
 
 interface EditStagePageProps extends LANG_PARAMS {

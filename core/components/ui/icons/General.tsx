@@ -172,4 +172,30 @@ export const General = {
       </>
     ),
   },
+  calendar: {
+    active: (
+      <>
+        <rect x="8" y="10" width="34" height="36" rx="2" ry="2" />
+        <line x1="8" y1="20" x2="42" y2="20" />
+        <line x1="18" y1="6" x2="18" y2="14" />
+        <line x1="32" y1="6" x2="32" y2="14" />
+      </>
+    ),
+    shape: (
+      <>
+        <rect x="8" y="10" width="34" height="36" rx="2" ry="2" />
+        <line x1="8" y1="20" x2="42" y2="20" />
+        <line x1="18" y1="6" x2="18" y2="14" />
+        <line x1="32" y1="6" x2="32" y2="14" />
+        <circle cx="18" cy="28" r="2" />
+        <circle cx="25" cy="28" r="2" />
+        <circle cx="32" cy="28" r="2" />
+        <circle cx="18" cy="35" r="2" />
+        <circle cx="25" cy="35" r="2" />
+        <circle cx="32" cy="35" r="2" />
+        <circle cx="18" cy="42" r="2" />
+        <circle cx="25" cy="42" r="2" />
+      </>
+    ),
+  },
 };

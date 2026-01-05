@@ -1,10 +1,11 @@
-// /project/pages/EditStage2Client.tsx
+// /project/page/EditStage2Client.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/core/lib/auth/use-auth'
 import { getAccessToken } from '@/core/lib/auth/token-manager'
+import { useSecurity } from '@/core/components/security/SecurityProvider'
 import ConnectionError from '@/core/components/auth/ConnectionError'
 import { UI as P } from '@/core/components/ui/Pelak'
 import { profileTranslator } from '@/project/data/translations/profile'
@@ -30,6 +31,7 @@ interface AdditionalInfoData {
 export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProps) {
   const router = useRouter()
   const { authState, error, refreshAccessToken } = useAuth(iDevice)
+  const { csrfToken } = useSecurity()
   const [retrying, setRetrying] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -128,6 +130,7 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken,
         },
         body: JSON.stringify({
           stage: 2,
@@ -153,6 +156,10 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
         if (refreshData.success && refreshData.data) {
           setAdditionalInfo(refreshData.data)
         }
+        // Navigate to next stage after a short delay
+        setTimeout(() => {
+          router.push(`/${lang}/profile/edit/3`)
+        }, 1000)
       } else {
         setSaveMessage({ type: 'error', text: result.message || t.error })
       }
@@ -167,20 +174,31 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
     router.push(`/${lang}/profile/edit/1`)
   }
 
-  const handleNext = () => {
-    router.push(`/${lang}/profile/edit/3`)
-  }
-
-  if (authState === 'loading' || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          <p className="mt-4 text-gray-600">{t.loading}</p>
+  // Skeleton component for edit form
+  const EditFormSkeleton = () => (
+    <main className="bg-Background pt-008-2 lg:pt-040-8 min-h-screen">
+      <P.Container className="space-y-018-4 lg:space-y-024-6">
+        <div className="mb-6">
+          <P.Skeleton className="h-9 w-48 mb-2" />
+          <P.Skeleton className="h-1 w-20 rounded-full" />
         </div>
-      </div>
-    )
-  }
+        <P.Card className="p-6 lg:p-8 shadow-md border-Border/50">
+          <div className="space-y-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <P.Skeleton className="h-5 w-32" />
+                <P.Skeleton className={`h-${i === 1 ? '24' : '10'} w-full rounded-md`} />
+              </div>
+            ))}
+            <div className="flex gap-4 pt-4">
+              <P.Skeleton className="h-10 flex-1 rounded-md" />
+              <P.Skeleton className="h-10 flex-1 rounded-md" />
+            </div>
+          </div>
+        </P.Card>
+      </P.Container>
+    </main>
+  )
 
   if (authState === 'error' && error) {
     return (
@@ -202,119 +220,120 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
     )
   }
 
+  // Show skeleton until data is loaded
+  if (authState === 'loading' || loading || additionalInfo === null) {
+    return <EditFormSkeleton />
+  }
+
   return (
-    <main className="bg-Background pt-008-2 lg:pt-040-8">
-      <P.Container className="space-y-018-4">
-        <h1 className="text-3xl font-bold text-gray-900">{t.stage2}</h1>
+    <main className="bg-Background pt-008-2 lg:pt-040-8 min-h-screen">
+      <P.Container className="space-y-018-4 lg:space-y-024-6">
+        <div className="mb-6">
+          <h1 className="text-3xl lg:text-4xl font-bold text-Text mb-2">{t.stage2}</h1>
+          <div className="h-1 w-20 bg-Mid/30 rounded-full"></div>
+        </div>
 
         {saveMessage && (
-          <div className={`p-4 rounded-lg ${
-            saveMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+          <div className={`p-4 lg:p-5 rounded-lg shadow-sm border-2 transition-all ${
+            saveMessage.type === 'success' 
+              ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800' 
+              : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800'
           }`}>
-            {saveMessage.text}
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${saveMessage.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <p className="font-medium">{saveMessage.text}</p>
+            </div>
           </div>
         )}
 
         {!stage1Completed && (
-          <P.Card className="p-6 bg-yellow-50 border-yellow-200">
-            <p className="text-yellow-800">{t.stage1NotCompleted || "لطفاً ابتدا مرحله 1 را تکمیل کنید"}</p>
+          <P.Card className="p-6 lg:p-8 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+              <p className="text-yellow-800 dark:text-yellow-300 font-medium">{t.stage1NotCompleted || "لطفاً ابتدا مرحله 1 را تکمیل کنید"}</p>
+            </div>
             <P.Button
               onClick={() => router.push(`/${lang}/profile/edit/1`)}
-              className="mt-4"
+              className="mt-4 transition-transform hover:scale-105"
             >
               {t.goToStage1 || "رفتن به مرحله 1"}
             </P.Button>
           </P.Card>
         )}
 
-        <P.Card className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
+          <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
             {/* Job */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-Text">
                 {t.job}
               </label>
               <P.Input
                 type="text"
                 value={job}
                 onChange={(e) => setJob(e.target.value)}
-                className="w-full"
+                className="w-full focus:border-Mid focus:ring-Mid/20 transition-all"
                 placeholder={t.optional}
               />
             </div>
 
             {/* Motivation */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-Text">
                 {t.motivation}
               </label>
               <textarea
                 value={motivation}
                 onChange={(e) => setMotivation(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                rows={4}
+                className="w-full px-3 py-2 border border-Border rounded-lg bg-Background text-Text focus:border-Mid focus:ring-Mid/20 focus:outline-none transition-all resize-none"
+                rows={5}
                 placeholder={t.optional}
               />
             </div>
 
             {/* How Known */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-Text">
                 {t.howKnown}
               </label>
               <P.Input
                 type="text"
                 value={howknown}
                 onChange={(e) => setHowknown(e.target.value)}
-                className="w-full"
+                className="w-full focus:border-Mid focus:ring-Mid/20 transition-all"
                 placeholder={t.optional}
               />
             </div>
 
             {/* Collaboration */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-Text">
                 {t.collaboration}
               </label>
               <P.Input
                 type="text"
                 value={collaboration}
                 onChange={(e) => setCollaboration(e.target.value)}
-                className="w-full"
+                className="w-full focus:border-Mid focus:ring-Mid/20 transition-all"
                 placeholder={t.optional}
               />
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-4 pt-4 border-t border-Border/30">
               <P.Button
                 type="button"
                 onClick={handlePrevious}
-                className="flex-1 border border-gray-300 bg-white hover:bg-gray-50"
+                className="flex-1 border border-Border bg-Background hover:bg-Mid/10 transition-all"
               >
                 {t.previous}
               </P.Button>
               <P.Button
-                type="button"
-                onClick={() => router.push(`/${lang}/profile`)}
-                className="flex-1 border border-gray-300 bg-white hover:bg-gray-50"
-              >
-                {t.cancel || "انصراف"}
-              </P.Button>
-              <P.Button
                 type="submit"
                 disabled={saving || !stage1Completed}
-                className="flex-1"
+                className="flex-1 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {saving ? t.saving : t.save}
-              </P.Button>
-              <P.Button
-                type="button"
-                onClick={handleNext}
-                disabled={saving || !stage1Completed}
-                className="flex-1"
-              >
-                {t.next}
+                {saving ? t.saving : "ثبت و ادامه"}
               </P.Button>
             </div>
           </form>

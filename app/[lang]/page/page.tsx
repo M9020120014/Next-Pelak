@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { LANG_PARAMS, LANG } from "@/project/config/site";
 import { ROBOTS_ON } from "@/core/config/metadata";
 /* --- Components ------------------------------------------------------------------------------ */
-import PagesClient from "@/project/pages/PagesClient";
+import PagesClient from "@/project/page/PagesClient";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Pages Page Metadata --------------------------------------------- */
 export async function generateMetadata({ params }: LANG_PARAMS): Promise<Metadata> {

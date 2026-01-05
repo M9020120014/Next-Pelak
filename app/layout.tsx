@@ -6,8 +6,6 @@ import { headers } from "next/headers";
 /* --- Config ----------------------------------------------------------------------------------- */
 import { IS_PRODUCTION, validateEnv } from "@/core/config/env";
 import { LANGUAGE_DATA, extractLangFromHeaders } from "@/project/config/site";
-import { getCoreConfig } from "@/core/config/config";
-import { createViewportFromConfig } from "@/core/config/metadata";
 import { projectCoreConfig } from "@/core/config/project-override";
 import { setCoreConfig } from "@/core/config/config";
 /* --- Lib -------------------------------------------------------------------------------------- */
@@ -20,7 +18,8 @@ import ProjectProvider from "@/project/components/provider/Provider";
 import Footer from "@/project/components/theme/footer/Footer";
 import Navbar from "@/project/components/theme/navbar/Navbar";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { BACE_SEO_LANG, BACE_SEO } from "@/project/config/metadata";
+import { BACE_SEO_LANG, BACE_SEO ,SITE_VIEWPORT} from "@/project/config/metadata";
+import { ROBOTS_OFF } from "@/core/config/metadata";
 /* --- Set Core Configuration ------------------------------------------------------------------- */
 // Set project-specific core configuration before rendering
 // This must be called before CoreLayout is used
@@ -29,15 +28,15 @@ setCoreConfig(projectCoreConfig);
 loadProjectHooksSync();
 /* --- Constants -------------------------------------------------------------------------------- */
 // Get core config for metadata
-const coreConfig = getCoreConfig();
-export const viewport: Viewport = createViewportFromConfig(coreConfig.metadata);
 /* --- Root Layout Metadata ------------------------------------------- */
+export const viewport: Viewport = SITE_VIEWPORT;
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = await headers();
   const lang = await extractLangFromHeaders(headersList);
   return {
     ...BACE_SEO,
     ...BACE_SEO_LANG(lang),
+    ...ROBOTS_OFF,
   };
 }
 /* --- Root Layout -------------------------------------------------- */

@@ -8,7 +8,7 @@ import { ROBOTS_OFF, ROBOTS_ON } from "@/core/config/metadata";
 import { ENV } from "@/core/config/env";
 import { getIDeviceToken } from "@/core/lib/token/idevice";
 /* --- Components ------------------------------------------------------------------------------ */
-import PageDetailClient from "@/project/pages/PageDetailClient";
+import PageDetailClient from "@/project/page/PageDetailClient";
 /* --- Functions -------------------------------------------------------------------------------- */
 
 /* --- Get Image URL Helper ------- */

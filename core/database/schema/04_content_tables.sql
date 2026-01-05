@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS "pelak"."page" (
 );
 
 ALTER TABLE "pelak"."page" 
-  OWNER TO "htni_admin";
+  OWNER TO "pelak_admin";
 
 -- ============================================================================
 -- ✅ All content tables have been created!
