@@ -53,8 +53,8 @@ async function POSTHandler(request: NextRequest) {
     // Extract client IP for tracking
     const clientIP = getClientIP(request);
 
-    const result = await callRpc("auth_refresh_token", {
-      p_refresh_token: currentRefreshToken,
+    const result = await callRpc("pelak_auth_refreshtoken", {
+      p_refreshtoken: currentRefreshToken,
       p_idevice: iDevice,
       p_ip: clientIP, // Add IP tracking
     });
@@ -78,6 +78,7 @@ async function POSTHandler(request: NextRequest) {
       mobile: userData.mobile,
       firstname: userData.firstname || "",
       lastname: userData.lastname || "",
+      email: userData.email || "",
     });
 
     let response = successResponse(
@@ -86,13 +87,13 @@ async function POSTHandler(request: NextRequest) {
         message: ERROR_MESSAGES.TOKEN_REFRESHED.message,
         access_token: accessToken,
         expires_in: TOKEN.ACCESS_TOKEN_EXPIRY,
-        user_id: userData.id,
+        userid: userData.id,
       },
       ERROR_MESSAGES.TOKEN_REFRESHED.message
     );
 
     if (hasRefreshToken(result)) {
-      response = setRefreshTokenInResponse(response, result.refresh_token);
+      response = setRefreshTokenInResponse(response, result.refreshtoken);
     }
 
     // Execute auth:token-refresh hooks (non-blocking)

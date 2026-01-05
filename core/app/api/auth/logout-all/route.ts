@@ -57,7 +57,7 @@ async function POSTHandler(request: NextRequest) {
     // Two-step verification: Step 1 - Verify iDevice has refresh token, Step 2 - Execute write operation
     return guardWriteOperation(body, async () => {
       /* --- Revoke All Tokens ----------------- */
-      const result = await callRpc("auth_revoke_all_tokens", {
+      const result = await callRpc("pelak_auth_revokeall", {
         p_mobile: sanitizedMobile,
       });
 

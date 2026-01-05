@@ -2,7 +2,7 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import { notFound } from "next/navigation";
 /* --- Types ------------------------------------------------------------------------------------ */
-import type { LanguageMap, LanguageObject, ConfigSiteLangObject, ConfigSiteObject, PageObjectType } from "./types";
+import type { LanguageMap, LanguageObject, ConfigSiteLangObject, ConfigSiteObject, PageObjectType } from "@/core/config/types";
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { ENV } from "@/core/config/env";
 /* --- Constants -------------------------------------------------------------------------------- */
@@ -51,7 +51,7 @@ export async function LANG(params: Promise<{ lang: string }>) {
     otherLanguages: LANGUAGE_LIST.filter((l) => l !== lang)
   };
 }
-export async function LANG_CLIENT(params: { lang: string }) {
+export function LANG_CLIENT(params: { lang: string }) {
   const { lang } = params;
   if (!LANG_CHECK(lang)) {
     notFound();
@@ -60,6 +60,133 @@ export async function LANG_CLIENT(params: { lang: string }) {
     lang: lang as LANGUAGE_TYPE,
     otherLanguages: LANGUAGE_LIST.filter((l) => l !== lang)
   };
+}
+/* --- Extract Language From Pathname --------------------------------- */
+/**
+ * Extracts language from URL pathname
+ * Returns default language if pathname doesn't contain a valid language code
+ * @param pathname - URL pathname (e.g., "/en/page" or "/fa")
+ * @returns Validated language code
+ */
+export function extractLangFromPathname(pathname: string | null | undefined): LANGUAGE_TYPE {
+  if (!pathname) {
+    return LANGUAGE.default;
+  }
+
+  // Remove leading slash and split by '/'
+  const segments = pathname.split('/').filter(Boolean);
+
+  // Check if first segment is a valid language code
+  if (segments.length > 0 && LANG_CHECK(segments[0])) {
+    return segments[0] as LANGUAGE_TYPE;
+  }
+
+  // Return default language if no valid language found
+  return LANGUAGE.default;
+}
+
+/**
+ * Checks if pathname contains a valid language code and extracts it
+ * Returns null if no language code is found in the pathname
+ * @param pathname - URL pathname (e.g., "/en/page" or "/fa")
+ * @returns Language code if found, null otherwise
+ */
+function extractLangFromPathnameIfExists(pathname: string | null | undefined): LANGUAGE_TYPE | null {
+  if (!pathname) {
+    return null;
+  }
+
+  // Remove leading slash and split by '/'
+  const segments = pathname.split('/').filter(Boolean);
+
+  // Check if first segment is a valid language code
+  if (segments.length > 0 && LANG_CHECK(segments[0])) {
+    return segments[0] as LANGUAGE_TYPE;
+  }
+
+  // Return null if no valid language found
+  return null;
+}
+/* --- Extract Language From Headers ----------------------------------- */
+/**
+ * Extracts language from request headers by trying multiple methods
+ * This function is used in root layout where route params are not directly available.
+ * It tries various header sources to determine the current language from the URL pathname.
+ * 
+ * Note: If a middleware sets 'x-pathname' header, it will be checked first.
+ * Otherwise, the function tries Next.js internal headers and other common headers.
+ * 
+ * @param headers - Headers object from next/headers
+ * @returns Validated language code (falls back to LANGUAGE.default if not found)
+ */
+export async function extractLangFromHeaders(headers: Headers): Promise<LANGUAGE_TYPE> {
+  // Try to get pathname from x-invoke-path (Next.js internal header for server components)
+  // This header is set by Next.js internally and contains the pathname being rendered
+  const invokePath = headers.get('x-invoke-path');
+  if (invokePath) {
+    const lang = extractLangFromPathnameIfExists(invokePath);
+    if (lang) {
+      return lang;
+    }
+  }
+
+  // Try to get pathname from custom header (if set by middleware)
+  const pathnameHeader = headers.get('x-pathname');
+  if (pathnameHeader) {
+    const lang = extractLangFromPathnameIfExists(pathnameHeader);
+    if (lang) {
+      return lang;
+    }
+  }
+
+  // Try to construct URL from forwarded headers and extract pathname
+  const forwardedHost = headers.get('x-forwarded-host') || headers.get('host');
+  const forwardedProto = headers.get('x-forwarded-proto') || 'https';
+  const forwardedPath = headers.get('x-forwarded-path') || headers.get('x-pathname');
+
+  if (forwardedHost && forwardedPath) {
+    try {
+      const constructedUrl = `${forwardedProto}://${forwardedHost}${forwardedPath}`;
+      const url = new URL(constructedUrl);
+      const lang = extractLangFromPathnameIfExists(url.pathname);
+      if (lang) {
+        return lang;
+      }
+    } catch {
+      // Invalid URL, continue to next method
+    }
+  }
+
+  // Try to extract from referer header
+  const referer = headers.get('referer');
+  if (referer) {
+    try {
+      const url = new URL(referer);
+      const lang = extractLangFromPathnameIfExists(url.pathname);
+      if (lang) {
+        return lang;
+      }
+    } catch {
+      // Invalid URL, continue to next method
+    }
+  }
+
+  // Try to extract from URL header (if available)
+  const urlHeader = headers.get('x-url') || headers.get('url');
+  if (urlHeader) {
+    try {
+      const url = new URL(urlHeader);
+      const lang = extractLangFromPathnameIfExists(url.pathname);
+      if (lang) {
+        return lang;
+      }
+    } catch {
+      // Invalid URL, continue to next method
+    }
+  }
+
+  // Fallback to default language
+  return LANGUAGE.default;
 }
 /* --- Data --------------------------------------------------------- */
 export const SITE_LANG = {
@@ -172,7 +299,7 @@ export const HOME_MAP = {
   short: SITE_LANG[LANGUAGE.default].Data.shortName,
   description: SITE_LANG[LANGUAGE.default].Data.description,
   icon: "home",
-  sitemap: {
+  sitemap: [{
     url: BASE_URL + "/",
     lastModified: new Date(),
     changeFrequency: "daily",
@@ -187,6 +314,6 @@ export const HOME_MAP = {
     images: [
       "/logo.png",
     ],
-  }
+  }]
 } as const satisfies PageObjectType
 

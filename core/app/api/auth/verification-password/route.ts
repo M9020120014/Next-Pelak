@@ -68,10 +68,10 @@ async function POSTHandler(request: NextRequest) {
     }
 
     /* --- Set Password ----------------- */
-    const setPasswordResult = await callRpc("auth_set_password", {
+    const setPasswordResult = await callRpc("pelak_auth_password", {
       p_mobile: sanitizedMobile,
-      p_new_password: sanitizedPassword,
-      p_otp_secret: otpSecret,
+      p_password: sanitizedPassword,
+      p_secret: otpSecret,
     });
 
     if (!setPasswordResult.success) {
@@ -79,7 +79,7 @@ async function POSTHandler(request: NextRequest) {
     }
 
     /* --- Login User ----------------- */
-    const loginResult = await callRpc("auth_login", {
+    const loginResult = await callRpc("pelak_auth_login", {
       p_mobile: sanitizedMobile,
       p_password: sanitizedPassword,
       p_idevice: iDevice,
@@ -100,6 +100,9 @@ async function POSTHandler(request: NextRequest) {
       mobile: userData.mobile,
       firstname: userData.firstname || "",
       lastname: userData.lastname || "",
+      email: userData.email || "",
+      profileimage: userData.profileimage || "",
+      profileurl: userData.profileurl || "",
     });
 
     let response = successResponse(
@@ -117,7 +120,7 @@ async function POSTHandler(request: NextRequest) {
 
     /* --- Set Refresh Token Cookie ----------------- */
     if (hasRefreshToken(loginResult)) {
-      response = setRefreshTokenInResponse(response, loginResult.refresh_token);
+      response = setRefreshTokenInResponse(response, loginResult.refreshtoken);
     }
 
     return response;

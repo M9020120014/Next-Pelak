@@ -3,14 +3,14 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 /* --- Components ------------------------------------------------------------------------------- */
 import { UI as P } from '@/core/components/ui/Pelak';
 import { ClassName as cn } from '@/core/components/ui/Pelak';
 import { useScrollDirection } from '@/core/hooks/use-scroll-direction';
 /* --- Data ------------------------------------------------------------------------------------- */
 import { MobileMenu } from '@/project/data/menu';
-import { LANGUAGE_TYPE, LANG_CHECK } from '@/core/config/site';
+import { extractLangFromPathname } from '@/project/config/site';
 import { navbarTranslator } from '@/project/data/translations/navbar';
 
 /* --- Functions -------------------------------------------------------------------------------- */
@@ -18,9 +18,7 @@ import { navbarTranslator } from '@/project/data/translations/navbar';
 export default function DesktopNavbar({ className }: { className?: string }) {
   /* --- Check Path ----------------- */
   const pathname = usePathname();
-  const params = useParams();
-  const langParam = (params.lang as string) || "fa";
-  const lang: LANGUAGE_TYPE = LANG_CHECK(langParam) ? langParam : "fa";
+  const lang = extractLangFromPathname(pathname);
   const t = navbarTranslator[lang];
   
   /* --- Hooks ---------------------- */

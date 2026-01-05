@@ -5,7 +5,7 @@ import { createContext, useContext, useMemo, useState, useCallback } from "react
 import { ClassName as cn } from "@/core/components/ui/Pelak"
 import BackButton from "@/core/components/navigation/BackButton"
 import { SvgLogoType } from "@/project/components/media/svg"
-import { LANGUAGE_DATA, LANGUAGE_TYPE } from "@/core/config/site"
+import { LANGUAGE_DATA, LANGUAGE_TYPE } from "@/project/config/site"
 
 /* --- Types ------------------------------------------------------------------------------------ */
 export interface HeaderItemProps {

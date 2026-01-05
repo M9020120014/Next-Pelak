@@ -1,246 +1,242 @@
 -- ============================================================================
--- ماژول: احراز هویت و مدیریت کاربران
--- توضیحات: جداول مربوط به کاربران و مدیریت توکن‌های احراز هویت
--- این جداول به roles و profile_images وابسته هستند و باید بعد از آن‌ها ساخته شوند
+-- Module: Authentication and User Management
+-- Description: Tables related to users and authentication token management
+-- These tables depend on userrole and userprofile and must be created after them
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- جدول: users
--- توضیحات: اطلاعات کاربران سیستم
+-- Table: user
+-- Description: System user information
 -- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS "pelak"."users" (
-  -- شناسه یکتای کاربر (Primary Key, Auto Increment)
-  "id" int4 NOT NULL DEFAULT nextval('"pelak".users_id_seq'::regclass),
+CREATE TABLE IF NOT EXISTS "pelak"."user" (
+  -- Unique user identifier (Primary Key, Auto Increment)
+  "userid" int4 NOT NULL DEFAULT nextval('"pelak".user_userid_seq'::regclass),
   
-  -- شماره موبایل کاربر (Unique, Not Null) - برای ورود و احراز هویت
+  -- User mobile number (Unique, Not Null) - for login and authentication
   "mobile" varchar(20) COLLATE "pg_catalog"."default" NOT NULL,
   
-  -- رمز عبور hash شده با bcrypt (Not Null)
-  -- مقدار 'hasNoPassword' برای کاربرانی که هنوز رمز عبور تنظیم نکرده‌اند
+  -- Password hashed with bcrypt (Not Null)
+  -- Value 'hasNoPassword' for users who have not set a password yet
   "userpassword" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   
-  -- نام کاربر
+  -- User first name
   "firstname" varchar(50) COLLATE "pg_catalog"."default",
   
-  -- نام خانوادگی کاربر
+  -- User last name
   "lastname" varchar(50) COLLATE "pg_catalog"."default",
   
-  -- تاریخ ثبت‌نام (Default: زمان فعلی)
-  "register_date" timestamptz(6) DEFAULT now(),
+  -- Registration date (Default: current time)
+  "register" timestamptz(6) DEFAULT now(),
   
-  -- آخرین زمان ورود موفق
-  "last_login" timestamptz(6),
+  -- Last successful login time
+  "lastlogin" timestamptz(6),
   
-  -- تعداد تلاش‌های ناموفق برای ورود (Default: 0)
-  -- بعد از 5 تلاش ناموفق، حساب قفل می‌شود
-  "failed_attempt" int4 DEFAULT 0,
+  -- Number of failed login attempts (Default: 0)
+  -- After 5 failed attempts, account is locked
+  "failedattempt" int4 DEFAULT 0,
   
-  -- وضعیت فعال/غیرفعال بودن حساب (Default: true)
-  "is_active" bool DEFAULT true,
+  -- Active/inactive account status (Default: true)
+  "active" bool DEFAULT true,
   
-  -- آدرس ایمیل کاربر (اختیاری)
+  -- User email address (optional)
   "email" varchar(100) COLLATE "pg_catalog"."default",
   
-  -- کلید مخفی OTP برای تایید (موقت، فقط در فرآیند ثبت‌نام)
-  -- بعد از تنظیم رمز عبور null می‌شود
-  "otp_secret" varchar(32) COLLATE "pg_catalog"."default",
+  -- OTP secret key for verification (temporary, only during registration process)
+  -- Becomes null after password is set
+  "otpsecret" varchar(32) COLLATE "pg_catalog"."default",
   
-  -- زمان آخرین تغییر رمز عبور (Default: زمان فعلی)
-  "password_changed_at" timestamptz(6) DEFAULT now(),
+  -- Last password change time (Default: current time)
+  "passwordchanged" timestamptz(6) DEFAULT now(),
   
-  -- زمان قفل شدن حساب (NULL = قفل نیست)
-  -- بعد از 5 تلاش ناموفق، به مدت 15 دقیقه قفل می‌شود
-  "locked_until" timestamptz(6),
+  -- Account lock time (NULL = not locked)
+  -- After 5 failed attempts, locked for 15 minutes
+  "lockeduntil" timestamptz(6),
   
-  -- زمان ایجاد رکورد (Default: زمان فعلی)
-  "created_at" timestamptz(6) DEFAULT now(),
+  -- Record creation time (Default: current time)
+  "created" timestamptz(6) DEFAULT now(),
   
-  -- زمان آخرین به‌روزرسانی (Default: زمان فعلی)
-  "updated_at" timestamptz(6) DEFAULT now(),
+  -- Last update time (Default: current time)
+  "updated" timestamptz(6) DEFAULT now(),
   
-  -- شناسه تصویر پروفایل از لیست تصاویر پیش‌فرض (Foreign Key → pelak.profile_images.id)
-  -- تصویر از لیست تصاویر پیش‌فرض pelak انتخاب می‌شود
-  "profile_image_id" int4,
+  -- Profile image identifier from default image list (Foreign Key → pelak.userprofile.id)
+  -- Image is selected from pelak default image list
+  "profileimageid" int4,
   
-  -- URL تصویر پروفایل از سامانه خارجی
-  -- در صورت آپلود تصویر از سامانه دیگر، این فیلد پر می‌شود
-  "profile_image_url" text COLLATE "pg_catalog"."default",
+  -- Profile image URL from external system
+  -- This field is filled if image is uploaded from another system
+  "profileimageurl" text COLLATE "pg_catalog"."default",
   
-  -- شناسه نقش کاربر (Foreign Key → pelak.roles.id)
-  -- نقش از جدول roles انتخاب می‌شود
-  "role_id" int4,
+  -- User role identifier (Foreign Key → pelak.userrole.roleid)
+  -- Role is selected from userrole table
+  "roleid" int4,
   
   -- Primary Key
-  CONSTRAINT "users_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "user_pkey" PRIMARY KEY ("userid"),
   
-  -- Unique Constraint: هر شماره موبایل فقط یک بار می‌تواند ثبت شود
-  CONSTRAINT "users_mobile_key" UNIQUE ("mobile"),
+  -- Unique Constraint: Each mobile number can only be registered once
+  CONSTRAINT "user_mobile_key" UNIQUE ("mobile"),
   
-  -- Foreign Key: تصویر پروفایل از جدول profile_images (SET NULL در صورت حذف)
-  CONSTRAINT "users_profile_image_id_fkey" FOREIGN KEY ("profile_image_id") REFERENCES "pelak"."profile_images" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+  -- Foreign Key: Profile image from userprofile table (SET NULL on delete)
+  CONSTRAINT "user_profileimageid_fkey" FOREIGN KEY ("profileimageid") REFERENCES "pelak"."userprofile" ("profileid") ON DELETE SET NULL ON UPDATE CASCADE,
   
-  -- Foreign Key: نقش کاربر از جدول roles (SET NULL در صورت حذف)
-  CONSTRAINT "users_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "pelak"."roles" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
-  
-  -- Constraint: فقط یکی از profile_image_id یا profile_image_url باید مقدار داشته باشد
-  CONSTRAINT "users_profile_image_check" CHECK (
-    (profile_image_id IS NULL AND profile_image_url IS NOT NULL) OR
-    (profile_image_id IS NOT NULL AND profile_image_url IS NULL) OR
-    (profile_image_id IS NULL AND profile_image_url IS NULL)
-  )
+  -- Foreign Key: User role from userrole table (SET NULL on delete)
+  CONSTRAINT "user_roleid_fkey" FOREIGN KEY ("roleid") REFERENCES "pelak"."userrole" ("roleid") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
-ALTER TABLE "pelak"."users" 
+ALTER TABLE "pelak"."user" 
   OWNER TO "htni_admin";
 
--- Index برای جستجوی سریع کاربران فعال
-CREATE INDEX "idx_users_is_active" ON "pelak"."users" USING btree (
-  "is_active" "pg_catalog"."bool_ops" ASC NULLS LAST
+-- Index for quick search of active users
+CREATE INDEX "idx_user_active" ON "pelak"."user" USING btree (
+  "active" "pg_catalog"."bool_ops" ASC NULLS LAST
 );
 
--- Unique Index برای جستجوی سریع بر اساس شماره موبایل
-CREATE UNIQUE INDEX "idx_users_mobile" ON "pelak"."users" USING btree (
+-- Unique Index for quick search by mobile number
+CREATE UNIQUE INDEX "idx_user_mobile" ON "pelak"."user" USING btree (
   "mobile" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
 );
 
--- Index برای جستجوی سریع بر اساس تصویر پروفایل
-CREATE INDEX "idx_users_profile_image_id" ON "pelak"."users" USING btree (
-  "profile_image_id" "pg_catalog"."int4_ops" ASC NULLS LAST
+-- Index for quick search by profile image
+CREATE INDEX "idx_user_profileimageid" ON "pelak"."user" USING btree (
+  "profileimageid" "pg_catalog"."int4_ops" ASC NULLS LAST
 );
 
--- Index برای جستجوی سریع بر اساس نقش کاربر
-CREATE INDEX "idx_users_role_id" ON "pelak"."users" USING btree (
-  "role_id" "pg_catalog"."int4_ops" ASC NULLS LAST
+-- Index for quick search by user role
+CREATE INDEX "idx_user_roleid" ON "pelak"."user" USING btree (
+  "roleid" "pg_catalog"."int4_ops" ASC NULLS LAST
 );
 
 -- ----------------------------------------------------------------------------
--- جدول: refresh_tokens
--- توضیحات: فقط توکن‌های فعال (expires_at > NOW() و revoked_at IS NULL)
--- این جدول برای عملکرد بهتر فقط توکن‌های فعال را نگه می‌دارد
--- توکن‌های منقضی یا لغو شده به جدول تاریخچه منتقل می‌شوند
+-- Table: refreshtoken
+-- Description: Only active tokens (expiresat > NOW() and revokedat IS NULL)
+-- This table keeps only active tokens for better performance
+-- Expired or revoked tokens are moved to history table
 -- ----------------------------------------------------------------------------
-CREATE TABLE "pelak"."refresh_tokens" (
-  -- شناسه یکتای توکن (Primary Key, Auto Increment)
-  "id" int4 NOT NULL DEFAULT nextval('"pelak".refresh_tokens_id_seq'::regclass),
+CREATE TABLE "pelak"."refreshtoken" (
+  -- Unique token identifier (Primary Key, Auto Increment)
+  "refreshtokenid" int4 NOT NULL DEFAULT nextval('"pelak".refreshtoken_refreshtokenid_seq'::regclass),
   
-  -- Hash شده توکن با SHA-256 (Unique, Not Null)
-  -- توکن plain text هرگز در دیتابیس ذخیره نمی‌شود
-  "token_hash" text COLLATE "pg_catalog"."default" NOT NULL,
+  -- Token hashed with SHA-256 (Unique, Not Null)
+  -- Plain text token is never stored in database
+  "tokenhash" text COLLATE "pg_catalog"."default" NOT NULL,
   
-  -- شناسه کاربر صاحب توکن (Foreign Key → users.id)
-  "user_id" int4 NOT NULL,
+  -- Token owner user identifier (Foreign Key → user.userid)
+  "userid" int4 NOT NULL,
   
-  -- شناسه یکتای دستگاه (مثل fingerprint مرورگر)
-  -- هر کاربر می‌تواند چندین توکن فعال برای دستگاه‌های مختلف داشته باشد
+  -- Unique device identifier (like browser fingerprint)
+  -- Each user can have multiple active tokens for different devices
   "idevice" text COLLATE "pg_catalog"."default" NOT NULL,
   
-  -- زمان انقضای توکن (Not Null)
-  -- معمولاً 7 روز از زمان ایجاد
-  "expires_at" timestamptz(6) NOT NULL,
+  -- Token expiration time (Not Null)
+  -- Usually 7 days from creation time
+  "expiresat" timestamptz(6) NOT NULL,
   
-  -- زمان ایجاد توکن (Default: زمان فعلی)
-  "created_at" timestamptz(6) DEFAULT now(),
+  -- Token creation time (Default: current time)
+  "created" timestamptz(6) DEFAULT now(),
   
-  -- زمان لغو توکن (NULL = فعال است)
-  -- در صورت logout یا rotation، این فیلد set می‌شود
-  "revoked_at" timestamptz(6),
+  -- Token revocation time (NULL = active)
+  -- This field is set on logout or rotation
+  "revokedat" timestamptz(6),
   
-  -- آخرین زمان استفاده از توکن
-  -- در هر refresh، این فیلد به‌روزرسانی می‌شود
-  "last_used_at" timestamptz(6),
+  -- Last token usage time
+  -- This field is updated on each refresh
+  "lastusedat" timestamptz(6),
   
-  -- آخرین IP استفاده شده (inet type)
-  -- برای audit و تشخیص فعالیت مشکوک
-  "last_used_ip" inet,
+  -- Last used IP address (inet type)
+  -- For audit and suspicious activity detection
+  "lastusedip" inet,
   
   -- Primary Key
-  CONSTRAINT "refresh_tokens_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "refreshtoken_pkey" PRIMARY KEY ("refreshtokenid"),
   
-  -- Foreign Key: حذف cascade در صورت حذف کاربر
-  CONSTRAINT "refresh_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "pelak"."users" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  -- Foreign Key: Cascade delete on user deletion
+  CONSTRAINT "refreshtoken_userid_fkey" FOREIGN KEY ("userid") REFERENCES "pelak"."user" ("userid") ON DELETE CASCADE ON UPDATE NO ACTION,
   
-  -- Unique Constraint: هر hash توکن فقط یک بار می‌تواند وجود داشته باشد
-  CONSTRAINT "refresh_tokens_token_hash_key" UNIQUE ("token_hash")
+  -- Unique Constraint: Each token hash can only exist once
+  CONSTRAINT "refreshtoken_tokenhash_key" UNIQUE ("tokenhash")
 );
 
-ALTER TABLE "pelak"."refresh_tokens" 
+ALTER TABLE "pelak"."refreshtoken" 
   OWNER TO "htni_admin";
 
--- Index برای جستجوی سریع توکن‌های منقضی شده
-CREATE INDEX "idx_refresh_tokens_expires_at" ON "pelak"."refresh_tokens" USING btree (
-  "expires_at" "pg_catalog"."timestamptz_ops" ASC NULLS LAST
+-- Index for quick search of expired tokens
+CREATE INDEX "idx_refreshtoken_expiresat" ON "pelak"."refreshtoken" USING btree (
+  "expiresat" "pg_catalog"."timestamptz_ops" ASC NULLS LAST
 );
 
--- Unique Index برای جستجوی سریع بر اساس hash توکن
-CREATE INDEX "idx_refresh_tokens_token_hash" ON "pelak"."refresh_tokens" USING btree (
-  "token_hash" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
+-- Unique Index for quick search by token hash
+CREATE INDEX "idx_refreshtoken_tokenhash" ON "pelak"."refreshtoken" USING btree (
+  "tokenhash" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
 );
 
--- Index برای جستجوی توکن‌های یک کاربر
-CREATE INDEX "idx_refresh_tokens_user_id" ON "pelak"."refresh_tokens" USING btree (
-  "user_id" "pg_catalog"."int4_ops" ASC NULLS LAST
+-- Index for searching tokens of a user
+CREATE INDEX "idx_refreshtoken_userid" ON "pelak"."refreshtoken" USING btree (
+  "userid" "pg_catalog"."int4_ops" ASC NULLS LAST
 );
 
 -- ----------------------------------------------------------------------------
--- جدول: refresh_tokens_history
--- توضیحات: تاریخچه تمام توکن‌های منقضی شده یا حذف شده
--- این جدول برای audit، امنیت و نگهداری تاریخچه استفاده می‌شود
+-- Table: refreshtokenhistory
+-- Description: History of all expired or deleted tokens
+-- This table is used for audit, security and history maintenance
 -- ----------------------------------------------------------------------------
-CREATE TABLE "pelak"."refresh_tokens_history" (
-  -- شناسه یکتای توکن (از جدول اصلی)
-  -- Primary Key اما نه Auto Increment (از جدول اصلی کپی می‌شود)
-  "id" int4 NOT NULL,
+CREATE TABLE "pelak"."refreshtokenhistory" (
+  -- Unique token identifier (from main table)
+  -- Primary Key but not Auto Increment (copied from main table)
+  "refreshtokenhistoryid" int4 NOT NULL,
   
-  -- Hash شده توکن
-  "token_hash" text COLLATE "pg_catalog"."default" NOT NULL,
+  -- Token hash
+  "tokenhash" text COLLATE "pg_catalog"."default" NOT NULL,
   
-  -- شناسه کاربر
-  "user_id" int4 NOT NULL,
+  -- User identifier
+  "userid" int4 NOT NULL,
   
-  -- شناسه دستگاه
+  -- Device identifier
   "idevice" text COLLATE "pg_catalog"."default" NOT NULL,
   
-  -- زمان انقضای توکن
-  "expires_at" timestamptz(6) NOT NULL,
+  -- Token expiration time
+  "expiresat" timestamptz(6) NOT NULL,
   
-  -- زمان ایجاد توکن (از جدول اصلی)
-  "created_at" timestamptz(6) NOT NULL,
+  -- Token creation time (from main table)
+  "created" timestamptz(6) NOT NULL,
   
-  -- زمان لغو توکن (NULL = منقضی شده)
-  -- اگر توسط کاربر logout شده باشد، این فیلد set می‌شود
-  "revoked_at" timestamptz(6),
+  -- Token revocation time (NULL = expired)
+  -- If revoked by user logout, this field is set
+  "revokedat" timestamptz(6),
   
-  -- آخرین زمان استفاده
-  "last_used_at" timestamptz(6),
+  -- Last usage time
+  "lastusedat" timestamptz(6),
   
-  -- آخرین IP استفاده شده
-  "last_used_ip" inet,
+  -- Last used IP address
+  "lastusedip" inet,
   
-  -- زمان انتقال به تاریخچه (Default: زمان فعلی)
-  -- تفاوت بین revoked_at و archived_at:
-  -- - revoked_at: زمان لغو توکن توسط کاربر (logout)
-  -- - archived_at: زمان انتقال به تاریخچه (می‌تواند منقضی شده یا لغو شده باشد)
-  "archived_at" timestamptz(6) DEFAULT now(),
+  -- Archive time (Default: current time)
+  -- Difference between revokedat and archivedat:
+  -- - revokedat: Token revocation time by user (logout)
+  -- - archivedat: Archive time (can be expired or revoked)
+  "archivedat" timestamptz(6) DEFAULT now(),
   
   -- Primary Key
-  CONSTRAINT "refresh_tokens_history_pkey" PRIMARY KEY ("id")
+  CONSTRAINT "refreshtokenhistory_pkey" PRIMARY KEY ("refreshtokenhistoryid")
 );
 
-ALTER TABLE "pelak"."refresh_tokens_history" 
+ALTER TABLE "pelak"."refreshtokenhistory" 
   OWNER TO "htni_admin";
 
--- Index برای جستجوی تاریخچه بر اساس زمان بایگانی
-CREATE INDEX "idx_refresh_tokens_history_archived_at" ON "pelak"."refresh_tokens_history" USING btree (
-  "archived_at" "pg_catalog"."timestamptz_ops" ASC NULLS LAST
+-- Index for searching history by archive time
+CREATE INDEX "idx_refreshtokenhistory_archivedat" ON "pelak"."refreshtokenhistory" USING btree (
+  "archivedat" "pg_catalog"."timestamptz_ops" ASC NULLS LAST
 );
 
--- Index برای جستجوی تاریخچه بر اساس زمان انقضا
-CREATE INDEX "idx_refresh_tokens_history_expires_at" ON "pelak"."refresh_tokens_history" USING btree (
-  "expires_at" "pg_catalog"."timestamptz_ops" ASC NULLS LAST
+-- Index for searching history by expiration time
+CREATE INDEX "idx_refreshtokenhistory_expiresat" ON "pelak"."refreshtokenhistory" USING btree (
+  "expiresat" "pg_catalog"."timestamptz_ops" ASC NULLS LAST
 );
 
--- Index برای جستجوی تاریخچه یک کاربر
-CREATE INDEX "idx_refresh_tokens_history_user_id" ON "pelak"."refresh_tokens_history" USING btree (
-  "user_id" "pg_catalog"."int4_ops" ASC NULLS LAST
+-- Index for searching history of a user
+CREATE INDEX "idx_refreshtokenhistory_userid" ON "pelak"."refreshtokenhistory" USING btree (
+  "userid" "pg_catalog"."int4_ops" ASC NULLS LAST
 );
 
+-- ============================================================================
+-- ✅ All auth tables have been created!
+-- ============================================================================

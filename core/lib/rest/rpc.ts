@@ -1,7 +1,6 @@
 // lib/rest/rpc.ts
 import { ENV } from '@/core/config/env'
 import { REQUEST } from '@/core/config/security'
-import { validateURL } from '@/core/lib/security/ssrf-protection'
 import { getCacheOptions } from '@/core/lib/api/cache'
 import { ERROR_MESSAGES } from '@/core/lib/api/error-messages'
 
@@ -51,32 +50,12 @@ export function isRpcParamsObject(obj: unknown): obj is RpcParamsObject {
 }
 
 /**
- * Type guard to check if RPC response contains user data
- * Handles null/undefined values for optional fields
- */
-export function isUserRpcResponse(response: RpcResponseType): response is RpcResponseType & {
-  user_id: number
-  mobile: string
-  firstname: string | null | undefined
-  lastname: string | null | undefined
-  refresh_token?: string
-} {
-  return (
-    response.success === true &&
-    typeof response.user_id === 'number' &&
-    typeof response.mobile === 'string' &&
-    (response.firstname === null || response.firstname === undefined || typeof response.firstname === 'string') &&
-    (response.lastname === null || response.lastname === undefined || typeof response.lastname === 'string')
-  )
-}
-
-/**
  * Type guard to check if RPC response contains refresh token
  */
 export function hasRefreshToken(response: RpcResponseType): response is RpcResponseType & {
-  refresh_token: string
+  refreshtoken: string
 } {
-  return typeof response.refresh_token === 'string' && response.refresh_token.length > 0
+  return typeof response.refreshtoken === 'string' && response.refreshtoken.length > 0
 }
 
 /**
@@ -84,14 +63,14 @@ export function hasRefreshToken(response: RpcResponseType): response is RpcRespo
  * Uses type guards to ensure type safety without type assertions
  * 
  * @param response - RPC response from backend
- * @returns User data object with id, mobile, firstname, lastname, or null if invalid
+ * @returns User data object with id, mobile, firstname, lastname, roleid, profile fields, or null if invalid
  * 
  * @example
  * ```ts
- * const result = await callRpc("auth_login", { p_mobile: "09123456789", p_password: "..." })
+ * const result = await callRpc("pelak_auth_login", { p_mobile: "09123456789", p_password: "..." })
  * const userData = extractUserData(result)
  * if (userData) {
- *   // Type-safe access to userData.id, userData.mobile, etc.
+ *   // Type-safe access to userData.id, userData.mobile, userData.roleid, etc.
  * }
  * ```
  */
@@ -100,20 +79,40 @@ export function extractUserData(response: RpcResponseType): {
   mobile: string
   firstname: string | null
   lastname: string | null
+  email: string | null
+  roleid: number | null
+  profileimage: number | null
+  profileurl: string | null
 } | null {
   if (!response.success) {
     return null
   }
   
   if (
-    typeof response.user_id === 'number' &&
+    typeof response.userid === 'number' &&
     typeof response.mobile === 'string'
   ) {
+    // Handle profileimage - can be number (profileimageid) or string (from user_get)
+    let profileimage: number | null = null
+    if (typeof response.profileimage === 'number') {
+      profileimage = response.profileimage
+    } else if (typeof response.profileimage === 'string') {
+      // Try to parse as number if it's a string representation
+      const parsed = parseInt(response.profileimage, 10)
+      if (!isNaN(parsed)) {
+        profileimage = parsed
+      }
+    }
+    
     return {
-      id: response.user_id,
+      id: response.userid,
       mobile: response.mobile,
       firstname: (typeof response.firstname === 'string' ? response.firstname : null),
       lastname: (typeof response.lastname === 'string' ? response.lastname : null),
+      email: (typeof response.email === 'string' ? response.email : null),
+      roleid: (typeof response.roleid === 'number' ? response.roleid : null),
+      profileimage,
+      profileurl: (typeof response.profileurl === 'string' ? response.profileurl : null),
     }
   }
   
@@ -129,17 +128,6 @@ export function extractUserData(response: RpcResponseType): {
  */
 export async function callRpc(functionName: string, params: RpcParamsObject = {}): Promise<RpcResponseType> {
   try {
-    // SSRF protection: validate PostgREST URL
-    if (POSTGREST_URL) {
-      const urlValidation = validateURL(POSTGREST_URL)
-      if (!urlValidation.valid) {
-        return {
-          success: false,
-          title: ERROR_MESSAGES.CONFIG_ERROR.title,
-          message: ERROR_MESSAGES.CONFIG_ERROR.message,
-        } as RpcResponseType
-      }
-    }
 
     // Create AbortController for timeout
     const controller = new AbortController()

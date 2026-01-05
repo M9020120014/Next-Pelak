@@ -29,30 +29,37 @@ psql -U htni_admin -d your_database -f core/database/master.sql
 
 # روش 2: اجرای جداگانه فایل‌ها
 # Schema (جداول)
-psql -U htni_admin -d your_database -f core/database/schema/01_auth_tables.sql
-psql -U htni_admin -d your_database -f core/database/schema/02_content_tables.sql
-psql -U htni_admin -d your_database -f core/database/schema/03_comments_tables.sql
-psql -U htni_admin -d your_database -f core/database/schema/04_sequences.sql
+psql -U htni_admin -d your_database -f core/database/schema/00_create_schema.sql
+psql -U htni_admin -d your_database -f core/database/schema/01_sequences.sql
+psql -U htni_admin -d your_database -f core/database/schema/02_base_tables.sql
+psql -U htni_admin -d your_database -f core/database/schema/03_auth_tables.sql
+psql -U htni_admin -d your_database -f core/database/schema/04_content_tables.sql
+psql -U htni_admin -d your_database -f core/database/schema/05_comments_tables.sql
+psql -U htni_admin -d your_database -f core/database/schema/06_project_tables.sql
 
 # Functions (توابع)
 psql -U htni_admin -d your_database -f core/database/functions/01_auth_functions.sql
 psql -U htni_admin -d your_database -f core/database/functions/02_content_functions.sql
 psql -U htni_admin -d your_database -f core/database/functions/03_comments_functions.sql
+psql -U htni_admin -d your_database -f core/database/functions/04_user_functions.sql
 ```
 
 **بررسی**:
-- [ ] بررسی وجود جدول `refresh_tokens_history`
+- [ ] بررسی وجود schema های `pelak` و `project`
+- [ ] بررسی وجود جدول `pelak.refreshtokenhistory`
 - [ ] بررسی indexes ایجاد شده
-- [ ] بررسی وجود تمام جداول (users, refresh_tokens, selectortype, selector, page, comments, comment_likes)
+- [ ] بررسی وجود تمام جداول (pelak.user, pelak.refreshtoken, pelak.refreshtokenhistory, pelak.page, pelak.comments, pelak.commentlike, project.selector, project.selectortype, project.useradditionalinfo)
 - [ ] بررسی وجود تمام sequences
 
 **بررسی توابع**:
-- [ ] تست توابع احراز هویت (`auth_register_user`, `auth_set_password`, `auth_login`, `auth_refresh_token`, `auth_revoke_token`, `auth_revoke_all_tokens`, `auth_check_idevice_refresh_token`, `auth_cleanup_expired_tokens`)
-- [ ] تست توابع محتوا (`selectors_get_tree`, `selectors_get`, `selectors_get_selector`, `page_get_summaries`, `page_get_url`, `page_get_id`)
-- [ ] تست توابع نظرات (`comments_get_by_pageid`, `comments_create`, `comments_update`, `comments_delete`, `comments_toggle_like`)
-- [ ] تست تابع `auth_refresh_token` با IP معتبر
-- [ ] تست تابع `auth_refresh_token` با IP = 'unknown'
-- [ ] تست تابع `auth_login` برای انتقال توکن قدیمی
+- [ ] تست توابع احراز هویت (`pelak_auth_register`, `pelak_auth_password`, `pelak_auth_login`, `pelak_auth_refreshtoken`, `pelak_auth_revoketoken`, `pelak_auth_revokeall`, `pelak_auth_checkrefreshtoken`, `pelak_auth_checkrefreshtoken_mobile`, `pelak_auth_checkrefreshtoken_device_mobile`, `pelak_auth_checkuser`, `pelak_auth_archive_inactive_tokens`)
+- [ ] تست توابع محتوا (`project_selector_gettree`, `project_selector_get`, `project_selector_getselector`, `pelak_page_getsummaries`, `pelak_page_geturl`, `pelak_page_getid`)
+- [ ] تست توابع نظرات (`pelak_comment_get`, `pelak_comment_create`, `pelak_comment_update`, `pelak_comment_delete`, `pelak_comment_toggle`)
+- [ ] تست توابع کاربر (`pelak_user_get`, `pelak_user_updatename`, `pelak_user_updateprofile`)
+- [ ] تست توابع اطلاعات تکمیلی (`project_user_additional`, `project_user_additionala`, `project_user_additionalb`, `project_user_additionalc`, `project_user_additionald`)
+- [ ] تست تابع `pelak_auth_refreshtoken` با IP معتبر
+- [ ] تست تابع `pelak_auth_refreshtoken` با IP = 'unknown'
+- [ ] تست تابع `pelak_auth_login` برای انتقال توکن قدیمی
 
 #### مرحله 2: Migration داده‌های موجود
 ```bash
@@ -80,9 +87,9 @@ psql -U htni_admin -d your_database -f core/database/migrations/database_migrati
 - [ ] Refresh token با IP = 'unknown'
 - [ ] بررسی `last_used_ip = NULL` در دیتابیس
 
-#### تست 3: Cleanup Expired Tokens
+#### تست 3: Archive Inactive Tokens
 - [ ] ایجاد توکن منقضی شده (تست)
-- [ ] اجرای `auth_cleanup_expired_tokens`
+- [ ] اجرای `pelak_auth_archive_inactive_tokens`
 - [ ] بررسی انتقال به تاریخچه
 - [ ] بررسی حذف از جدول فعال
 
@@ -100,16 +107,16 @@ psql -U htni_admin -d your_database -f core/database/migrations/database_migrati
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 
 SELECT cron.schedule(
-  'cleanup-expired-tokens',
+  'archive-inactive-tokens',
   '0 * * * *', -- هر ساعت
-  $$SELECT auth_cleanup_expired_tokens();$$
+  $$SELECT pelak_auth_archive_inactive_tokens();$$
 );
 ```
 
 #### با سیستم cron خارجی
 ```bash
 # اضافه کردن به crontab
-0 * * * * psql -U htni_admin -d your_database -c "SELECT auth_cleanup_expired_tokens();"
+0 * * * * psql -U htni_admin -d your_database -c "SELECT pelak_auth_archive_inactive_tokens();"
 ```
 
 **بررسی**:
@@ -183,19 +190,23 @@ hookRegistry.register('auth:after-login', async (user) => {
 - `ARCHITECTURE.md` - راهنمای معماری و استفاده از سیستم CMS
 - `DATABASE.md` - مستندات دیتابیس و توابع
 - `master.sql` - فایل master برای اجرای همه فایل‌ها
-- `schema/01_auth_tables.sql` - جداول احراز هویت
-- `schema/02_content_tables.sql` - جداول محتوا
-- `schema/03_comments_tables.sql` - جداول نظرات
-- `schema/04_sequences.sql` - Sequences
+- `schema/00_create_schema.sql` - ایجاد schema های pelak و project
+- `schema/01_sequences.sql` - Sequences مشترک
+- `schema/02_base_tables.sql` - جداول پایه
+- `schema/03_auth_tables.sql` - جداول احراز هویت
+- `schema/04_content_tables.sql` - جداول محتوا
+- `schema/05_comments_tables.sql` - جداول نظرات
+- `schema/06_project_tables.sql` - جداول پروژه
 - `functions/01_auth_functions.sql` - توابع احراز هویت
-- `functions/02_content_functions.sql` - توابع محتوا
+- `functions/02_content_functions.sql` - توابع محتوا و سلکتور
 - `functions/03_comments_functions.sql` - توابع نظرات
+- `functions/04_user_functions.sql` - توابع کاربر و اطلاعات تکمیلی
 - `migrations/database_migration.sql` - اسکریپت migration
 
 ## 🆘 Troubleshooting
 
 ### مشکل: توابع دیتابیس کار نمی‌کنند
-- بررسی کنید که schema `auth` وجود دارد
+- بررسی کنید که schema های `pelak` و `project` وجود دارند
 - بررسی کنید که owner صحیح است (`htni_admin`)
 - بررسی کنید که extension `pgcrypto` نصب شده است
 

@@ -35,7 +35,7 @@ async function POSTHandler(request: NextRequest) {
     }
 
     /* --- Check User Exists ----------------- */
-    const result = await callRpc("auth_check_user_exists", {
+    const result = await callRpc("pelak_auth_checkuser", {
       p_mobile: sanitizedMobile,
     });
 

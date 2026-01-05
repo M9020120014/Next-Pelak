@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { validateCSRFToken } from './cookies'
 import { validateRequestSize } from './request-limits'
-import { checkRateLimit, getClientIdentifier } from './rate-limit'
+import { checkRateLimit, getClientIdentifier, getAuthIdentifier } from './rate-limit'
 import { checkIPFilter } from './ip-filter'
 import { logCSRFViolation, logRateLimitViolation, logIPBlock } from './audit-log'
 import { ERROR_MESSAGES } from '@/core/lib/api/error-messages'
@@ -12,7 +12,8 @@ import { runAsync } from '@/core/lib/utils/async'
 export async function validateAPIRequest(
   request: NextRequest,
   requireCSRF: boolean = true,
-  rateLimitConfig?: { maxRequests: number; windowMs: number }
+  rateLimitConfig?: { maxRequests: number; windowMs: number },
+  mobile?: string
 ): Promise<{ 
   valid: boolean
   response?: NextResponse
@@ -48,7 +49,8 @@ export async function validateAPIRequest(
   // Rate limiting (async)
   let rateLimitHeaders: Record<string, string> | undefined
   if (rateLimitConfig) {
-    const clientId = getClientIdentifier(request)
+    // Use combined IP + mobile identifier for auth endpoints if mobile is provided
+    const clientId = mobile ? getAuthIdentifier(request, mobile) : getClientIdentifier(request)
     const rateLimit = await checkRateLimit(clientId, rateLimitConfig.maxRequests, rateLimitConfig.windowMs)
     
     // Prepare rate limit headers for response

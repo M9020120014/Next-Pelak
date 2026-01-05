@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 /* --- Config ----------------------------------------------------------------------------------- */
 import { ENV, IS_DEVELOPMENT } from '@/core/config/env'
 import { COOKIE, ROUTES } from '@/core/config/security'
-import { getCoreConfig } from '@/core/config/core-config'
+import { getCoreConfig } from '@/core/config/config'
 import { getMessages } from '@/core/config/messages'
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { generateCSRFToken, generateNonce } from '@/core/lib/security/cookies'
@@ -77,7 +77,7 @@ export default async function proxy(
         // Log unauthorized access attempt (non-blocking)
         runAsync(() => {
           const tokenPayload = verifyAccessToken(accessToken)
-          return logUnauthorizedAccess(request, authResult.reason || 'Unauthorized access', tokenPayload?.user_id)
+          return logUnauthorizedAccess(request, authResult.reason || 'Unauthorized access', tokenPayload?.userid)
         })
       }
     }

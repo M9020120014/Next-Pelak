@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 /* --- Components ------------------------------------------------------------------------------- */
 import { UI as P } from '@/core/components/ui/Pelak'
 /* --- Types ------------------------------------------------------------------------------------ */
-import { LANGUAGE_TYPE } from '@/core/config/site'
+import { LANGUAGE_TYPE } from '@/project/config/site'
 import { pageDetailTranslator } from '@/project/data/translations/pageDetail'
 import { useAuth } from '@/core/lib/auth/use-auth'
 import { getAccessToken } from '@/core/lib/auth/token-manager'

@@ -1,8 +1,8 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { Metadata } from "next";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANG_PARAMS, LANG } from "@/core/config/site";
-import { ROBOTS_ON } from "@/project/data/metadata/metadata";
+import { LANG_PARAMS, LANG } from "@/project/config/site";
+import { ROBOTS_ON } from "@/core/config/metadata";
 /* --- Components ------------------------------------------------------------------------------ */
 import PagesClient from "@/project/pages/PagesClient";
 /* --- Functions -------------------------------------------------------------------------------- */

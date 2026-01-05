@@ -39,7 +39,7 @@ async function POSTHandler(request: NextRequest) {
   if (!tokenPayload) {
     return unauthorizedError("توکن نامعتبر است.");
   }
-  const userId = tokenPayload.user_id;
+  const userId = tokenPayload.userid;
 
   // Parse request body
   let body;
@@ -59,7 +59,7 @@ async function POSTHandler(request: NextRequest) {
   // Two-step verification: Step 1 - Verify iDevice has refresh token, Step 2 - Execute write operation
   return guardWriteOperation(body, async () => {
     // Call database function
-    const result = await callRpc("comments_toggle_like", {
+    const result = await callRpc("pelak_comment_toggle", {
       p_userid: userId,
       p_commentid: commentId,
     });

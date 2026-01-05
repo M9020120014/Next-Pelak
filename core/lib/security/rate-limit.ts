@@ -151,3 +151,22 @@ export function getClientIdentifier(request: Request): string {
   return getClientIP(request)
 }
 
+/**
+ * Get combined identifier for rate limiting (IP + mobile)
+ * This provides more accurate rate limiting for auth endpoints
+ * by combining IP address with mobile number
+ * 
+ * @param request - The incoming request
+ * @param mobile - Optional mobile number to include in identifier
+ * @returns Combined identifier string (IP:mobile or just IP if mobile not provided)
+ */
+export function getAuthIdentifier(request: Request, mobile?: string): string {
+  const ip = getClientIP(request)
+  if (mobile) {
+    // Sanitize mobile to prevent injection (only digits)
+    const sanitizedMobile = mobile.replace(/\D/g, '')
+    return `${ip}:${sanitizedMobile}`
+  }
+  return ip
+}
+

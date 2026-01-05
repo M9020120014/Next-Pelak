@@ -1,55 +1,55 @@
 -- ============================================================================
 -- Migration Script: Transfer expired/revoked tokens to history
 -- ============================================================================
--- این اسکریپت توکن‌های منقضی شده یا revoked شده را از جدول فعال به تاریخچه منتقل می‌کند
--- قبل از اجرا، backup از دیتابیس بگیرید
+-- This script moves expired or revoked tokens from active table to history
+-- Before execution, take a backup of the database
 
--- بررسی تعداد توکن‌های منقضی شده
+-- Check count of expired tokens
 SELECT 
   COUNT(*) as expired_count,
-  COUNT(CASE WHEN revoked_at IS NOT NULL THEN 1 END) as revoked_count
-FROM auth.refresh_tokens
-WHERE expires_at < NOW() OR revoked_at IS NOT NULL;
+  COUNT(CASE WHEN revokedat IS NOT NULL THEN 1 END) as revoked_count
+FROM pelak.refreshtoken
+WHERE expiresat < NOW() OR revokedat IS NOT NULL;
 
--- انتقال توکن‌های منقضی شده به تاریخچه
-INSERT INTO auth.refresh_tokens_history (
-  id, 
-  token_hash, 
-  user_id, 
+-- Move expired tokens to history
+INSERT INTO pelak.refreshtokenhistory (
+  refreshtokenhistoryid, 
+  tokenhash, 
+  userid, 
   idevice, 
-  expires_at, 
-  created_at, 
-  revoked_at, 
-  last_used_at, 
-  last_used_ip, 
-  archived_at
+  expiresat, 
+  created, 
+  revokedat, 
+  lastusedat, 
+  lastusedip, 
+  archivedat
 )
 SELECT 
-  id, 
-  token_hash, 
-  user_id, 
+  refreshtokenid, 
+  tokenhash, 
+  userid, 
   idevice, 
-  expires_at,
-  created_at, 
-  revoked_at, 
-  last_used_at, 
-  last_used_ip, 
-  NOW() as archived_at
-FROM auth.refresh_tokens
-WHERE expires_at < NOW() OR revoked_at IS NOT NULL
-ON CONFLICT (id) DO NOTHING; -- جلوگیری از duplicate در صورت اجرای مجدد
+  expiresat,
+  created, 
+  revokedat, 
+  lastusedat, 
+  lastusedip, 
+  NOW() as archivedat
+FROM pelak.refreshtoken
+WHERE expiresat < NOW() OR revokedat IS NOT NULL
+ON CONFLICT (refreshtokenhistoryid) DO NOTHING; -- Prevent duplicates if run multiple times
 
--- حذف توکن‌های منتقل شده از جدول فعال
-DELETE FROM auth.refresh_tokens
-WHERE expires_at < NOW() OR revoked_at IS NOT NULL;
+-- Delete moved tokens from active table
+DELETE FROM pelak.refreshtoken
+WHERE expiresat < NOW() OR revokedat IS NOT NULL;
 
--- بررسی نتیجه
+-- Check result
 SELECT 
   COUNT(*) as active_tokens_count
-FROM auth.refresh_tokens
-WHERE expires_at > NOW() AND revoked_at IS NULL;
+FROM pelak.refreshtoken
+WHERE expiresat > NOW() AND revokedat IS NULL;
 
 SELECT 
   COUNT(*) as history_tokens_count
-FROM auth.refresh_tokens_history;
+FROM pelak.refreshtokenhistory;
 

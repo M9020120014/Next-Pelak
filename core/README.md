@@ -5,7 +5,7 @@
 ## ساختار
 
 - `lib/` - کتابخانه‌های اصلی (auth, security, token, hooks, ...)
-- `config/` - تنظیمات پایه (env, security, metadata, hooks, messages, core-config)
+- `config/` - تنظیمات پایه (env, security, metadata, hooks, messages, config)
 - `components/` - کامپوننت‌های پایه (auth, security, provider)
 - `app/` - ساختار Next.js پایه (layout, API routes, not-found)
 - `database/` - اسکریپت‌های دیتابیس (schema, migrations, functions)
@@ -34,7 +34,7 @@
 3. **ایجاد `app/layout.tsx`** که core config را تنظیم می‌کند:
    ```typescript
    import CoreLayout from "@/core/app/layout";
-   import { setCoreConfig } from "@/core/config/core-config";
+   import { setCoreConfig } from "@/core/config/config";
    import { projectCoreConfig } from "@/project/config/core-override";
    
    // Set core configuration before rendering
@@ -46,7 +46,7 @@
    ```
 4. **ویرایش `core/config/project-override.ts`** برای override کردن configs:
    ```typescript
-   import type { CoreConfig } from '@/core/config/core-config';
+   import type { CoreConfig } from '@/core/config/config';
    
    export const projectCoreConfig: CoreConfig = {
      metadata: { /* your metadata config */ },
@@ -86,7 +86,7 @@ Core از سیستم **Configuration Injection** استفاده می‌کند:
 - پروژه‌ها می‌توانند messages را از طریق `CoreConfig.messages` override کنند
 
 ### Core Config
-- `core/config/core-config.ts` - Main configuration interface
+- `core/config/config.ts` - Main configuration interface
 - `setCoreConfig()` - تنظیم global config
 - `getCoreConfig()` - دریافت merged config با defaults
 

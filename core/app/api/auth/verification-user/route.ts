@@ -8,6 +8,8 @@ import { sendOTP } from "@/core/lib/otp/service"
 import { validationError, invalidInputError, successResponse } from "@/core/lib/api/response"
 import { RATE_LIMIT } from "@/core/config/security"
 import { withErrorHandlingAndTracking } from "@/core/lib/performance/monitoring"
+import { checkRateLimit, getAuthIdentifier } from "@/core/lib/security/rate-limit"
+import { ERROR_MESSAGES } from "@/core/lib/api/error-messages"
 
 /* --- POST verification-user ------------------------------------------------------------------- */
 async function POSTHandler(request: NextRequest) {
@@ -37,6 +39,33 @@ async function POSTHandler(request: NextRequest) {
     const deviceValidation = validateDeviceId(iDevice);
     if (!deviceValidation.success) {
       return validationError(deviceValidation);
+    }
+
+    // Additional rate limiting with IP + Mobile for account-specific protection
+    const authIdentifier = getAuthIdentifier(request, sanitizedMobile);
+    const mobileRateLimit = await checkRateLimit(
+      authIdentifier,
+      RATE_LIMIT.OTP.maxRequests,
+      RATE_LIMIT.OTP.windowMs
+    );
+    
+    if (!mobileRateLimit.allowed) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          title: ERROR_MESSAGES.TOO_MANY_REQUESTS.title, 
+          message: ERROR_MESSAGES.TOO_MANY_REQUESTS.message 
+        },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': RATE_LIMIT.OTP.maxRequests.toString(),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': Math.ceil(mobileRateLimit.resetTime / 1000).toString(),
+            'Retry-After': Math.ceil((mobileRateLimit.resetTime - Date.now()) / 1000).toString()
+          }
+        }
+      );
     }
 
     /* --- Send OTP ----------------- */

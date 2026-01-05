@@ -218,7 +218,7 @@ export function useAuth(iDevice: string): UseAuthReturn {
         headers: {
           'Content-Type': 'application/json',
           'x-csrf-token': csrfToken,
-          // Include access token so server can extract user_id for revoking refresh token
+          // Include access token so server can extract userid for revoking refresh token
           ...(accessToken && { 'Authorization': `Bearer ${accessToken}` }),
         },
       })

@@ -3,7 +3,7 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import { useState } from 'react'
 /* --- Types ------------------------------------------------------------------------------------ */
-import { LANGUAGE_TYPE } from '@/core/config/site'
+import { LANGUAGE_TYPE } from '@/project/config/site'
 import { pageDetailTranslator } from '@/project/data/translations/pageDetail'
 
 interface CopyLinkButtonProps {

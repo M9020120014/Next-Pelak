@@ -1,4 +1,4 @@
-import { LANGUAGE_TYPE } from "@/core/config/site";
+import { LANGUAGE_TYPE } from "@/project/config/site";
 
 export const dashboardTranslator = {
   fa: {
@@ -11,6 +11,8 @@ export const dashboardTranslator = {
     mobileNumber: "شماره موبایل",
     firstName: "نام",
     lastName: "نام خانوادگی",
+    email: "ایمیل",
+    profileImage: "تصویر پروفایل",
   },
   en: {
     loading: "Loading...",
@@ -22,6 +24,8 @@ export const dashboardTranslator = {
     mobileNumber: "Mobile Number",
     firstName: "First Name",
     lastName: "Last Name",
+    email: "Email",
+    profileImage: "Profile Image",
   },
 } as const satisfies Record<LANGUAGE_TYPE, Record<string, string>>;
 

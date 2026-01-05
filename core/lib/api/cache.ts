@@ -11,8 +11,8 @@ export type CacheStrategy = 'no-store' | 'force-cache' | 'default' | number
 const CACHE_CONFIG = {
   // Functions that should never be cached (authentication, state-changing)
   NO_CACHE_FUNCTIONS: [
-    'auth_login',
-    'auth_refresh_token',
+    'pelak_auth_login',
+    'pelak_auth_refreshtoken',
     'auth_logout',
     'auth_register',
     'auth_verify',

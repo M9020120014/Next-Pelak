@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSecurity } from "@/core/components/security/SecurityProvider";
 import { setAccessToken } from "@/core/lib/auth/token-manager";
@@ -54,6 +54,11 @@ export default function VerificationComponent({
   const router = useRouter();
   const { csrfToken } = useSecurity();
 
+  // Refs for tracking component state and preventing race conditions
+  const isMountedRef = useRef(true);
+  const autoSendInProgressRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const [step, setStep] = useState<Step>(initialMobile ? "otp" : "mobile");
   const [mobile, setMobile] = useState(initialMobile || "");
   const [otpCode, setOtpCode] = useState("");
@@ -64,150 +69,279 @@ export default function VerificationComponent({
   const [message, setMessage] = useState("");
   const [otpSent, setOtpSent] = useState(false);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      // Cancel any pending requests on unmount
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+      autoSendInProgressRef.current = false;
+    };
+  }, []);
+
   // ارسال خودکار OTP اگر initialMobile وجود داشت
   useEffect(() => {
-    if (initialMobile && !otpSent) {
-      const sendOTPAuto = async () => {
-        setError("");
-        setMessage("");
-        setLoading(true);
+    // Prevent double execution in React Strict Mode
+    if (!initialMobile || otpSent || autoSendInProgressRef.current) {
+      return;
+    }
 
-        try {
-          let endpoint = "/api/auth/verification-user";
-          if (mode === "forgot") {
-            endpoint = "/api/auth/forgot-password";
-          }
+    // Cancel any previous abort controller
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
 
-          const res = await fetch(endpoint, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-csrf-token": csrfToken
-            },
-            body: JSON.stringify({ mobile: initialMobile, ...(mode === "register" ? { iDevice } : {}) }),
-          });
+    // Create new abort controller for this request
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+    autoSendInProgressRef.current = true;
+
+    const sendOTPAuto = async () => {
+      // Check if component is still mounted before state updates
+      if (!isMountedRef.current) return;
+
+      setError("");
+      setMessage("");
+      setLoading(true);
+
+      try {
+        const res = await fetch("/api/auth/verification-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": csrfToken
+          },
+          body: JSON.stringify({ mobile: initialMobile, iDevice }),
+          signal: abortController.signal,
+        });
+        
+        // Check if request was aborted
+        if (abortController.signal.aborted || !isMountedRef.current) return;
+        
+        // Check for rate limit error (429) before parsing JSON
+        if (res.status === 429) {
           const data = await res.json();
-
-          if (data.success) {
-            setMessage(data.message || translator.otpSent);
-            setOtpSent(true);
-            setStep("otp");
-          } else {
-            setError(data.message || translator.sendError);
-            setStep("mobile");
-          }
-        } catch {
-          setError(translator.serverError);
+          if (!isMountedRef.current) return;
+          setError(data.message || translator.sendError || "درخواست‌های زیادی ارسال شده است");
           setStep("mobile");
-        } finally {
+          setOtpSent(false); // Don't mark as sent so user can retry manually
+          setLoading(false);
+          autoSendInProgressRef.current = false;
+          return;
+        }
+        
+        const data = await res.json();
+        if (!isMountedRef.current) return;
+
+        if (data.success) {
+          setMessage(data.message || translator.otpSent);
+          setOtpSent(true);
+          setStep("otp");
+        } else {
+          // Handle other errors (including rate limit if returned as JSON)
+          setError(data.message || translator.sendError);
+          setStep("mobile");
+          setOtpSent(false); // Don't mark as sent on error
+        }
+      } catch (err) {
+        // Ignore abort errors
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
+        if (!isMountedRef.current) return;
+        setError(translator.serverError);
+        setStep("mobile");
+        setOtpSent(false); // Don't mark as sent on error
+      } finally {
+        if (isMountedRef.current) {
           setLoading(false);
         }
-      };
-      
-      sendOTPAuto();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialMobile]);
+        autoSendInProgressRef.current = false;
+        if (abortControllerRef.current === abortController) {
+          abortControllerRef.current = null;
+        }
+      }
+    };
+    
+    sendOTPAuto();
+
+    // Cleanup function to cancel request if effect re-runs or component unmounts
+    return () => {
+      abortController.abort();
+      autoSendInProgressRef.current = false;
+      if (abortControllerRef.current === abortController) {
+        abortControllerRef.current = null;
+      }
+    };
+  }, [initialMobile, csrfToken, iDevice, otpSent, translator.sendError, translator.otpSent, translator.serverError]);
 
   // مرحله ۱: ارسال OTP
   const handleMobileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isMountedRef.current) return;
+
+    // Cancel any previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new abort controller for this request
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
     setError("");
     setMessage("");
     setLoading(true);
 
     try {
-      let endpoint = "/api/auth/verification-user";
-      if (mode === "forgot") {
-        endpoint = "/api/auth/forgot-password";
-      }
-
-      const res = await fetch(endpoint, {
+      const res = await fetch("/api/auth/verification-user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-csrf-token": csrfToken
         },
-        body: JSON.stringify({ mobile, ...(mode === "register" ? { iDevice } : {}) }),
+        body: JSON.stringify({ mobile, iDevice }),
+        signal: abortController.signal,
       });
+      
+      // Check if request was aborted
+      if (abortController.signal.aborted || !isMountedRef.current) return;
+      
+      // Check for rate limit error (429) before parsing JSON
+      if (res.status === 429) {
+        const data = await res.json();
+        if (!isMountedRef.current) return;
+        setError(data.message || translator.sendError || "درخواست‌های زیادی ارسال شده است");
+        setStep("mobile"); // Stay on mobile step
+        setLoading(false);
+        return;
+      }
+      
       const data = await res.json();
+      if (!isMountedRef.current) return;
 
       if (data.success) {
         setMessage(data.message || translator.otpSent);
         setStep("otp");
       } else {
         setError(data.message || translator.sendError);
+        setStep("mobile"); // Stay on mobile step on error
       }
-    } catch {
+    } catch (err) {
+      // Ignore abort errors
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
+      if (!isMountedRef.current) return;
       setError(translator.serverError);
+      setStep("mobile"); // Stay on mobile step on error
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
+      if (abortControllerRef.current === abortController) {
+        abortControllerRef.current = null;
+      }
     }
   };
 
   // مرحله ۲: تأیید OTP
   const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isMountedRef.current) return;
+
+    // Cancel any previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new abort controller for this request
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
     setError("");
     setLoading(true);
 
     try {
-      if (mode === "forgot") {
-        // برای فراموشی رمز، OTP در reset-password تایید می‌شود
-        // پس اینجا فقط به مرحله password می‌رویم
+      // برای همه flowها، OTP را تایید و کاربر را ثبت/به‌روزرسانی می‌کنیم
+      const res = await fetch("/api/auth/verification-register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": csrfToken
+        },
+        body: JSON.stringify({ mobile, iDevice, otpCode }),
+        signal: abortController.signal,
+      });
+      
+      // Check if request was aborted
+      if (abortController.signal.aborted || !isMountedRef.current) return;
+      
+      const data = await res.json();
+      if (!isMountedRef.current) return;
+
+      if (data.success) {
+        setMessage(data.message || translator.otpVerified);
         setStep("password");
       } else {
-        // برای ثبت‌نام، OTP را تایید و کاربر را ثبت می‌کنیم
-        const res = await fetch("/api/auth/verification-register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-csrf-token": csrfToken
-          },
-          body: JSON.stringify({ mobile, iDevice, otpCode }),
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          setMessage(data.message || translator.otpVerified);
-          setStep("password");
-        } else {
-          setError(data.message || translator.verifyError);
-        }
+        setError(data.message || translator.verifyError);
       }
-    } catch {
+    } catch (err) {
+      // Ignore abort errors
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
+      if (!isMountedRef.current) return;
       setError(translator.serverError);
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
+      if (abortControllerRef.current === abortController) {
+        abortControllerRef.current = null;
+      }
     }
   };
 
   // مرحله ۳: تنظیم پسورد و لاگین
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isMountedRef.current) return;
+
     setError("");
     setLoading(true);
 
     if (password !== confirmPassword) {
+      if (!isMountedRef.current) return;
       setError(translator.passwordMismatch);
       setLoading(false);
       return;
     }
 
-    const minPasswordLength = mode === "forgot" ? 8 : 6;
+    // Password validation - verification-password endpoint requires minimum 8 characters
+    const minPasswordLength = 8;
     if (password.length < minPasswordLength) {
+      if (!isMountedRef.current) return;
       setError(translator.passwordMinLength);
       setLoading(false);
       return;
     }
 
-    try {
-      let endpoint = "/api/auth/verification-password";
-      if (mode === "forgot") {
-        endpoint = "/api/auth/reset-password";
-      }
+    // Cancel any previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
 
-      const res = await fetch(endpoint, {
+    // Create new abort controller for this request
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    try {
+      const res = await fetch("/api/auth/verification-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -216,12 +350,27 @@ export default function VerificationComponent({
         body: JSON.stringify({ 
           mobile, 
           iDevice, 
-          ...(mode === "forgot" ? { otpCode } : {}),
           password, 
           confirmPassword 
         }),
+        signal: abortController.signal,
       });
+      
+      // Check if request was aborted
+      if (abortController.signal.aborted || !isMountedRef.current) return;
+      
+      // Check for rate limit error (429) before parsing JSON
+      if (res.status === 429) {
+        const errorData = await res.json().catch(() => ({ message: "درخواست‌های زیادی ارسال شده است" }));
+        if (!isMountedRef.current) return;
+        setError(errorData.message || translator.passwordError || "درخواست‌های زیادی ارسال شده است");
+        setStep("password"); // Stay on password step, don't login
+        setLoading(false);
+        return;
+      }
+      
       const data = await res.json();
+      if (!isMountedRef.current) return;
 
       if (data.success) {
         // ذخیره Access Token برای همه flowها
@@ -231,14 +380,29 @@ export default function VerificationComponent({
         
         setStep("success");
         setMessage(translator.passwordSetSuccess);
-        setTimeout(() => router.push("/" + lang + "/dashboard"), 1500);
+        setTimeout(() => {
+          if (isMountedRef.current) {
+            router.push("/" + lang + "/dashboard");
+          }
+        }, 1500);
       } else {
         setError(data.message || translator.passwordError);
+        // Don't change step on error - stay on password step
       }
-    } catch {
+    } catch (err) {
+      // Ignore abort errors
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
+      if (!isMountedRef.current) return;
       setError(translator.serverError);
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
+      if (abortControllerRef.current === abortController) {
+        abortControllerRef.current = null;
+      }
     }
   };
 
@@ -354,26 +518,13 @@ export default function VerificationComponent({
                 />
               </div>
             )}
-            {mode === "forgot" && (
-              <P.Input
-                Size="lg"
-                type="text"
-                value={otpCode}
-                onChange={(e) => setOtpCode(normalize("otp", e.target.value))}
-                placeholder={translator.otpPlaceholder}
-                className="text-center text-2xl tracking-widest"
-                required
-                maxLength={6}
-                inputMode="numeric"
-              />
-            )}
             <P.InputSecret
               Size="lg"
               value={password}
               onChange={(e) => setPassword(normalize("password", e.target.value))}
               placeholder={translator.passwordPlaceholder}
               required
-              minLength={mode === "forgot" ? 8 : 6}
+              minLength={8}
             />
             <P.InputSecret
               Size="lg"
@@ -381,7 +532,7 @@ export default function VerificationComponent({
               onChange={(e) => setConfirmPassword(normalize("password", e.target.value))}
               placeholder={translator.confirmPasswordPlaceholder}
               required
-              minLength={mode === "forgot" ? 8 : 6}
+              minLength={8}
             />
             <P.Button Size="lg" type="submit" className="w-full" disabled={loading}>
               {loading ? translator.setPasswordButtonLoading : translator.setPasswordButton}

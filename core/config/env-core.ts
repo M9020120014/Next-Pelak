@@ -51,7 +51,7 @@ export const CORE_ENV = {
   // Cookie Names
   IDEVICE_STORAGE_KEY: process.env.IDEVICE_STORAGE_KEY || 'idevice-token',
   CSRF_COOKIE_NAME: process.env.CSRF_COOKIE_NAME || 'csrf-token',
-  REFRESH_TOKEN_COOKIE: process.env.REFRESH_TOKEN_COOKIE || 'refresh_token',
+  REFRESH_TOKEN_COOKIE: process.env.REFRESH_TOKEN_COOKIE || 'refreshtoken',
   OTP_SECRET_SESSION_COOKIE: process.env.OTP_SECRET_SESSION_COOKIE || 'otp-secret-session',
 
   // JWT Configuration

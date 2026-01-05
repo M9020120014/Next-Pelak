@@ -2,40 +2,7 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { Metadata, Viewport } from "next";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { SITE, SITE_LANG, LANGUAGE_TYPE, LANGUAGE_DATA, LANGUAGE_LIST, LANGUAGE } from "@/core/config/site";
-/* --- Robots ------------------------------------------------------- */
-/* --- Robots On -------------------- */
-export const ROBOTS_ON: Metadata = {
-  robots: {
-    index: true,
-    follow: true,
-    nocache: false,
-    googleBot: {
-      index: true,
-      follow: true,
-      noimageindex: false,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-}
-/* --- Robots Off ------------------- */
-export const ROBOTS_OFF: Metadata = {
-  robots: {
-    index: false,
-    follow: false,
-    nocache: true,
-    googleBot: {
-      index: false,
-      follow: false,
-      noimageindex: true,
-      'max-video-preview': 0,
-      'max-image-preview': 'none',
-      'max-snippet': 0,
-    },
-  },
-}
+import { SITE, SITE_LANG, LANGUAGE_TYPE, LANGUAGE_DATA, LANGUAGE_LIST, LANGUAGE } from "./site";
 /* --- Base Metadata ------------------------------------------------ */
 /* --- Viewport --------------------- */
 export const SITE_VIEWPORT: Viewport = {

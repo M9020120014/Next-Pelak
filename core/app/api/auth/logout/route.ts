@@ -19,14 +19,14 @@ async function POSTHandler(request: NextRequest) {
       return securityCheck.response!;
     }
 
-    // Extract user_id from access token
+    // Extract userid from access token
     const authHeader = request.headers.get('authorization');
     const accessToken = authHeader?.startsWith('Bearer ') 
       ? authHeader.substring(7) 
       : null;
     
     const tokenPayload = accessToken ? verifyAccessToken(accessToken) : null;
-    const userId = tokenPayload?.user_id;
+    const userId = tokenPayload?.userid;
 
     // Extract idevice from cookie
     const iDevice = await getIDeviceToken();
@@ -54,11 +54,11 @@ async function POSTHandler(request: NextRequest) {
         });
       }
 
-      // Revoke refresh token from database if we have user_id and valid idevice
+      // Revoke refresh token from database if we have userid and valid idevice
       // IMPORTANT: This must complete BEFORE clearing the cookie to ensure token is revoked in DB
       if (userId && iDevice && iDevice !== 'unknown') {
-        const revokeResult = await callRpc("auth_revoke_token", {
-          p_user_id: userId,
+        const revokeResult = await callRpc("pelak_auth_revoketoken", {
+          p_userid: userId,
           p_idevice: iDevice,
         });
         

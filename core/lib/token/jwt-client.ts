@@ -52,10 +52,11 @@ function decodeBase64Url(str: string): string {
  * @returns Decoded payload or null if invalid
  */
 export function decodeTokenPayload(token: string): {
-  user_id: number;
+  userid: number;
   mobile: string;
   firstname: string | null;
   lastname: string | null;
+  email: string | null;
   role: string;
   iat: number;
   exp: number;
@@ -83,7 +84,7 @@ export function decodeTokenPayload(token: string): {
     
     // Validate payload structure
     if (!payload || typeof payload !== 'object') return null;
-    if (typeof payload.user_id !== 'number' || typeof payload.mobile !== 'string') return null;
+    if (typeof payload.userid !== 'number' || typeof payload.mobile !== 'string') return null;
     if (typeof payload.exp !== 'number' || typeof payload.iat !== 'number') return null;
     
     return payload;

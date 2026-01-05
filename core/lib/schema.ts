@@ -1,7 +1,7 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { WithContext, WebSite, ImageObject } from "schema-dts";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { SITE, SITE_LANG, LANGUAGE } from "@/core/config/site";
+import { SITE, SITE_LANG, LANGUAGE } from "@/project/config/site";
 /* --- Constants -------------------------------------------------------------------------------- */
 const defaultLang = LANGUAGE.default
 /* --- Functions -------------------------------------------------------------------------------- */

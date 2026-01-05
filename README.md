@@ -153,7 +153,7 @@ cp -r core/ new-project/
 
 ```typescript
 // project/config/core-override.ts
-import type { CoreConfig } from '@/core/config/core-config';
+import type { CoreConfig } from '@/core/config/config';
 
 export const projectCoreConfig: CoreConfig = {
   metadata: { /* your config */ },
@@ -167,7 +167,7 @@ export const projectCoreConfig: CoreConfig = {
 ```typescript
 // app/layout.tsx
 import CoreLayout from "@/core/app/layout";
-import { setCoreConfig } from "@/core/config/core-config";
+import { setCoreConfig } from "@/core/config/config";
 import { projectCoreConfig } from "@/project/config/core-override";
 
 setCoreConfig(projectCoreConfig);

@@ -1,37 +1,113 @@
 -- ============================================================================
--- ماژول: توابع اطلاعات تکمیلی کاربر
--- توضیحات: توابع مربوط به تکمیل اطلاعات تکمیلی کاربر در 4 مرحله
+-- Module: User Additional Information Functions
+-- Description: Functions related to completing user additional information in 4 stages
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- تابع: user_additional_info_stage1
--- توضیحات: تکمیل مرحله 1 اطلاعات تکمیلی کاربر
--- مرحله 1 شامل: کد ملی، تاریخ تولد، جنسیت، وضعیت تاهل، کشور، استان، شهر
+-- Function: pelak_user_get
+-- Description: Get complete user profile information including image
 -- 
--- پارامترها:
---   p_user_id: شناسه کاربر
---   p_nationalcode: کد ملی (char(10))
---   p_birthday: تاریخ تولد (varchar(10))
---   p_gender: جنسیت (bool: true = مرد, false = زن)
---   p_married: وضعیت تاهل (bool: true = متاهل, false = مجرد)
---   p_countryid: شناسه کشور (int4, FK → htni.selector)
---   p_provinceid: شناسه استان (int4, FK → htni.selector)
---   p_cityid: شناسه شهر (int4, FK → htni.selector)
+-- Parameters:
+--   p_userid: User identifier
 -- 
--- منطق کاری:
---   1. بررسی وجود کاربر
---   2. بررسی وجود selectorها در صورت نیاز
---   3. ایجاد یا به‌روزرسانی رکورد اطلاعات تکمیلی
+-- Logic:
+--   1. Check if user exists
+--   2. Get user information from pelak.user table
+--   3. If profileimage exists, get imageurl from pelak.userprofile table
+--   4. Return complete profile information
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Stage 1 Completed", message: "..."}
---   خطا: {success: false, title: "User Not Found" | "Selector Not Found" | "Error", message: "..."}
+-- Returns:
+--   Success: {success: true, userid, mobile, email, firstname, lastname, profileurl, profileimage}
+--   Error: {success: false, title: "User Not Found" | "Error", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT user_additional_info_stage1(1, '1234567890', '1990-01-01', true, false, 80001, 1, 5);
+-- Usage Example:
+--   SELECT pelak_user_get(1);
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."user_additional_info_stage1"(
-  "p_user_id" int4,
+CREATE OR REPLACE FUNCTION "public"."pelak_user_get"("p_userid" int4)
+RETURNS "pg_catalog"."json"
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+COST 100
+AS $BODY$
+DECLARE
+  v_user pelak.user%ROWTYPE;
+  v_profileurl text;
+BEGIN
+  -- Check if user exists
+  IF NOT EXISTS (SELECT 1 FROM pelak.user WHERE userid = p_userid AND active = true) THEN
+    RETURN json_build_object(
+      'success', false,
+      'title', 'User Not Found',
+      'message', 'User not found or inactive.'
+    );
+  END IF;
+
+  -- Get user information
+  SELECT * INTO v_user
+  FROM pelak.user
+  WHERE userid = p_userid AND active = true;
+
+  -- If profileimageid exists, get imageurl from userprofile table
+  IF v_user.profileimageid IS NOT NULL THEN
+    SELECT imageurl INTO v_profileurl
+    FROM pelak.userprofile
+    WHERE profileid = v_user.profileimageid AND active = true;
+  END IF;
+
+  -- Return complete profile information
+  -- Priority is with profileimageurl from user table, otherwise from userprofile
+  RETURN json_build_object(
+    'success', true,
+    'title', 'User Profile Retrieved',
+    'message', 'Profile information retrieved successfully.',
+    'userid', v_user.userid,
+    'mobile', v_user.mobile,
+    'email', v_user.email,
+    'firstname', v_user.firstname,
+    'lastname', v_user.lastname,
+    'profileurl', COALESCE(v_user.profileimageurl, v_profileurl),
+    'profileimage', v_user.profileimageid
+  );
+
+EXCEPTION WHEN OTHERS THEN
+  RETURN json_build_object(
+    'success', false,
+    'title', 'Error',
+    'message', 'Error retrieving profile information.'
+  );
+END;
+$BODY$;
+
+-- ----------------------------------------------------------------------------
+-- Function: project_user_additionala
+-- Description: Complete stage 1 of user additional information
+-- Stage 1 includes: National code, birth date, gender, marital status, country, province, city
+-- 
+-- Parameters:
+--   p_userid: User identifier
+--   p_nationalcode: National code (char(10))
+--   p_birthday: Birth date (varchar(10))
+--   p_gender: Gender (bool: true = male, false = female)
+--   p_married: Marital status (bool: true = married, false = single)
+--   p_countryid: Country identifier (int4, FK → project.selector)
+--   p_provinceid: Province identifier (int4, FK → project.selector)
+--   p_cityid: City identifier (int4, FK → project.selector)
+-- 
+-- Logic:
+--   1. Check if user exists
+--   2. Check if selectors exist if needed
+--   3. Create or update additional information record
+-- 
+-- Returns:
+--   Success: {success: true, title: "Stage 1 Completed", message: "..."}
+--   Error: {success: false, title: "User Not Found" | "Selector Not Found" | "Error", message: "..."}
+-- 
+-- Usage Example:
+--   SELECT project_user_additionala(1, '1234567890', '1990-01-01', true, false, 80001, 1, 5);
+-- ----------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION "public"."project_user_additionala"(
+  "p_userid" int4,
   "p_nationalcode" char(10) DEFAULT NULL,
   "p_birthday" varchar(10) DEFAULT NULL,
   "p_gender" bool DEFAULT NULL,
@@ -47,43 +123,43 @@ SECURITY DEFINER
 COST 100
 AS $BODY$
 BEGIN
-  -- بررسی وجود کاربر
-  IF NOT EXISTS (SELECT 1 FROM pelak.users WHERE id = p_user_id AND is_active = true) THEN
+  -- Check if user exists
+  IF NOT EXISTS (SELECT 1 FROM pelak.user WHERE userid = p_userid AND active = true) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'کاربر یافت نشد یا غیرفعال است.'
+      'message', 'User not found or inactive.'
     );
   END IF;
 
-  -- بررسی وجود selectorها در صورت نیاز
-  IF p_countryid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM htni.selector WHERE id = p_countryid) THEN
+  -- Check if selectors exist if needed
+  IF p_countryid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM project.selector WHERE selectorid = p_countryid) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'کشور انتخابی یافت نشد.'
+      'message', 'Selected country not found.'
     );
   END IF;
 
-  IF p_provinceid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM htni.selector WHERE id = p_provinceid) THEN
+  IF p_provinceid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM project.selector WHERE selectorid = p_provinceid) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'استان انتخابی یافت نشد.'
+      'message', 'Selected province not found.'
     );
   END IF;
 
-  IF p_cityid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM htni.selector WHERE id = p_cityid) THEN
+  IF p_cityid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM project.selector WHERE selectorid = p_cityid) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'شهر انتخابی یافت نشد.'
+      'message', 'Selected city not found.'
     );
   END IF;
 
-  -- ایجاد یا به‌روزرسانی رکورد اطلاعات تکمیلی
-  INSERT INTO htni.user_additional_info (
-    user_id,
+  -- Create or update additional information record
+  INSERT INTO project.useradditionalinfo (
+    userid,
     nationalcode,
     birthday,
     gender,
@@ -91,9 +167,9 @@ BEGIN
     countryid,
     provinceid,
     cityid,
-    updated_at
+    updated
   ) VALUES (
-    p_user_id,
+    p_userid,
     p_nationalcode,
     p_birthday,
     p_gender,
@@ -103,57 +179,57 @@ BEGIN
     p_cityid,
     NOW()
   )
-  ON CONFLICT (user_id) DO UPDATE SET
-    nationalcode = COALESCE(EXCLUDED.nationalcode, htni.user_additional_info.nationalcode),
-    birthday = COALESCE(EXCLUDED.birthday, htni.user_additional_info.birthday),
-    gender = COALESCE(EXCLUDED.gender, htni.user_additional_info.gender),
-    married = COALESCE(EXCLUDED.married, htni.user_additional_info.married),
-    countryid = COALESCE(EXCLUDED.countryid, htni.user_additional_info.countryid),
-    provinceid = COALESCE(EXCLUDED.provinceid, htni.user_additional_info.provinceid),
-    cityid = COALESCE(EXCLUDED.cityid, htni.user_additional_info.cityid),
-    updated_at = NOW();
+  ON CONFLICT (userid) DO UPDATE SET
+    nationalcode = COALESCE(EXCLUDED.nationalcode, project.useradditionalinfo.nationalcode),
+    birthday = COALESCE(EXCLUDED.birthday, project.useradditionalinfo.birthday),
+    gender = COALESCE(EXCLUDED.gender, project.useradditionalinfo.gender),
+    married = COALESCE(EXCLUDED.married, project.useradditionalinfo.married),
+    countryid = COALESCE(EXCLUDED.countryid, project.useradditionalinfo.countryid),
+    provinceid = COALESCE(EXCLUDED.provinceid, project.useradditionalinfo.provinceid),
+    cityid = COALESCE(EXCLUDED.cityid, project.useradditionalinfo.cityid),
+    updated = NOW();
 
   RETURN json_build_object(
     'success', true,
     'title', 'Stage 1 Completed',
-    'message', 'مرحله 1 اطلاعات تکمیلی با موفقیت ثبت شد.'
+    'message', 'Stage 1 additional information completed successfully.'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'خطا در ثبت مرحله 1 اطلاعات تکمیلی.'
+    'message', 'Error completing stage 1 additional information.'
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: user_additional_info_stage2
--- توضیحات: تکمیل مرحله 2 اطلاعات تکمیلی کاربر
--- مرحله 2 شامل: شغل، انگیزه، نحوه آشنایی، نوع همکاری
+-- Function: project_user_additionalb
+-- Description: Complete stage 2 of user additional information
+-- Stage 2 includes: Job, motivation, how known, collaboration type
 -- 
--- پارامترها:
---   p_user_id: شناسه کاربر
---   p_job: شغل (text)
---   p_motivation: انگیزه (text)
---   p_howknown: نحوه آشنایی (varchar(150))
---   p_collaboration: نوع همکاری (varchar(100))
+-- Parameters:
+--   p_userid: User identifier
+--   p_job: Job (text)
+--   p_motivation: Motivation (text)
+--   p_howknown: How known (varchar(150))
+--   p_collaboration: Collaboration type (varchar(100))
 -- 
--- منطق کاری:
---   1. بررسی وجود کاربر
---   2. بررسی وجود رکورد اطلاعات تکمیلی (باید مرحله 1 تکمیل شده باشد)
---   3. به‌روزرسانی فیلدهای مرحله 2
+-- Logic:
+--   1. Check if user exists
+--   2. Check if additional information record exists (stage 1 must be completed)
+--   3. Update stage 2 fields
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Stage 2 Completed", message: "..."}
---   خطا: {success: false, title: "User Not Found" | "Stage 1 Not Completed" | "Error", message: "..."}
+-- Returns:
+--   Success: {success: true, title: "Stage 2 Completed", message: "..."}
+--   Error: {success: false, title: "User Not Found" | "Stage 1 Not Completed" | "Error", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT user_additional_info_stage2(1, 'مهندس نرم‌افزار', 'علاقه به سیاست', 'اینترنت', 'فعال');
+-- Usage Example:
+--   SELECT project_user_additionalb(1, 'Software Engineer', 'Interest in politics', 'Internet', 'Active');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."user_additional_info_stage2"(
-  "p_user_id" int4,
+CREATE OR REPLACE FUNCTION "public"."project_user_additionalb"(
+  "p_userid" int4,
   "p_job" text DEFAULT NULL,
   "p_motivation" text DEFAULT NULL,
   "p_howknown" varchar(150) DEFAULT NULL,
@@ -166,76 +242,76 @@ SECURITY DEFINER
 COST 100
 AS $BODY$
 BEGIN
-  -- بررسی وجود کاربر
-  IF NOT EXISTS (SELECT 1 FROM pelak.users WHERE id = p_user_id AND is_active = true) THEN
+  -- Check if user exists
+  IF NOT EXISTS (SELECT 1 FROM pelak.user WHERE userid = p_userid AND active = true) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'کاربر یافت نشد یا غیرفعال است.'
+      'message', 'User not found or inactive.'
     );
   END IF;
 
-  -- بررسی وجود رکورد اطلاعات تکمیلی
-  IF NOT EXISTS (SELECT 1 FROM htni.user_additional_info WHERE user_id = p_user_id) THEN
+  -- Check if additional information record exists
+  IF NOT EXISTS (SELECT 1 FROM project.useradditionalinfo WHERE userid = p_userid) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Stage 1 Not Completed',
-      'message', 'لطفاً ابتدا مرحله 1 را تکمیل کنید.'
+      'message', 'Please complete stage 1 first.'
     );
   END IF;
 
-  -- به‌روزرسانی فیلدهای مرحله 2
-  UPDATE htni.user_additional_info
+  -- Update stage 2 fields
+  UPDATE project.useradditionalinfo
   SET job = COALESCE(p_job, job),
       motivation = COALESCE(p_motivation, motivation),
       howknown = COALESCE(p_howknown, howknown),
       collaboration = COALESCE(p_collaboration, collaboration),
-      updated_at = NOW()
-  WHERE user_id = p_user_id;
+      updated = NOW()
+  WHERE userid = p_userid;
 
   RETURN json_build_object(
     'success', true,
     'title', 'Stage 2 Completed',
-    'message', 'مرحله 2 اطلاعات تکمیلی با موفقیت ثبت شد.'
+    'message', 'Stage 2 additional information completed successfully.'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'خطا در ثبت مرحله 2 اطلاعات تکمیلی.'
+    'message', 'Error completing stage 2 additional information.'
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: user_additional_info_stage3
--- توضیحات: تکمیل مرحله 3 اطلاعات تکمیلی کاربر
--- مرحله 3 شامل: مهارت‌ها، مدرک تحصیلی، نوع محل تحصیل، محل تحصیل، رشته تحصیلی
+-- Function: project_user_additionalc
+-- Description: Complete stage 3 of user additional information
+-- Stage 3 includes: Skills, education degree, study place type, study place, field of study
 -- 
--- پارامترها:
---   p_user_id: شناسه کاربر
---   p_skills: مهارت‌ها (text)
---   p_degreeid: شناسه مدرک تحصیلی (int4, FK → htni.selector)
---   p_studyplacetypeid: شناسه نوع محل تحصیل (int4, FK → htni.selector)
---   p_studyplaceid: شناسه محل تحصیل (int4, FK → htni.selector)
---   p_studyfieldsid: شناسه رشته تحصیلی (int4, FK → htni.selector)
+-- Parameters:
+--   p_userid: User identifier
+--   p_skills: Skills (text)
+--   p_degreeid: Education degree identifier (int4, FK → project.selector)
+--   p_studyplacetypeid: Study place type identifier (int4, FK → project.selector)
+--   p_studyplaceid: Study place identifier (int4, FK → project.selector)
+--   p_studyfieldsid: Field of study identifier (int4, FK → project.selector)
 -- 
--- منطق کاری:
---   1. بررسی وجود کاربر
---   2. بررسی وجود رکورد اطلاعات تکمیلی (باید مرحله 1 تکمیل شده باشد)
---   3. بررسی وجود selectorها در صورت نیاز
---   4. به‌روزرسانی فیلدهای مرحله 3
+-- Logic:
+--   1. Check if user exists
+--   2. Check if additional information record exists (stage 1 must be completed)
+--   3. Check if selectors exist if needed
+--   4. Update stage 3 fields
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Stage 3 Completed", message: "..."}
---   خطا: {success: false, title: "User Not Found" | "Stage 1 Not Completed" | "Selector Not Found" | "Error", message: "..."}
+-- Returns:
+--   Success: {success: true, title: "Stage 3 Completed", message: "..."}
+--   Error: {success: false, title: "User Not Found" | "Stage 1 Not Completed" | "Selector Not Found" | "Error", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT user_additional_info_stage3(1, 'برنامه‌نویسی، طراحی', 1, 2, 3, 4);
+-- Usage Example:
+--   SELECT project_user_additionalc(1, 'Programming, Design', 1, 2, 3, 4);
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."user_additional_info_stage3"(
-  "p_user_id" int4,
+CREATE OR REPLACE FUNCTION "public"."project_user_additionalc"(
+  "p_userid" int4,
   "p_skills" text DEFAULT NULL,
   "p_degreeid" int4 DEFAULT NULL,
   "p_studyplacetypeid" int4 DEFAULT NULL,
@@ -249,107 +325,107 @@ SECURITY DEFINER
 COST 100
 AS $BODY$
 BEGIN
-  -- بررسی وجود کاربر
-  IF NOT EXISTS (SELECT 1 FROM pelak.users WHERE id = p_user_id AND is_active = true) THEN
+  -- Check if user exists
+  IF NOT EXISTS (SELECT 1 FROM pelak.user WHERE userid = p_userid AND active = true) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'کاربر یافت نشد یا غیرفعال است.'
+      'message', 'User not found or inactive.'
     );
   END IF;
 
-  -- بررسی وجود رکورد اطلاعات تکمیلی
-  IF NOT EXISTS (SELECT 1 FROM htni.user_additional_info WHERE user_id = p_user_id) THEN
+  -- Check if additional information record exists
+  IF NOT EXISTS (SELECT 1 FROM project.useradditionalinfo WHERE userid = p_userid) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Stage 1 Not Completed',
-      'message', 'لطفاً ابتدا مرحله 1 را تکمیل کنید.'
+      'message', 'Please complete stage 1 first.'
     );
   END IF;
 
-  -- بررسی وجود selectorها در صورت نیاز
-  IF p_degreeid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM htni.selector WHERE id = p_degreeid) THEN
+  -- Check if selectors exist if needed
+  IF p_degreeid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM project.selector WHERE selectorid = p_degreeid) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'مدرک تحصیلی انتخابی یافت نشد.'
+      'message', 'Selected education degree not found.'
     );
   END IF;
 
-  IF p_studyplacetypeid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM htni.selector WHERE id = p_studyplacetypeid) THEN
+  IF p_studyplacetypeid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM project.selector WHERE selectorid = p_studyplacetypeid) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'نوع محل تحصیل انتخابی یافت نشد.'
+      'message', 'Selected study place type not found.'
     );
   END IF;
 
-  IF p_studyplaceid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM htni.selector WHERE id = p_studyplaceid) THEN
+  IF p_studyplaceid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM project.selector WHERE selectorid = p_studyplaceid) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'محل تحصیل انتخابی یافت نشد.'
+      'message', 'Selected study place not found.'
     );
   END IF;
 
-  IF p_studyfieldsid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM htni.selector WHERE id = p_studyfieldsid) THEN
+  IF p_studyfieldsid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM project.selector WHERE selectorid = p_studyfieldsid) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'رشته تحصیلی انتخابی یافت نشد.'
+      'message', 'Selected field of study not found.'
     );
   END IF;
 
-  -- به‌روزرسانی فیلدهای مرحله 3
-  UPDATE htni.user_additional_info
+  -- Update stage 3 fields
+  UPDATE project.useradditionalinfo
   SET skills = COALESCE(p_skills, skills),
       degreeid = COALESCE(p_degreeid, degreeid),
       studyplacetypeid = COALESCE(p_studyplacetypeid, studyplacetypeid),
       studyplaceid = COALESCE(p_studyplaceid, studyplaceid),
       studyfieldsid = COALESCE(p_studyfieldsid, studyfieldsid),
-      updated_at = NOW()
-  WHERE user_id = p_user_id;
+      updated = NOW()
+  WHERE userid = p_userid;
 
   RETURN json_build_object(
     'success', true,
     'title', 'Stage 3 Completed',
-    'message', 'مرحله 3 اطلاعات تکمیلی با موفقیت ثبت شد.'
+    'message', 'Stage 3 additional information completed successfully.'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'خطا در ثبت مرحله 3 اطلاعات تکمیلی.'
+    'message', 'Error completing stage 3 additional information.'
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: user_additional_info_stage4
--- توضیحات: تکمیل مرحله 4 اطلاعات تکمیلی کاربر (تایید نهایی)
--- مرحله 4 شامل: رضایت
--- با تایید این مرحله، formdone به NOW() تنظیم می‌شود
+-- Function: project_user_additionald
+-- Description: Complete stage 4 of user additional information (final confirmation)
+-- Stage 4 includes: Consent
+-- By confirming this stage, formdone is set to NOW()
 -- 
--- پارامترها:
---   p_user_id: شناسه کاربر
---   p_consent: رضایت (bool: true = راضی, false = راضی نیست)
+-- Parameters:
+--   p_userid: User identifier
+--   p_consent: Consent (bool: true = consent, false = no consent)
 -- 
--- منطق کاری:
---   1. بررسی وجود کاربر
---   2. بررسی وجود رکورد اطلاعات تکمیلی (باید مراحل قبلی تکمیل شده باشند)
---   3. به‌روزرسانی فیلد consent
---   4. در صورت consent = true، تنظیم formdone = NOW()
+-- Logic:
+--   1. Check if user exists
+--   2. Check if additional information record exists (previous stages must be completed)
+--   3. Update consent field
+--   4. If consent = true, set formdone = NOW()
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Stage 4 Completed", message: "...", form_completed: true/false}
---   خطا: {success: false, title: "User Not Found" | "Stage 1 Not Completed" | "Error", message: "..."}
+-- Returns:
+--   Success: {success: true, title: "Stage 4 Completed", message: "...", form_completed: true/false}
+--   Error: {success: false, title: "User Not Found" | "Stage 1 Not Completed" | "Error", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT user_additional_info_stage4(1, true);
+-- Usage Example:
+--   SELECT project_user_additionald(1, true);
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."user_additional_info_stage4"(
-  "p_user_id" int4,
+CREATE OR REPLACE FUNCTION "public"."project_user_additionald"(
+  "p_userid" int4,
   "p_consent" bool DEFAULT false
 )
 RETURNS "pg_catalog"."json"
@@ -359,35 +435,35 @@ SECURITY DEFINER
 COST 100
 AS $BODY$
 BEGIN
-  -- بررسی وجود کاربر
-  IF NOT EXISTS (SELECT 1 FROM pelak.users WHERE id = p_user_id AND is_active = true) THEN
+  -- Check if user exists
+  IF NOT EXISTS (SELECT 1 FROM pelak.user WHERE userid = p_userid AND active = true) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'کاربر یافت نشد یا غیرفعال است.'
+      'message', 'User not found or inactive.'
     );
   END IF;
 
-  -- بررسی وجود رکورد اطلاعات تکمیلی
-  IF NOT EXISTS (SELECT 1 FROM htni.user_additional_info WHERE user_id = p_user_id) THEN
+  -- Check if additional information record exists
+  IF NOT EXISTS (SELECT 1 FROM project.useradditionalinfo WHERE userid = p_userid) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Stage 1 Not Completed',
-      'message', 'لطفاً ابتدا مرحله 1 را تکمیل کنید.'
+      'message', 'Please complete stage 1 first.'
     );
   END IF;
 
-  -- به‌روزرسانی فیلد consent و formdone
-  UPDATE htni.user_additional_info
+  -- Update consent and formdone fields
+  UPDATE project.useradditionalinfo
   SET consent = p_consent,
       formdone = CASE WHEN p_consent = true THEN NOW() ELSE formdone END,
-      updated_at = NOW()
-  WHERE user_id = p_user_id;
+      updated = NOW()
+  WHERE userid = p_userid;
 
   RETURN json_build_object(
     'success', true,
     'title', 'Stage 4 Completed',
-    'message', CASE WHEN p_consent = true THEN 'فرم با موفقیت تکمیل شد.' ELSE 'رضایت ثبت شد.' END,
+    'message', CASE WHEN p_consent = true THEN 'Form completed successfully.' ELSE 'Consent recorded.' END,
     'form_completed', p_consent
   );
 
@@ -395,8 +471,99 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'خطا در ثبت مرحله 4 اطلاعات تکمیلی.'
+    'message', 'Error completing stage 4 additional information.'
   );
 END;
 $BODY$;
 
+-- ----------------------------------------------------------------------------
+-- Function: project_user_additional
+-- Description: Get user additional information
+-- 
+-- Parameters:
+--   p_userid: User identifier
+-- 
+-- Logic:
+--   1. Check if user exists
+--   2. Get additional information from project.user_additional_info table
+-- 
+-- Returns:
+--   Success: {success: true, data: {...}}
+--   Error: {success: false, title: "User Not Found" | "Error", message: "..."}
+-- 
+-- Usage Example:
+--   SELECT project_user_additional(1);
+-- ----------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION "public"."project_user_additional"("p_userid" int4)
+RETURNS "pg_catalog"."json"
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+COST 100
+AS $BODY$
+DECLARE
+  v_info project.useradditionalinfo%ROWTYPE;
+BEGIN
+  -- Check if user exists
+  IF NOT EXISTS (SELECT 1 FROM pelak.user WHERE userid = p_userid AND active = true) THEN
+    RETURN json_build_object(
+      'success', false,
+      'title', 'User Not Found',
+      'message', 'User not found or inactive.'
+    );
+  END IF;
+
+  -- Get additional information
+  SELECT * INTO v_info
+  FROM project.useradditionalinfo
+  WHERE userid = p_userid;
+
+  -- If additional information does not exist, return null
+  IF NOT FOUND THEN
+    RETURN json_build_object(
+      'success', true,
+      'data', NULL::json
+    );
+  END IF;
+
+  -- Return additional information
+  RETURN json_build_object(
+    'success', true,
+    'data', json_build_object(
+      'nationalcode', v_info.nationalcode,
+      'birthday', v_info.birthday,
+      'gender', v_info.gender,
+      'married', v_info.married,
+      'countryid', v_info.countryid,
+      'provinceid', v_info.provinceid,
+      'cityid', v_info.cityid,
+      'address', v_info.address,
+      'job', v_info.job,
+      'skills', v_info.skills,
+      'political', v_info.political,
+      'motivation', v_info.motivation,
+      'howknown', v_info.howknown,
+      'collaboration', v_info.collaboration,
+      'degreeid', v_info.degreeid,
+      'studyplaceid', v_info.studyplaceid,
+      'studyplacetypeid', v_info.studyplacetypeid,
+      'studyfieldsid', v_info.studyfieldsid,
+      'consent', v_info.consent,
+      'formdone', v_info.formdone,
+      'created', v_info.created,
+      'updated', v_info.updated
+    )
+  );
+
+EXCEPTION WHEN OTHERS THEN
+  RETURN json_build_object(
+    'success', false,
+    'title', 'Error',
+    'message', 'Error retrieving additional information.'
+  );
+END;
+$BODY$;
+
+-- ============================================================================
+-- ✅ All user functions have been created!
+-- ============================================================================

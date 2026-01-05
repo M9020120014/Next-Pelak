@@ -9,7 +9,7 @@ import CopyLinkButton from '@/project/components/pages/CopyLinkButton'
 import CommentsSectionWrapper from '@/project/components/pages/CommentsSectionWrapper'
 import { UI as P } from '@/core/components/ui/Pelak'
 /* --- Types ------------------------------------------------------------------------------------ */
-import { LANGUAGE_TYPE, SITE } from '@/core/config/site'
+import { LANGUAGE_TYPE, SITE } from '@/project/config/site'
 import { pageDetailTranslator } from '@/project/data/translations/pageDetail'
 
 /* --- Page Type Interface ---------- */
@@ -21,11 +21,11 @@ interface PageType {
   content: string | null
   media: string | null
   url: string
-  published_time: string | null
-  modified_time: string | null
+  publishedtime: string | null
+  modifiedtime: string | null
   authors: number | null
-  section_id: number | null
-  type_id: number | null
+  sectionid: number | null
+  typeid: number | null
   tags: string | null
   status: number | null
   lang: number | null
@@ -76,8 +76,8 @@ const getFirstWords = (text: string | null | undefined, charLimit: number = 40):
 export default function PageDetailClient({ page, lang, iDevice, imageUrl }: PageDetailClientProps) {
   const t = pageDetailTranslator[lang]
   const readingTime = calculateReadingTime(page.content)
-  const formattedDate = page.published_time
-    ? new Date(page.published_time).toLocaleDateString(lang === 'fa' ? 'fa-IR' : 'en-US')
+  const formattedDate = page.publishedtime
+    ? new Date(page.publishedtime).toLocaleDateString(lang === 'fa' ? 'fa-IR' : 'en-US')
     : ''
   const shareUrl = `${SITE.Data.url}/${lang}/page/${page.url}`
   const shareText = page.title || ''
@@ -216,25 +216,25 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
                     <span>{t.author}: <span className="text-Text font-title">{page.authors}</span></span>
                   </div>
                 )}
-                {page.published_time && (
+                {page.publishedtime && (
                   <>
                     {page.authors && <div className="w-px h-4 bg-Border" />}
                     <div className="flex items-center gap-008-2">
                       <svg className="h-4 w-4 text-Primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <span>{t.published}: <span className="text-Text font-title">{new Date(page.published_time).toLocaleDateString(lang === 'fa' ? 'fa-IR' : 'en-US')}</span></span>
+                      <span>{t.published}: <span className="text-Text font-title">{new Date(page.publishedtime).toLocaleDateString(lang === 'fa' ? 'fa-IR' : 'en-US')}</span></span>
                     </div>
                   </>
                 )}
-                {page.modified_time && page.modified_time !== page.published_time && (
+                {page.modifiedtime && page.modifiedtime !== page.publishedtime && (
                   <>
-                    {(page.authors || page.published_time) && <div className="w-px h-4 bg-Border" />}
+                    {(page.authors || page.publishedtime) && <div className="w-px h-4 bg-Border" />}
                     <div className="flex items-center gap-008-2">
                       <svg className="h-4 w-4 text-Primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
-                      <span>{t.modified}: <span className="text-Text font-title">{new Date(page.modified_time).toLocaleDateString(lang === 'fa' ? 'fa-IR' : 'en-US')}</span></span>
+                      <span>{t.modified}: <span className="text-Text font-title">{new Date(page.modifiedtime).toLocaleDateString(lang === 'fa' ? 'fa-IR' : 'en-US')}</span></span>
                     </div>
                   </>
                 )}

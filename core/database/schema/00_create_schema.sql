@@ -1,31 +1,42 @@
 -- ============================================================================
--- ماژول: ایجاد شمای پروژه
--- توضیحات: ایجاد schemas برای جداول پایه (pelak) و جداول مخصوص پروژه (htni)
+-- Module: Reset and Recreate Project Schema
+-- Description: This file drops all schemas and recreates them
+-- ⚠️ Warning: This file will delete all existing data!
 -- ============================================================================
+-- ----------------------------------------------------------------------------
+-- Drop project schema (if exists)
+-- ----------------------------------------------------------------------------
+DROP SCHEMA IF EXISTS "project" CASCADE;
 
 -- ----------------------------------------------------------------------------
--- ایجاد شمای pelak
--- توضیحات: شمای پایه برای جداول اصلی سیستم (users, roles, profile_images, page_sections, page_types, page, comments و غیره)
+-- Drop pelak schema (if exists)
 -- ----------------------------------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS "pelak";
+DROP SCHEMA IF EXISTS "pelak" CASCADE;
 
--- تنظیم owner شمای pelak
+-- ----------------------------------------------------------------------------
+-- Recreate pelak schema
+-- ----------------------------------------------------------------------------
+CREATE SCHEMA "pelak";
+
+-- Set pelak schema owner
 ALTER SCHEMA "pelak" OWNER TO "htni_admin";
 
--- اعطای دسترسی‌های لازم
+-- Grant necessary permissions
 GRANT USAGE ON SCHEMA "pelak" TO "htni_admin";
 GRANT ALL ON SCHEMA "pelak" TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
--- ایجاد شمای htni
--- توضیحات: شمای مخصوص پروژه برای جداول و توابع خاص این پروژه
+-- Recreate project schema
 -- ----------------------------------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS "htni";
+CREATE SCHEMA "project";
 
--- تنظیم owner شمای htni
-ALTER SCHEMA "htni" OWNER TO "htni_admin";
+-- Set project schema owner
+ALTER SCHEMA "project" OWNER TO "htni_admin";
 
--- اعطای دسترسی‌های لازم
-GRANT USAGE ON SCHEMA "htni" TO "htni_admin";
-GRANT ALL ON SCHEMA "htni" TO "htni_admin";
+-- Grant necessary permissions
+GRANT USAGE ON SCHEMA "project" TO "htni_admin";
+GRANT ALL ON SCHEMA "project" TO "htni_admin";
 
+-- ============================================================================
+-- ✅ All schemas and data have been dropped and recreated!
+-- ============================================================================

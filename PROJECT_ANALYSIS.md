@@ -129,7 +129,7 @@ core/
 │   └── utils/
 │       └── async.ts       # Async utilities
 ├── config/                # تنظیمات پایه
-│   ├── core-config.ts     # Main Config Interface
+│   ├── config.ts     # Main Config Interface
 │   ├── metadata.ts        # Metadata config
 │   ├── hooks.ts           # Hooks config
 │   ├── messages.ts        # Messages config
@@ -291,7 +291,7 @@ interface CoreConfig {
 
 ### 4.3. Config Files
 
-#### Core Config (`core/config/core-config.ts`):
+#### Core Config (`core/config/config.ts`):
 - `setCoreConfig()`: تنظیم config از project
 - `getCoreConfig()`: دریافت config با merge defaults
 - `resetCoreConfig()`: ریست config (برای testing)
@@ -329,7 +329,7 @@ interface CoreConfig {
    ├─ Request Size Validation
    ├─ Brute Force Check
    ├─ Input Validation & Sanitization
-   ├─ Database Function: auth_login()
+   ├─ Database Function: pelak_auth_login()
    │  ├─ Check Account Lock
    │  ├─ Verify Password (bcrypt)
    │  ├─ Reset Failed Attempts
@@ -363,13 +363,32 @@ interface CoreConfig {
 
 | تابع | کاربرد | پارامترها |
 |------|--------|-----------|
-| `auth_register_user` | ثبت کاربر جدید | `mobile`, `otp_secret` |
-| `auth_set_password` | تنظیم رمز عبور | `mobile`, `password`, `otp_secret` |
-| `auth_login` | ورود کاربر | `mobile`, `password`, `idevice` |
-| `auth_refresh_token` | تمدید توکن | `refresh_token`, `idevice`, `ip` |
-| `auth_revoke_token` | لغو توکن یک دستگاه | `user_id`, `idevice` |
-| `auth_revoke_all_tokens` | لغو تمام توکن‌ها | `mobile` |
-| `auth_cleanup_expired_tokens` | پاکسازی توکن‌های منقضی | - |
+| `pelak_auth_register` | ثبت کاربر جدید | `mobile`, `otp_secret` |
+| `pelak_auth_password` | تنظیم رمز عبور | `mobile`, `password`, `otp_secret` |
+| `pelak_auth_login` | ورود کاربر | `mobile`, `password`, `idevice` |
+| `pelak_auth_refreshtoken` | تمدید توکن | `refreshtoken`, `idevice`, `ip` |
+| `pelak_auth_revoketoken` | لغو توکن یک دستگاه | `userid`, `idevice` |
+| `pelak_auth_revokeall` | لغو تمام توکن‌ها | `mobile` |
+| `pelak_auth_archive_inactive_tokens` | آرشیو توکن‌های غیرفعال | - |
+| `pelak_auth_checkuser` | بررسی وجود کاربر | `mobile` |
+| `pelak_auth_checkrefreshtoken` | بررسی توکن با idevice | `idevice` |
+| `pelak_auth_checkrefreshtoken_mobile` | بررسی توکن با mobile | `mobile` |
+| `pelak_auth_checkrefreshtoken_device_mobile` | بررسی توکن با device و mobile | `idevice`, `mobile` |
+| `pelak_user_get` | دریافت اطلاعات کاربر | `userid` |
+| `pelak_user_updatename` | به‌روزرسانی نام کاربر | `userid`, `firstname`, `lastname` |
+| `pelak_user_updateprofile` | به‌روزرسانی تصویر پروفایل | `userid`, `profileimage`, `profileurl` |
+| `pelak_comment_get` | دریافت نظرات | `pageid`, `sort_type`, `userid` |
+| `pelak_comment_create` | ایجاد نظر | `userid`, `pageid`, `content`, `parentid` |
+| `pelak_comment_toggle` | لایک/آنلایک نظر | `userid`, `commentid` |
+| `pelak_page_getsummaries` | دریافت خلاصه صفحات | `limit`, `offset`, `lang` |
+| `pelak_page_geturl` | دریافت صفحه با URL | `url` |
+| `project_selector_get` | دریافت سلکتورها | `typeidentifier` |
+| `project_selector_gettree` | دریافت سلکتورها به صورت درختی | `typeidentifier` |
+| `project_user_additional` | دریافت اطلاعات تکمیلی | `userid` |
+| `project_user_additionala` | تکمیل مرحله 1 | `userid`, `nationalcode`, `birthday`, ... |
+| `project_user_additionalb` | تکمیل مرحله 2 | `userid`, `job`, `motivation`, ... |
+| `project_user_additionalc` | تکمیل مرحله 3 | `userid`, `skills`, `degreeid`, ... |
+| `project_user_additionald` | تکمیل مرحله 4 | `userid`, `consent` |
 
 ### 5.4. Database Schema
 
@@ -393,11 +412,11 @@ interface CoreConfig {
 - `idx_users_mobile` (UNIQUE)
 - `idx_users_is_active`
 
-#### جدول `auth.refresh_tokens`:
+#### جدول `auth.refreshtokens`:
 ```sql
 - id (PK, auto increment)
 - token_hash (UNIQUE, SHA-256)
-- user_id (FK → users.id)
+- userid (FK → users.id)
 - idevice (NOT NULL)
 - expires_at (NOT NULL)
 - created_at
@@ -407,18 +426,18 @@ interface CoreConfig {
 ```
 
 **Indexes:**
-- `idx_refresh_tokens_token_hash` (UNIQUE)
-- `idx_refresh_tokens_user_id`
-- `idx_refresh_tokens_expires_at`
-- `idx_refresh_tokens_user_device` (Composite, Partial)
+- `idx_refreshtokens_token_hash` (UNIQUE)
+- `idx_refreshtokens_userid`
+- `idx_refreshtokens_expires_at`
+- `idx_refreshtokens_user_device` (Composite, Partial)
 
 **نکته مهم**: این جدول فقط توکن‌های فعال را نگه می‌دارد (`expires_at > NOW() AND revoked_at IS NULL`)
 
-#### جدول `auth.refresh_tokens_history`:
+#### جدول `auth.refreshtokens_history`:
 ```sql
 - id (PK)
 - token_hash
-- user_id
+- userid
 - idevice
 - expires_at
 - created_at
@@ -933,7 +952,7 @@ app/[lang]/
 | فایل | کاربرد |
 |------|--------|
 | `core/proxy.ts` | Middleware اصلی |
-| `core/config/core-config.ts` | Configuration system |
+| `core/config/config.ts` | Configuration system |
 | `core/lib/hooks/registry.ts` | Hook system |
 | `core/lib/security/api-middleware.ts` | Security middleware |
 | `core/app/api/auth/*/route.ts` | API implementations |
@@ -1003,7 +1022,7 @@ app/[lang]/
    ↓
 2. Security Checks
    ↓
-3. Database: auth_login()
+3. Database: pelak_auth_login()
    ├─ Check Account Lock
    ├─ Verify Password
    ├─ Create Refresh Token
@@ -1023,7 +1042,7 @@ app/[lang]/
    ↓
 2. Security Checks
    ↓
-3. Database: auth_refresh_token()
+3. Database: pelak_auth_refreshtoken()
    ├─ Validate Token
    ├─ Check Theft
    ├─ Rotate Token

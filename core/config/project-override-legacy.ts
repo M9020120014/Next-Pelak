@@ -9,7 +9,7 @@
  * **Migration Guide:**
  * - Instead of importing PROJECT_CONFIG from this file, use the CoreConfig system:
  *   - Edit `core/config/project-override.ts` to override configurations
- *   - Use `getCoreConfig()` from `@/core/config/core-config` to access configs
+ *   - Use `getCoreConfig()` from `@/core/config/config` to access configs
  *   - Route configurations are now managed through `core/config/security.ts`
  * 
  * **This file will be removed in a future version.**
@@ -42,7 +42,7 @@ export const PROJECT_ROUTES = {
  * 
  * Use:
  * ```ts
- * import { getCoreConfig } from '@/core/config/core-config'
+ * import { getCoreConfig } from '@/core/config/config'
  * import { ROUTES } from '@/core/config/security'
  * ```
  */

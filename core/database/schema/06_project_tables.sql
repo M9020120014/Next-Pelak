@@ -1,188 +1,184 @@
 -- ============================================================================
--- ماژول: جداول پروژه (شمای htni)
--- توضیحات: جداول مخصوص پروژه شامل سلکتورها و اطلاعات تکمیلی کاربران
+-- Module: Project Tables (project schema)
+-- Description: Project-specific tables including selectors and user additional information
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- جدول: selectortype (پروژه)
--- توضیحات: انواع سلکتور مخصوص پروژه (مثل استان، شهر، مدرک تحصیلی و غیره)
+-- Table: selectortype (Project)
+-- Description: Project-specific selector types (like province, city, education degree, etc.)
 -- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS "htni"."selectortype" (
-  -- شناسه یکتای نوع سلکتور (Primary Key, Auto Increment)
-  "id" int4 NOT NULL DEFAULT nextval('"htni".selectortype_id_seq'::regclass),
+CREATE TABLE IF NOT EXISTS "project"."selectortype" (
+  -- Unique selector type identifier (Primary Key, Auto Increment)
+  "selectortypeid" int4 NOT NULL DEFAULT nextval('"project".selectortype_selectortypeid_seq'::regclass),
   
-  -- عنوان نوع سلکتور
+  -- Selector type title
   "title" varchar(50) COLLATE "pg_catalog"."default",
   
-  -- کد کوتاه نوع سلکتور (2 کاراکتر)
+  -- Short selector type code (2 characters)
   "code" varchar(2) COLLATE "pg_catalog"."default",
   
   -- Primary Key
-  CONSTRAINT "selectortype_pkey" PRIMARY KEY ("id")
+  CONSTRAINT "selectortype_pkey" PRIMARY KEY ("selectortypeid")
 );
 
-ALTER TABLE "htni"."selectortype" 
+ALTER TABLE "project"."selectortype" 
   OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
--- جدول: selector (پروژه)
--- توضیحات: سلکتورها با قابلیت سلسله مراتبی مخصوص پروژه
--- هر سلکتور می‌تواند والد (selectorid) داشته باشد برای ساختار درختی
--- مثال: استان → شهر، مدرک تحصیلی → رشته تحصیلی
+-- Table: selector (Project)
+-- Description: Hierarchical selectors specific to the project
+-- Each selector can have a parent (selectorid) for tree structure
+-- Example: Province → City, Education Degree → Field of Study
 -- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS "htni"."selector" (
-  -- شناسه یکتای سلکتور (Primary Key, Auto Increment)
-  "id" int4 NOT NULL DEFAULT nextval('"htni".selector_id_seq'::regclass),
+CREATE TABLE IF NOT EXISTS "project"."selector" (
+  -- Unique selector identifier (Primary Key, Auto Increment)
+  "selectorid" int4 NOT NULL DEFAULT nextval('"project".selector_selectorid_seq'::regclass),
   
-  -- عنوان سلکتور
+  -- Selector title
   "title" varchar(120) COLLATE "pg_catalog"."default",
   
-  -- نوع سلکتور (Foreign Key → htni.selectortype.id)
+  -- Selector type (Foreign Key → project.selectortype.selectortypeid)
   "type" int4,
   
-  -- شناسه سلکتور والد (Foreign Key → htni.selector.id)
-  -- NULL = این سلکتور root است (بدون والد)
-  "selectorid" int4,
+  -- Parent selector identifier (Foreign Key → project.selector.selectorid)
+  -- NULL = this selector is root (no parent)
+  "parentselectorid" int4,
   
-  -- متن توضیحات اضافی
+  -- Additional description text
   "txt" text COLLATE "pg_catalog"."default",
   
-  -- شماره ترتیب برای مرتب‌سازی
-  "num" int4,
+  -- Order number for sorting
+  "order" int4,
   
   -- Primary Key
-  CONSTRAINT "selector_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "selector_pkey" PRIMARY KEY ("selectorid"),
   
-  -- Foreign Key: سلکتور والد (CASCADE در صورت حذف)
-  CONSTRAINT "selector_selectorid_fkey" FOREIGN KEY ("selectorid") REFERENCES "htni"."selector" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  -- Foreign Key: Parent selector (CASCADE on deletion)
+  CONSTRAINT "selector_parentselectorid_fkey" FOREIGN KEY ("parentselectorid") REFERENCES "project"."selector" ("selectorid") ON DELETE CASCADE ON UPDATE CASCADE,
   
-  -- Foreign Key: نوع سلکتور (CASCADE در صورت حذف)
-  CONSTRAINT "selector_type_fkey" FOREIGN KEY ("type") REFERENCES "htni"."selectortype" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  -- Foreign Key: Selector type (CASCADE on deletion)
+  CONSTRAINT "selector_type_fkey" FOREIGN KEY ("type") REFERENCES "project"."selectortype" ("selectortypeid") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-ALTER TABLE "htni"."selector" 
+ALTER TABLE "project"."selector" 
   OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
--- جدول: user_additional_info
--- توضیحات: اطلاعات تکمیلی کاربران مخصوص این پروژه
--- این جدول به ازای هر کاربر یک رکورد دارد (one-to-one با users)
+-- Table: useradditionalinfo
+-- Description: User additional information specific to this project
+-- This table has one record per user (one-to-one with user)
 -- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS "htni"."user_additional_info" (
-  -- شناسه کاربر (Primary Key, Foreign Key → pelak.users.id)
-  -- استفاده از user_id به عنوان Primary Key برای تضمین یکتایی
-  "user_id" int4 NOT NULL,
+CREATE TABLE IF NOT EXISTS "project"."useradditionalinfo" (
+  -- Using userid as Primary Key to ensure uniqueness
+  "userid" int4 NOT NULL,
   
-  -- کد ملی کاربر
+  -- User national code
   "nationalcode" char(10) COLLATE "pg_catalog"."default",
   
-  -- تاریخ تولد (فرمت: YYYY-MM-DD)
+  -- Birth date (format: YYYY-MM-DD)
   "birthday" varchar(10) COLLATE "pg_catalog"."default",
   
-  -- وضعیت تاهل (true = متاهل, false = مجرد)
+  -- Marital status (true = married, false = single)
   "married" bool,
   
-  -- جنسیت (true = مرد, false = زن)
+  -- Gender (true = male, false = female)
   "gender" bool,
   
-  -- شناسه کشور (Foreign Key → htni.selector.id)
-  -- پیش‌فرض: 80001 (ایران)
-  "countryid" int4 DEFAULT 80001,
+  -- Country identifier (Foreign Key → project.selector.id)
+  "countryid" int4 ,
   
-  -- شناسه استان (Foreign Key → htni.selector.id)
+  -- Province identifier (Foreign Key → project.selector.id)
   "provinceid" int4,
   
-  -- شناسه شهر (Foreign Key → htni.selector.id)
+  -- City identifier (Foreign Key → project.selector.id)
   "cityid" int4,
   
-  -- آدرس محل سکونت
+  -- Residential address
   "address" text COLLATE "pg_catalog"."default",
   
-  -- شغل
+  -- Job
   "job" text COLLATE "pg_catalog"."default",
   
-  -- مهارت‌ها
+  -- Skills
   "skills" text COLLATE "pg_catalog"."default",
   
-  -- گرایش سیاسی
+  -- Political orientation
   "political" text COLLATE "pg_catalog"."default",
   
-  -- انگیزه
+  -- Motivation
   "motivation" text COLLATE "pg_catalog"."default",
   
-  -- نحوه آشنایی
+  -- How known
   "howknown" varchar(150) COLLATE "pg_catalog"."default",
   
-  -- نوع همکاری
+  -- Collaboration type
   "collaboration" varchar(100) COLLATE "pg_catalog"."default",
   
-  -- شناسه مدرک تحصیلی (Foreign Key → htni.selector.id)
+  -- Education degree identifier (Foreign Key → project.selector.id)
   "degreeid" int4,
   
-  -- شناسه محل تحصیل (Foreign Key → htni.selector.id)
+  -- Study place identifier (Foreign Key → project.selector.id)
   "studyplaceid" int4,
   
-  -- شناسه نوع محل تحصیل (Foreign Key → htni.selector.id)
+  -- Study place type identifier (Foreign Key → project.selector.id)
   "studyplacetypeid" int4,
   
-  -- شناسه رشته تحصیلی (Foreign Key → htni.selector.id)
+  -- Field of study identifier (Foreign Key → project.selector.id)
   "studyfieldsid" int4,
   
-  -- رضایت (Default: false)
+  -- Consent (Default: false)
   "consent" bool DEFAULT false,
   
-  -- زمان تکمیل فرم (NULL = فرم تکمیل نشده)
+  -- Form completion time (NULL = form not completed)
   "formdone" timestamp(6),
   
-  -- زمان ایجاد رکورد (Default: زمان فعلی)
-  "created_at" timestamptz(6) DEFAULT now(),
+  -- Record creation time (Default: current time)
+  "created" timestamptz(6) DEFAULT now(),
   
-  -- زمان آخرین به‌روزرسانی (Default: زمان فعلی)
-  "updated_at" timestamptz(6) DEFAULT now(),
+  -- Last update time (Default: current time)
+  "updated" timestamptz(6) DEFAULT now(),
   
   -- Primary Key
-  CONSTRAINT "user_additional_info_pkey" PRIMARY KEY ("user_id"),
+  CONSTRAINT "useradditionalinfo_pkey" PRIMARY KEY ("userid"),
   
-  -- Foreign Key: کاربر (CASCADE در صورت حذف کاربر)
-  CONSTRAINT "user_additional_info_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "pelak"."users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  -- Foreign Key: User (CASCADE on user deletion)
+  CONSTRAINT "useradditionalinfo_userid_fkey" FOREIGN KEY ("userid") REFERENCES "pelak"."user" ("userid") ON DELETE CASCADE ON UPDATE CASCADE,
   
-  -- Foreign Key: کشور (CASCADE در صورت حذف سلکتور)
-  CONSTRAINT "user_additional_info_countryid_fkey" FOREIGN KEY ("countryid") REFERENCES "htni"."selector" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+  -- Foreign Key: Country (CASCADE on selector deletion)
+  CONSTRAINT "useradditionalinfo_countryid_fkey" FOREIGN KEY ("countryid") REFERENCES "project"."selector" ("selectorid") ON DELETE SET NULL ON UPDATE CASCADE,
   
-  -- Foreign Key: استان (CASCADE در صورت حذف سلکتور)
-  CONSTRAINT "user_additional_info_provinceid_fkey" FOREIGN KEY ("provinceid") REFERENCES "htni"."selector" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+  -- Foreign Key: Province (CASCADE on selector deletion)
+  CONSTRAINT "useradditionalinfo_provinceid_fkey" FOREIGN KEY ("provinceid") REFERENCES "project"."selector" ("selectorid") ON DELETE SET NULL ON UPDATE CASCADE,
   
-  -- Foreign Key: شهر (CASCADE در صورت حذف سلکتور)
-  CONSTRAINT "user_additional_info_cityid_fkey" FOREIGN KEY ("cityid") REFERENCES "htni"."selector" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+  -- Foreign Key: City (CASCADE on selector deletion)
+  CONSTRAINT "useradditionalinfo_cityid_fkey" FOREIGN KEY ("cityid") REFERENCES "project"."selector" ("selectorid") ON DELETE SET NULL ON UPDATE CASCADE,
   
-  -- Foreign Key: مدرک تحصیلی (CASCADE در صورت حذف سلکتور)
-  CONSTRAINT "user_additional_info_degreeid_fkey" FOREIGN KEY ("degreeid") REFERENCES "htni"."selector" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+  -- Foreign Key: Education degree (CASCADE on selector deletion)
+  CONSTRAINT "useradditionalinfo_degreeid_fkey" FOREIGN KEY ("degreeid") REFERENCES "project"."selector" ("selectorid") ON DELETE SET NULL ON UPDATE CASCADE,
   
-  -- Foreign Key: محل تحصیل (CASCADE در صورت حذف سلکتور)
-  CONSTRAINT "user_additional_info_studyplaceid_fkey" FOREIGN KEY ("studyplaceid") REFERENCES "htni"."selector" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+  -- Foreign Key: Study place (CASCADE on selector deletion)
+  CONSTRAINT "useradditionalinfo_studyplaceid_fkey" FOREIGN KEY ("studyplaceid") REFERENCES "project"."selector" ("selectorid") ON DELETE SET NULL ON UPDATE CASCADE,
   
-  -- Foreign Key: نوع محل تحصیل (CASCADE در صورت حذف سلکتور)
-  CONSTRAINT "user_additional_info_studyplacetypeid_fkey" FOREIGN KEY ("studyplacetypeid") REFERENCES "htni"."selector" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+  -- Foreign Key: Study place type (CASCADE on selector deletion)
+  CONSTRAINT "useradditionalinfo_studyplacetypeid_fkey" FOREIGN KEY ("studyplacetypeid") REFERENCES "project"."selector" ("selectorid") ON DELETE SET NULL ON UPDATE CASCADE,
   
-  -- Foreign Key: رشته تحصیلی (CASCADE در صورت حذف سلکتور)
-  CONSTRAINT "user_additional_info_studyfieldsid_fkey" FOREIGN KEY ("studyfieldsid") REFERENCES "htni"."selector" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+  -- Foreign Key: Field of study (CASCADE on selector deletion)
+  CONSTRAINT "useradditionalinfo_studyfieldsid_fkey" FOREIGN KEY ("studyfieldsid") REFERENCES "project"."selector" ("selectorid") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
-ALTER TABLE "htni"."user_additional_info" 
+ALTER TABLE "project"."useradditionalinfo" 
   OWNER TO "htni_admin";
 
--- Index برای جستجوی سریع بر اساس کاربر (UNIQUE)
-CREATE UNIQUE INDEX "idx_user_additional_info_user_id" ON "htni"."user_additional_info" USING btree (
-  "user_id" "pg_catalog"."int4_ops" ASC NULLS LAST
-);
-
--- Index برای جستجوی سریع بر اساس استان
-CREATE INDEX "idx_user_additional_info_provinceid" ON "htni"."user_additional_info" USING btree (
+-- Index for quick search by province
+CREATE INDEX "idx_useradditionalinfo_provinceid" ON "project"."useradditionalinfo" USING btree (
   "provinceid" "pg_catalog"."int4_ops" ASC NULLS LAST
 );
 
--- Index برای جستجوی سریع بر اساس شهر
-CREATE INDEX "idx_user_additional_info_cityid" ON "htni"."user_additional_info" USING btree (
+-- Index for quick search by city
+CREATE INDEX "idx_useradditionalinfo_cityid" ON "project"."useradditionalinfo" USING btree (
   "cityid" "pg_catalog"."int4_ops" ASC NULLS LAST
 );
 
+-- ============================================================================
+-- ✅ All project tables have been created!
+-- ============================================================================

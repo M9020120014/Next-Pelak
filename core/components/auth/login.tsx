@@ -128,18 +128,8 @@ export default function LoginComponent({
     }
   };
 
-  const handleForgotPassword = () => {
-    router.push(`/${lang}/verification?mobile=${encodeURIComponent(mobile)}&mode=forgot`);
-  };
-
   const handleGetNewPassword = () => {
-    router.push(`/${lang}/verification?mobile=${encodeURIComponent(mobile)}&mode=forgot`);
-  };
-
-  const handleBackToMobile = () => {
-    setStep("mobile");
-    setPassword("");
-    setError("");
+    router.push(`/${lang}/verification?mobile=${encodeURIComponent(mobile)}&mode=register`);
   };
 
   return (
@@ -207,30 +197,12 @@ export default function LoginComponent({
                 {loading ? translator.loginButtonLoading : translator.loginButton}
               </P.Button>
 
-              <div className="flex flex-col gap-008-2">
-                <P.Button
-                  Theme="primary"
-                  ThemeProps="link"
-                  Size="lg"
-                  onClick={handleForgotPassword}
-                >
-                  {translator.forgotPassword}
-                </P.Button>
-                <P.Button
-                  Theme="primary"
-                  ThemeProps="link"
-                  Size="lg"
-                  onClick={handleBackToMobile}
-                >
-                  {translator.changeMobile || "Change Mobile Number"}
-                </P.Button>
-              </div>
-
               <div className="pt-012-3 border-t border-Mid/20">
                 <P.Button
                   Theme="primary"
                   ThemeProps="link"
                   Size="lg"
+                  type="button"
                   onClick={handleGetNewPassword}
                   className="w-full"
                 >

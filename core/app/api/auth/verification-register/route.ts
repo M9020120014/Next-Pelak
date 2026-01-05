@@ -73,9 +73,9 @@ async function POSTHandler(request: NextRequest) {
     const otpSecret = generateOtpSecret();
 
     /* --- Register User ----------------- */
-    const registerResult = await callRpc("auth_register_user", {
+    const registerResult = await callRpc("pelak_auth_register", {
       p_mobile: sanitizedMobile,
-      p_otp_secret: otpSecret,
+      p_secret: otpSecret,
     });
 
     if (!registerResult.success) {

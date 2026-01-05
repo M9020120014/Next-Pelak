@@ -1,146 +1,149 @@
 -- ============================================================================
--- ماژول: نظرات و تعاملات
--- توضیحات: جداول مربوط به نظرات صفحات و لایک‌ها
+-- Module: Comments and Interactions
+-- Description: Tables related to page comments and likes
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- جدول: comments
--- توضیحات: نظرات صفحات با ساختار درختی (هر نظر می‌تواند پاسخ داشته باشد)
+-- Table: comments
+-- Description: Page comments with tree structure (each comment can have replies)
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS "pelak"."comments" (
-  -- شناسه یکتای نظر (Primary Key, Auto Increment)
-  "id" int4 NOT NULL DEFAULT nextval('"pelak".comments_id_seq'::regclass),
+  -- Unique comment identifier (Primary Key, Auto Increment)
+  "commentid" int4 NOT NULL DEFAULT nextval('"pelak".comments_commentid_seq'::regclass),
   
-  -- شناسه کاربر نویسنده نظر (Foreign Key → users.id, Not Null)
+  -- Comment author user identifier (Foreign Key → user.userid, Not Null)
   "userid" int4 NOT NULL,
   
-  -- شناسه صفحه مربوطه (Foreign Key → page.id)
+  -- Related page identifier (Foreign Key → page.pageid)
   "pageid" int4,
   
-  -- شناسه نظر والد (Foreign Key → comments.id)
-  -- NULL = این نظر root است (پاسخ به نظر دیگر نیست)
+  -- Parent comment identifier (Foreign Key → comments.commentid)
+  -- NULL = this comment is root (not a reply to another comment)
   "parentid" int4,
   
-  -- محتوای نظر (Not Null)
+  -- Comment content (Not Null)
   "content" text COLLATE "pg_catalog"."default" NOT NULL,
   
-  -- وضعیت تایید نظر (Default: false)
-  -- false = در انتظار تایید ادمین
-  -- true = تایید شده و قابل نمایش
-  "isapproved" bool DEFAULT false,
+  -- Comment approval status (Default: false)
+  -- false = pending admin approval
+  -- true = approved and visible
+  "approved" bool DEFAULT false,
   
-  -- وضعیت حذف منطقی (Default: false)
-  -- true = حذف شده (soft delete)
-  -- false = فعال
-  "isdeleted" bool DEFAULT false,
+  -- Soft delete status (Default: false)
+  -- true = deleted (soft delete)
+  -- false = active
+  "deleted" bool DEFAULT false,
   
-  -- زمان ایجاد نظر (Default: زمان فعلی)
-  "createdat" timestamptz(6) DEFAULT now(),
+  -- Comment creation time (Default: current time)
+  "created" timestamptz(6) DEFAULT now(),
   
-  -- زمان آخرین ویرایش (Default: زمان فعلی)
-  "updatedat" timestamptz(6) DEFAULT now(),
+  -- Last edit time (Default: current time)
+  "updated" timestamptz(6) DEFAULT now(),
   
-  -- میزان اهمیت نظر (0-100)
-  -- برای مرتب‌سازی و نمایش اولویت‌دار
+  -- Comment importance level (0-100)
+  -- For priority sorting and display
   -- Default: 0
   "importance" int4 DEFAULT 0,
   
   -- Primary Key
-  CONSTRAINT "comments_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "comments_pkey" PRIMARY KEY ("commentid"),
   
-  -- Foreign Key: صفحه مربوطه (CASCADE در صورت حذف صفحه)
-  CONSTRAINT "comments_pageid_fkey" FOREIGN KEY ("pageid") REFERENCES "pelak"."page" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  -- Foreign Key: Related page (CASCADE on page deletion)
+  CONSTRAINT "comments_pageid_fkey" FOREIGN KEY ("pageid") REFERENCES "pelak"."page" ("pageid") ON DELETE CASCADE ON UPDATE CASCADE,
   
-  -- Foreign Key: نظر والد (CASCADE در صورت حذف نظر والد)
-  CONSTRAINT "comments_parentid_fkey" FOREIGN KEY ("parentid") REFERENCES "pelak"."comments" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  -- Foreign Key: Parent comment (CASCADE on parent deletion)
+  CONSTRAINT "comments_parentid_fkey" FOREIGN KEY ("parentid") REFERENCES "pelak"."comments" ("commentid") ON DELETE CASCADE ON UPDATE NO ACTION,
   
-  -- Foreign Key: کاربر نویسنده (CASCADE در صورت حذف کاربر)
-  CONSTRAINT "comments_userid_fkey" FOREIGN KEY ("userid") REFERENCES "pelak"."users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  -- Foreign Key: Comment author (CASCADE on user deletion)
+  CONSTRAINT "comments_userid_fkey" FOREIGN KEY ("userid") REFERENCES "pelak"."user" ("userid") ON DELETE CASCADE ON UPDATE CASCADE,
   
-  -- Constraint: محدود کردن importance به 0-100
+  -- Constraint: Limit importance to 0-100
   CONSTRAINT "comments_importance_check" CHECK ("importance" >= 0 AND "importance" <= 100)
 );
 
 ALTER TABLE "pelak"."comments" 
   OWNER TO "htni_admin";
 
--- Index برای جستجوی سریع نظرات یک صفحه
+-- Index for quick search of comments of a page
 CREATE INDEX "idx_comments_pageid" ON "pelak"."comments" USING btree (
   "pageid" "pg_catalog"."int4_ops" ASC NULLS LAST
 );
 
--- Index برای جستجوی سریع نظرات یک کاربر
+-- Index for quick search of comments of a user
 CREATE INDEX "idx_comments_userid" ON "pelak"."comments" USING btree (
   "userid" "pg_catalog"."int4_ops" ASC NULLS LAST
 );
 
--- Index برای جستجوی سریع پاسخ‌های یک نظر
+-- Index for quick search of replies to a comment
 CREATE INDEX "idx_comments_parentid" ON "pelak"."comments" USING btree (
   "parentid" "pg_catalog"."int4_ops" ASC NULLS LAST
 );
 
--- Index برای جستجوی سریع نظرات تایید شده
-CREATE INDEX "idx_comments_isapproved" ON "pelak"."comments" USING btree (
-  "isapproved" "pg_catalog"."bool_ops" ASC NULLS LAST
+-- Index for quick search of approved comments
+CREATE INDEX "idx_comments_approved" ON "pelak"."comments" USING btree (
+  "approved" "pg_catalog"."bool_ops" ASC NULLS LAST
 );
 
--- Index برای جستجوی سریع نظرات حذف نشده
-CREATE INDEX "idx_comments_isdeleted" ON "pelak"."comments" USING btree (
-  "isdeleted" "pg_catalog"."bool_ops" ASC NULLS LAST
+-- Index for quick search of non-deleted comments
+CREATE INDEX "idx_pelak_comment_deleted" ON "pelak"."comments" USING btree (
+  "deleted" "pg_catalog"."bool_ops" ASC NULLS LAST
 );
 
--- Index برای مرتب‌سازی سریع‌تر بر اساس importance
+-- Index for faster sorting by importance
 CREATE INDEX IF NOT EXISTS "idx_comments_importance" ON "pelak"."comments" USING btree (
   "importance" "pg_catalog"."int4_ops" DESC NULLS LAST
 );
 
 -- ----------------------------------------------------------------------------
--- جدول: comment_likes
--- توضیحات: لایک‌های کاربران برای کامنت‌ها
--- هر کاربر فقط یک بار می‌تواند یک کامنت را لایک کند
+-- Table: commentlike
+-- Description: User likes for comments
+-- Each user can only like a comment once
 -- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS "pelak"."comment_likes" (
-  -- شناسه یکتای لایک (Primary Key, Auto Increment)
-  "id" int4 NOT NULL DEFAULT nextval('"pelak".comment_likes_id_seq'::regclass),
+CREATE TABLE IF NOT EXISTS "pelak"."commentlike" (
+  -- Unique like identifier (Primary Key, Auto Increment)
+  "commentlikeid" int4 NOT NULL DEFAULT nextval('"pelak".commentlike_commentlikeid_seq'::regclass),
   
-  -- شناسه کاربر لایک کننده (Foreign Key → users.id, Not Null)
+  -- Liking user identifier (Foreign Key → user.userid, Not Null)
   "userid" int4 NOT NULL,
   
-  -- شناسه کامنت لایک شده (Foreign Key → comments.id, Not Null)
+  -- Liked comment identifier (Foreign Key → comments.commentid, Not Null)
   "commentid" int4 NOT NULL,
   
-  -- زمان ایجاد لایک (Default: زمان فعلی)
-  "createdat" timestamptz(6) DEFAULT now(),
+  -- Like creation time (Default: current time)
+  "created" timestamptz(6) DEFAULT now(),
   
   -- Primary Key
-  CONSTRAINT "comment_likes_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "commentlike_pkey" PRIMARY KEY ("commentlikeid"),
   
-  -- Foreign Key: کاربر لایک کننده (CASCADE در صورت حذف کاربر)
-  CONSTRAINT "comment_likes_userid_fkey" FOREIGN KEY ("userid") REFERENCES "pelak"."users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  -- Foreign Key: Liking user (CASCADE on user deletion)
+  CONSTRAINT "commentlike_userid_fkey" FOREIGN KEY ("userid") REFERENCES "pelak"."user" ("userid") ON DELETE CASCADE ON UPDATE CASCADE,
   
-  -- Foreign Key: کامنت لایک شده (CASCADE در صورت حذف کامنت)
-  CONSTRAINT "comment_likes_commentid_fkey" FOREIGN KEY ("commentid") REFERENCES "pelak"."comments" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  -- Foreign Key: Liked comment (CASCADE on comment deletion)
+  CONSTRAINT "commentlike_commentid_fkey" FOREIGN KEY ("commentid") REFERENCES "pelak"."comments" ("commentid") ON DELETE CASCADE ON UPDATE CASCADE,
   
-  -- Unique Constraint: هر کاربر فقط یک بار می‌تواند یک کامنت را لایک کند
-  CONSTRAINT "comment_likes_user_comment_unique" UNIQUE ("userid", "commentid")
+  -- Unique Constraint: Each user can only like a comment once
+  CONSTRAINT "commentlike_user_comment_unique" UNIQUE ("userid", "commentid")
 );
 
-ALTER TABLE "pelak"."comment_likes" 
+ALTER TABLE "pelak"."commentlike" 
   OWNER TO "htni_admin";
 
--- Index برای جستجوی سریع لایک‌های یک کاربر
-CREATE INDEX "idx_comment_likes_userid" ON "pelak"."comment_likes" USING btree (
+-- Index for quick search of likes of a user
+CREATE INDEX "idx_commentlike_userid" ON "pelak"."commentlike" USING btree (
   "userid" "pg_catalog"."int4_ops" ASC NULLS LAST
 );
 
--- Index برای جستجوی سریع لایک‌های یک کامنت
-CREATE INDEX "idx_comment_likes_commentid" ON "pelak"."comment_likes" USING btree (
+-- Index for quick search of likes of a comment
+CREATE INDEX "idx_commentlike_commentid" ON "pelak"."commentlike" USING btree (
   "commentid" "pg_catalog"."int4_ops" ASC NULLS LAST
 );
 
--- Composite Index برای جستجوی سریع لایک یک کاربر برای یک کامنت خاص
-CREATE INDEX "idx_comment_likes_user_comment" ON "pelak"."comment_likes" USING btree (
+-- Composite Index for quick search of a user's like for a specific comment
+CREATE INDEX "idx_commentlike_user_comment" ON "pelak"."commentlike" USING btree (
   "userid" "pg_catalog"."int4_ops" ASC NULLS LAST,
   "commentid" "pg_catalog"."int4_ops" ASC NULLS LAST
 );
 
+-- ============================================================================
+-- ✅ All comments tables have been created!
+-- ============================================================================

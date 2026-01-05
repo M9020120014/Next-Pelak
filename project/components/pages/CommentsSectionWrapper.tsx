@@ -7,7 +7,7 @@ import { decodeTokenPayload } from '@/core/lib/token/jwt-client'
 /* --- Components ------------------------------------------------------------------------------- */
 import CommentsSection from './CommentsSection'
 /* --- Types ------------------------------------------------------------------------------------ */
-import { LANGUAGE_TYPE } from '@/core/config/site'
+import { LANGUAGE_TYPE } from '@/project/config/site'
 
 type CommentsSectionWrapperProps = {
   pageId: number
@@ -28,7 +28,7 @@ export default function CommentsSectionWrapper({ pageId, lang, iDevice }: Commen
     const userInfo = token ? decodeTokenPayload(token) : null
     
     if (userInfo) {
-      setUserId(userInfo.user_id ?? null)
+      setUserId(userInfo.userid ?? null)
       setUserName(
         userInfo.firstname && userInfo.lastname 
           ? `${userInfo.firstname} ${userInfo.lastname}`

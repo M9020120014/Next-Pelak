@@ -2,7 +2,7 @@
 /* Automatically loads project-specific hooks from configured paths */
 
 /* --- Config ----------------------------------------------------------------------------------- */
-import { getCoreConfig } from '@/core/config/core-config';
+import { getCoreConfig } from '@/core/config/config';
 import { mergeHookPaths } from '@/core/config/hooks';
 import { IS_DEVELOPMENT } from '@/core/config/env';
 /* --- Lib -------------------------------------------------------------------------------------- */

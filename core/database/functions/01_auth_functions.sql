@@ -1,129 +1,154 @@
 -- ============================================================================
--- ماژول: توابع احراز هویت و مدیریت کاربران
--- توضیحات: توابع مربوط به ثبت‌نام، ورود، مدیریت توکن‌ها و امنیت
+-- Module: Authentication and User Management Functions
+-- Description: Functions related to registration, login, token management and security
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- تابع: auth_register_user
--- توضیحات: ثبت کاربر جدید یا به‌روزرسانی OTP secret برای کاربر موجود
+-- Function: pelak_auth_register
+-- Description: Register a new user or update OTP secret for existing user
 -- 
--- پارامترها:
---   p_mobile: شماره موبایل کاربر
---   p_otp_secret: کلید مخفی OTP برای تایید
+-- Parameters:
+--   p_mobile: User mobile number
+--   p_secret: OTP secret key for verification
 -- 
--- منطق کاری:
---   1. بررسی وجود کاربر با شماره موبایل داده شده
---   2. اگر کاربر وجود دارد: به‌روزرسانی otp_secret و بازگشت پیام
---   3. اگر کاربر وجود ندارد: ایجاد کاربر جدید با userpassword='hasNoPassword'
+-- Logic:
+--   1. Check if user exists with the given mobile number
+--   2. If user exists: Update otp_secret and return message
+--   3. If user does not exist: Create new user with userpassword='hasNoPassword'
 -- 
--- مقادیر بازگشتی:
---   موفق (کاربر جدید): {success: true, title: "User Created", message: "...", user_id: ...}
---   موفق (کاربر موجود): {success: true, title: "User Exists", message: "..."}
---   خطا: {success: false, title: "Registration Failed", message: "..."}
+-- Returns:
+--   Success (new user): {success: true, title: "User Created", message: "...", userid: ...}
+--   Success (existing user): {success: true, title: "User Exists", message: "..."}
+--   Error: {success: false, title: "Registration Failed", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT auth_register_user('09123456789', 'abc123xyz');
+-- Usage Example:
+--   SELECT pelak_auth_register('09123456789', 'abc123xyz');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."auth_register_user"("p_mobile" varchar, "p_otp_secret" varchar)
+CREATE OR REPLACE FUNCTION "public"."pelak_auth_register"("p_mobile" varchar, "p_secret" varchar)
   RETURNS "pg_catalog"."json" AS $BODY$
 DECLARE
-  v_user_id INTEGER;
+  v_userid INTEGER;
+  v_error_message TEXT;
 BEGIN
-  -- چک وجود کاربر با این موبایل
-  PERFORM id FROM pelak.users WHERE mobile = p_mobile;
+  -- Check if user exists with this mobile number
+  PERFORM userid FROM pelak.user WHERE mobile = p_mobile;
 
   IF FOUND THEN
-    -- به‌روزرسانی OTP secret برای کاربر موجود
-    UPDATE pelak.users
-    SET otp_secret = p_otp_secret
+    -- Update OTP secret for existing user
+    UPDATE pelak.user
+    SET otpsecret = p_secret
     WHERE mobile = p_mobile;
     
     RETURN json_build_object(
       'success', true,
       'title', 'User Exists',
-      'message', 'کاربر قبلاً ثبت شده است.'
+      'message', 'User already registered.'
     );
   END IF;
 
-  -- ساخت کاربر جدید (فقط با موبایل، بدون پسورد در این مرحله)
-  INSERT INTO pelak.users (
-    mobile, register_date, userpassword, otp_secret
-  ) VALUES (
-    p_mobile, NOW(), 'hasNoPassword', p_otp_secret
-  ) RETURNING id INTO v_user_id;
+  -- Create new user (only with mobile, no password at this stage)
+  BEGIN
+    INSERT INTO pelak.user (
+      mobile, register, userpassword, otpsecret
+    ) VALUES (
+      p_mobile, NOW(), 'hasNoPassword', p_secret
+    ) RETURNING userid INTO v_userid;
 
-  RETURN json_build_object(
-    'success', true,
-    'title', 'User Created',
-    'message', 'کاربر با موفقیت ساخته شد.',
-    'user_id', v_user_id
-  );
+    -- Create record in useradditionalinfo with new userid
+    -- Only set userid (exactly the same userid from pelak.user)
+    -- Other fields use DEFAULT values or are NULL to be filled later
+    -- Use ON CONFLICT to ensure no error if record exists
+    BEGIN
+      INSERT INTO project.useradditionalinfo (
+        userid
+      ) VALUES (
+        v_userid
+      )
+      ON CONFLICT (userid) DO NOTHING;
+    EXCEPTION WHEN OTHERS THEN
+      -- If error occurs creating additional_info record, log it but user is created
+      -- This error should not cause the entire operation to fail
+      v_error_message := SQLERRM;
+      -- You can log here or save error message
+    END;
 
-EXCEPTION WHEN OTHERS THEN
-  RETURN json_build_object(
-    'success', false,
-    'title', 'Registration Failed',
-    'message', 'خطا در ثبت کاربر. لطفاً دوباره تلاش کنید.'
-  );
+    RETURN json_build_object(
+      'success', true,
+      'title', 'User Created',
+      'message', 'User created successfully.',
+      'userid', v_userid
+    );
+
+  EXCEPTION WHEN OTHERS THEN
+    -- Error creating user - this is a serious error
+    v_error_message := SQLERRM;
+    RETURN json_build_object(
+      'success', false,
+      'title', 'Registration Failed',
+      'message', 'Error registering user: ' || v_error_message,
+      'error_code', SQLSTATE
+    );
+  END;
+
 END;
 $BODY$
   LANGUAGE plpgsql VOLATILE SECURITY DEFINER
   COST 100;
 
 -- ----------------------------------------------------------------------------
--- تابع: auth_set_password
--- توضیحات: تنظیم رمز عبور برای کاربری که OTP را تایید کرده است
+-- Function: pelak_auth_password
+-- Description: Set password for user who has verified OTP
 -- 
--- پارامترها:
---   p_mobile: شماره موبایل کاربر
---   p_new_password: رمز عبور جدید (plain text)
---   p_otp_secret: کلید OTP برای تایید
+-- Parameters:
+--   p_mobile: User mobile number
+--   p_password: New password (plain text)
+--   p_secret: OTP key for verification
 -- 
--- منطق کاری:
---   1. بررسی وجود کاربر با mobile و otp_secret
---   2. Hash کردن رمز عبور با bcrypt
---   3. به‌روزرسانی userpassword و null کردن otp_secret
+-- Logic:
+--   1. Check if user exists with mobile and otp_secret
+--   2. Hash password with bcrypt
+--   3. Update userpassword and nullify otp_secret
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Password Updated", message: "..."}
---   خطا: {success: false, title: "User Not Found" | "Password Update Failed", message: "..."}
+-- Returns:
+--   Success: {success: true, title: "Password Updated", message: "..."}
+--   Error: {success: false, title: "User Not Found" | "Password Update Failed", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT auth_set_password('09123456789', 'MySecurePassword123', 'abc123xyz');
+-- Usage Example:
+--   SELECT pelak_auth_password('09123456789', 'MySecurePassword123', 'abc123xyz');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."auth_set_password"("p_mobile" varchar, "p_new_password" varchar, "p_otp_secret" varchar)
+CREATE OR REPLACE FUNCTION "public"."pelak_auth_password"("p_mobile" varchar, "p_password" varchar, "p_secret" varchar)
   RETURNS "pg_catalog"."json" AS $BODY$
 DECLARE
   v_hashed_password TEXT;
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pelak.users WHERE mobile = p_mobile AND otp_secret = p_otp_secret) THEN
+  IF NOT EXISTS (SELECT 1 FROM pelak.user WHERE mobile = p_mobile AND otpsecret = p_secret) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'کاربری با این شماره موبایل یافت نشد.'
+      'message', 'User with this mobile number not found.'
     );
   END IF;
 
-  -- Hash کردن رمز عبور با bcrypt
-  v_hashed_password := crypt(p_new_password, gen_salt('bf'));
+  -- Hash password with bcrypt
+  v_hashed_password := crypt(p_password, gen_salt('bf'));
 
-  UPDATE pelak.users
+  UPDATE pelak.user
   SET userpassword = v_hashed_password,
-      otp_secret = null,
-      password_changed_at = NOW()
+      otpsecret = null,
+      passwordchanged = NOW()
   WHERE mobile = p_mobile;
 
   RETURN json_build_object(
     'success', true,
     'title', 'Password Updated',
-    'message', 'رمز عبور با موفقیت تغییر کرد.'
+    'message', 'Password changed successfully.'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Password Update Failed',
-    'message', 'خطا در تغییر رمز عبور.'
+    'message', 'Error changing password.'
   );
 END;
 $BODY$
@@ -131,29 +156,29 @@ $BODY$
   COST 100;
 
 -- ----------------------------------------------------------------------------
--- تابع: auth_login
--- توضیحات: ورود کاربر به سیستم و ایجاد refresh token جدید
--- در صورت وجود توکن قدیمی برای همان دستگاه، آن را به تاریخچه منتقل می‌کند
+-- Function: pelak_auth_login
+-- Description: User login to system and create new refresh token
+-- If old token exists for same device, moves it to history
 -- 
--- پارامترها:
---   p_mobile: شماره موبایل کاربر
---   p_password: رمز عبور (plain text)
---   p_idevice: شناسه یکتای دستگاه
+-- Parameters:
+--   p_mobile: User mobile number
+--   p_password: Password (plain text)
+--   p_idevice: Unique device identifier
 -- 
--- منطق کاری:
---   1. بررسی قفل بودن حساب (locked_until > NOW())
---   2. بررسی اعتبارات (mobile, password, is_active)
---   3. در صورت ورود ناموفق: افزایش failed_attempt و قفل بعد از 5 تلاش
---   4. در صورت ورود موفق: انتقال توکن قدیمی به تاریخچه و ایجاد توکن جدید
+-- Logic:
+--   1. Check if account is locked (locked_until > NOW())
+--   2. Verify credentials (mobile, password, is_active)
+--   3. On failed login: Increment failed_attempt and lock after 5 attempts
+--   4. On successful login: Move old token to history and create new token
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Login Successful", user_id, mobile, firstname, lastname, refresh_token}
---   خطا: {success: false, title: "Account Locked" | "Login Failed" | "Login Error", message: "..."}
+-- Returns:
+--   Success: {success: true, title: "Login Successful", userid, mobile, firstname, lastname, refreshtoken}
+--   Error: {success: false, title: "Account Locked" | "Login Failed" | "Login Error", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT auth_login('09123456789', 'MyPassword123', 'device-fingerprint-123');
+-- Usage Example:
+--   SELECT pelak_auth_login('09123456789', 'MyPassword123', 'device-fingerprint-123');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."auth_login"(
+CREATE OR REPLACE FUNCTION "public"."pelak_auth_login"(
   "p_mobile" varchar,
   "p_password" varchar,
   "p_idevice" text
@@ -165,153 +190,154 @@ SECURITY DEFINER
 COST 100
 AS $BODY$
 DECLARE
-  v_user pelak.users%ROWTYPE;
-  v_refresh_token TEXT;
+  v_user pelak.user%ROWTYPE;
+  v_refreshtoken TEXT;
   v_token_hash TEXT;
-  v_old_token pelak.refresh_tokens%ROWTYPE;
+  v_old_token pelak.refreshtoken%ROWTYPE;
 BEGIN
-  -- چک قفل بودن حساب
+  -- Check if account is locked
   IF EXISTS (
-    SELECT 1 FROM pelak.users 
+    SELECT 1 FROM pelak.user 
     WHERE mobile = p_mobile 
-    AND locked_until IS NOT NULL 
-    AND locked_until > NOW()
+    AND lockeduntil IS NOT NULL 
+    AND lockeduntil > NOW()
   ) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Account Locked',
-      'message', 'حساب شما موقتاً قفل شده است. بعداً تلاش کنید.'
+      'message', 'Your account is temporarily locked. Please try again later.'
     );
   END IF;
 
-  -- بررسی اعتبارات
+  -- Verify credentials
   SELECT * INTO v_user
-  FROM pelak.users
+  FROM pelak.user
   WHERE mobile = p_mobile
-    AND is_active = true
+    AND active = true
     AND userpassword != 'hasNoPassword'
     AND userpassword = crypt(p_password, userpassword);
 
   IF NOT FOUND THEN
-    -- افزایش تلاش ناموفق (فقط اگر کاربر وجود داشته باشد)
-    UPDATE pelak.users
-    SET failed_attempt = failed_attempt + 1
+    -- Increment failed attempts (only if user exists)
+    UPDATE pelak.user
+    SET failedattempt = failedattempt + 1
     WHERE mobile = p_mobile;
 
-    -- قفل بعد از ۵ تلاش ناموفق (15 دقیقه)
-    UPDATE pelak.users
-    SET locked_until = NOW() + INTERVAL '15 minutes'
+    -- Lock after 5 failed attempts (15 minutes)
+    UPDATE pelak.user
+    SET lockeduntil = NOW() + INTERVAL '15 minutes'
     WHERE mobile = p_mobile
-      AND failed_attempt + 1 >= 5;
+      AND failedattempt + 1 >= 5;
 
     RETURN json_build_object(
       'success', false,
       'title', 'Login Failed',
-      'message', 'شماره موبایل یا رمز عبور اشتباه است.'
+      'message', 'Mobile number or password is incorrect.'
     );
   END IF;
 
-  -- موفقیت: ریست تلاش‌ها
-  UPDATE pelak.users
-  SET failed_attempt = 0, 
-      last_login = NOW(),
-      locked_until = NULL  -- باز کردن قفل احتمالی
-  WHERE id = v_user.id;
+  -- Success: Reset attempts
+  UPDATE pelak.user
+  SET failedattempt = 0, 
+      lastlogin = NOW(),
+      lockeduntil = NULL  -- Unlock if locked
+  WHERE userid = v_user.userid;
 
-  -- بررسی وجود توکن قدیمی برای همین user_id و idevice
+  -- Check for old token for same userid and idevice
   SELECT * INTO v_old_token
-  FROM pelak.refresh_tokens
-  WHERE user_id = v_user.id
+  FROM pelak.refreshtoken
+  WHERE userid = v_user.userid
     AND idevice = p_idevice
-    AND expires_at > NOW()
-    AND revoked_at IS NULL
+    AND expiresat > NOW()
+    AND revokedat IS NULL
   LIMIT 1;
 
-  -- اگر توکن قدیمی وجود دارد، آن را به تاریخچه منتقل کن
+  -- If old token exists, move it to history
   IF FOUND THEN
-    INSERT INTO pelak.refresh_tokens_history (
-      id,
-      token_hash,
-      user_id,
+    INSERT INTO pelak.refreshtokenhistory (
+      refreshtokenhistoryid,
+      tokenhash,
+      userid,
       idevice,
-      expires_at,
-      created_at,
-      revoked_at,
-      last_used_at,
-      last_used_ip,
-      archived_at
+      expiresat,
+      created,
+      revokedat,
+      lastusedat,
+      lastusedip,
+      archivedat
     ) VALUES (
-      v_old_token.id,
-      v_old_token.token_hash,
-      v_old_token.user_id,
+      v_old_token.refreshtokenid,
+      v_old_token.tokenhash,
+      v_old_token.userid,
       v_old_token.idevice,
-      v_old_token.expires_at,
-      v_old_token.created_at,
-      NULL, -- revoked_at (چون login جدید است)
-      v_old_token.last_used_at,
-      v_old_token.last_used_ip,
-      NOW()  -- archived_at
+      v_old_token.expiresat,
+      v_old_token.created,
+      NULL, -- revokedat (because this is a new login)
+      v_old_token.lastusedat,
+      v_old_token.lastusedip,
+      NOW()  -- archivedat
     );
 
-    -- حذف توکن قدیمی
-    DELETE FROM pelak.refresh_tokens WHERE id = v_old_token.id;
+    -- Delete old token
+    DELETE FROM pelak.refreshtoken WHERE refreshtokenid = v_old_token.refreshtokenid;
   END IF;
 
-  -- ساخت refresh token جدید
-  v_refresh_token := gen_random_uuid()::TEXT;
-  v_token_hash := encode(digest(v_refresh_token, 'sha256'), 'hex');
+  -- Create new refresh token
+  v_refreshtoken := gen_random_uuid()::TEXT;
+  v_token_hash := encode(digest(v_refreshtoken, 'sha256'), 'hex');
 
-  INSERT INTO pelak.refresh_tokens (token_hash, user_id, idevice, expires_at)
-  VALUES (v_token_hash, v_user.id, p_idevice, NOW() + INTERVAL '7 days');
+  INSERT INTO pelak.refreshtoken (tokenhash, userid, idevice, expiresat)
+  VALUES (v_token_hash, v_user.userid, p_idevice, NOW() + INTERVAL '7 days');
 
   RETURN json_build_object(
     'success', true,
     'title', 'Login Successful',
-    'message', 'ورود با موفقیت انجام شد.',
-    'user_id', v_user.id,
+    'message', 'Login successful.',
+    'userid', v_user.userid,
     'mobile', v_user.mobile,
     'firstname', v_user.firstname,
     'lastname', v_user.lastname,
-    'profile_image_id', v_user.profile_image_id,
-    'profile_image_url', v_user.profile_image_url,
-    'role_id', v_user.role_id,
-    'refresh_token', v_refresh_token
+    'email', v_user.email,
+    'profileimage', v_user.profileimageid,
+    'profileurl', v_user.profileimageurl,
+    'roleid', v_user.roleid,
+    'refreshtoken', v_refreshtoken
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Login Error',
-    'message', 'خطای سرور در ورود.'
+    'message', 'Server error during login.'
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: auth_refresh_token
--- توضیحات: تمدید refresh token و ایجاد توکن جدید (Token Rotation)
--- با ردیابی IP و انتقال توکن قدیمی به تاریخچه
+-- Function: pelak_auth_refreshtoken
+-- Description: Refresh token renewal and create new token (Token Rotation)
+-- With IP tracking and moving old token to history
 -- 
--- پارامترها:
---   p_refresh_token: Refresh token فعلی (UUID)
---   p_idevice: شناسه یکتای دستگاه
---   p_ip: IP آدرس کاربر (اختیاری، می‌تواند 'unknown' باشد)
+-- Parameters:
+--   p_refreshtoken: Current refresh token (UUID)
+--   p_idevice: Unique device identifier
+--   p_ip: User IP address (optional, can be 'unknown')
 -- 
--- منطق کاری:
---   1. محاسبه hash توکن
---   2. بررسی اعتبار توکن
---   3. در صورت نامعتبر: حذف تمام توکن‌های کاربر (theft detection)
---   4. در صورت معتبر: انتقال توکن قدیمی به تاریخچه و ایجاد توکن جدید
+-- Logic:
+--   1. Calculate token hash
+--   2. Verify token validity
+--   3. If invalid: Delete all user tokens (theft detection)
+--   4. If valid: Move old token to history and create new token
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Token Refreshed", refresh_token, user_id, mobile, firstname, lastname, valid: true}
---   خطا: {success: false, title: "Invalid Token", message: "...", valid: false}
+-- Returns:
+--   Success: {success: true, title: "Token Refreshed", refreshtoken, userid, mobile, firstname, lastname, valid: true}
+--   Error: {success: false, title: "Invalid Token", message: "...", valid: false}
 -- 
--- مثال استفاده:
---   SELECT auth_refresh_token('550e8400-e29b-41d4-a716-446655440000', 'device-1', '192.168.1.100');
+-- Usage Example:
+--   SELECT pelak_auth_refreshtoken('550e8400-e29b-41d4-a716-446655440000', 'device-1', '192.168.1.100');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."auth_refresh_token"(
-  "p_refresh_token" text,
+CREATE OR REPLACE FUNCTION "public"."pelak_auth_refreshtoken"(
+  "p_refreshtoken" text,
   "p_idevice" text,
   "p_ip" text DEFAULT NULL
 )
@@ -323,40 +349,40 @@ COST 100
 AS $BODY$
 DECLARE
   v_token_hash TEXT;
-  v_record pelak.refresh_tokens%ROWTYPE;
+  v_record pelak.refreshtoken%ROWTYPE;
   v_new_token TEXT;
   v_new_hash TEXT;
-  v_user_record pelak.users%ROWTYPE;
+  v_user_record pelak.user%ROWTYPE;
   v_ip_inet inet;
 BEGIN
-  -- محاسبه hash توکن
-  v_token_hash := encode(digest(p_refresh_token, 'sha256'), 'hex');
+  -- Calculate token hash
+  v_token_hash := encode(digest(p_refreshtoken, 'sha256'), 'hex');
 
-  -- پیدا کردن توکن فعال
+  -- Find active token
   SELECT * INTO v_record
-  FROM pelak.refresh_tokens
-  WHERE token_hash = v_token_hash
+  FROM pelak.refreshtoken
+  WHERE tokenhash = v_token_hash
     AND idevice = p_idevice
-    AND expires_at > NOW()
-    AND revoked_at IS NULL;
+    AND expiresat > NOW()
+    AND revokedat IS NULL;
 
   IF NOT FOUND THEN
-    -- تشخیص theft: حذف همه توکن‌های کاربر
-    DELETE FROM pelak.refresh_tokens
-    WHERE user_id = (
-      SELECT user_id FROM pelak.refresh_tokens 
-      WHERE token_hash = v_token_hash LIMIT 1
+    -- Detect theft: Delete all user tokens
+    DELETE FROM pelak.refreshtoken
+    WHERE userid = (
+      SELECT userid FROM pelak.refreshtoken 
+      WHERE tokenhash = v_token_hash LIMIT 1
     );
 
     RETURN json_build_object(
       'success', false,
       'title', 'Invalid Token',
-      'message', 'توکن نامعتبر یا منقضی شده است. لطفاً دوباره وارد شوید.',
+      'message', 'Token is invalid or expired. Please login again.',
       'valid', false
     );
   END IF;
 
-  -- تبدیل IP به inet (اگر معتبر باشد)
+  -- Convert IP to inet (if valid)
   IF p_ip IS NOT NULL AND p_ip != 'unknown' THEN
     BEGIN
       v_ip_inet := p_ip::inet;
@@ -367,99 +393,100 @@ BEGIN
     v_ip_inet := NULL;
   END IF;
 
-  -- انتقال توکن قدیمی به تاریخچه (rotation)
-  INSERT INTO pelak.refresh_tokens_history (
-    id,
-    token_hash,
-    user_id,
+  -- Move old token to history (rotation)
+  INSERT INTO pelak.refreshtokenhistory (
+    refreshtokenhistoryid,
+    tokenhash,
+    userid,
     idevice,
-    expires_at,
-    created_at,
-    revoked_at,
-    last_used_at,
-    last_used_ip,
-    archived_at
+    expiresat,
+    created,
+    revokedat,
+    lastusedat,
+    lastusedip,
+    archivedat
   ) VALUES (
-    v_record.id,
-    v_record.token_hash,
-    v_record.user_id,
+    v_record.refreshtokenid,
+    v_record.tokenhash,
+    v_record.userid,
     v_record.idevice,
-    v_record.expires_at,
-    v_record.created_at,
-    NULL, -- revoked_at (چون rotation است نه revoke)
-    NOW(), -- last_used_at
-    v_ip_inet, -- last_used_ip
-    NOW()  -- archived_at
+    v_record.expiresat,
+    v_record.created,
+    NULL, -- revokedat (because this is rotation, not revoke)
+    NOW(), -- lastusedat
+    v_ip_inet, -- lastusedip
+    NOW()  -- archivedat
   );
 
-  -- حذف توکن قدیمی از جدول فعال
-  DELETE FROM pelak.refresh_tokens WHERE id = v_record.id;
+  -- Delete old token from active table
+  DELETE FROM pelak.refreshtoken WHERE refreshtokenid = v_record.refreshtokenid;
 
-  -- ساخت توکن جدید
+  -- Create new token
   v_new_token := gen_random_uuid()::TEXT;
   v_new_hash := encode(digest(v_new_token, 'sha256'), 'hex');
 
-  -- درج توکن جدید
-  INSERT INTO pelak.refresh_tokens (
-    token_hash, 
-    user_id, 
+  -- Insert new token
+  INSERT INTO pelak.refreshtoken (
+    tokenhash, 
+    userid, 
     idevice, 
-    expires_at,
-    last_used_at,
-    last_used_ip
+    expiresat,
+    lastusedat,
+    lastusedip
   ) VALUES (
     v_new_hash, 
-    v_record.user_id, 
+    v_record.userid, 
     p_idevice, 
     NOW() + INTERVAL '7 days',
     NOW(),
     v_ip_inet
   );
 
-  -- دریافت اطلاعات کاربر
+  -- Get user information
   SELECT * INTO v_user_record
-  FROM pelak.users
-  WHERE id = v_record.user_id;
+  FROM pelak.user
+  WHERE userid = v_record.userid;
 
   RETURN json_build_object(
     'success', true,
     'title', 'Token Refreshed',
-    'message', 'توکن با موفقیت تمدید شد.',
-    'refresh_token', v_new_token,
-    'user_id', v_record.user_id,
+    'message', 'Token refreshed successfully.',
+    'refreshtoken', v_new_token,
+    'userid', v_record.userid,
     'mobile', v_user_record.mobile,
     'firstname', v_user_record.firstname,
     'lastname', v_user_record.lastname,
-    'profile_image_id', v_user_record.profile_image_id,
-    'profile_image_url', v_user_record.profile_image_url,
-    'role_id', v_user_record.role_id,
+    'email', v_user_record.email,
+    'profileimage', v_user_record.profileimageid,
+    'profileurl', v_user_record.profileimageurl,
+    'roleid', v_user_record.roleid,
     'valid', true
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: auth_revoke_token
--- توضیحات: انتقال refresh token از جدول فعال به تاریخچه هنگام logout
+-- Function: pelak_auth_revoketoken
+-- Description: Move refresh token from active table to history on logout
 -- 
--- پارامترها:
---   p_user_id: شناسه کاربر
---   p_idevice: شناسه یکتای دستگاه
+-- Parameters:
+--   p_userid: User identifier
+--   p_idevice: Unique device identifier
 -- 
--- منطق کاری:
---   1. پیدا کردن refresh token فعال برای user_id و idevice
---   2. انتقال توکن به تاریخچه با revoked_at = NOW()
---   3. حذف توکن از جدول فعال
+-- Logic:
+--   1. Find active refresh token for userid and idevice
+--   2. Move token to history with revoked_at = NOW()
+--   3. Delete token from active table
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Token Revoked", message: "..."}
---   خطا: {success: false, title: "Token Not Found" | "Revoke Failed", message: "..."}
+-- Returns:
+--   Success: {success: true, title: "Token Revoked", message: "..."}
+--   Error: {success: false, title: "Token Not Found" | "Revoke Failed", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT auth_revoke_token(1, 'device-fingerprint-123');
+-- Usage Example:
+--   SELECT pelak_auth_revoketoken(1, 'device-fingerprint-123');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."auth_revoke_token"(
-  "p_user_id" int4,
+CREATE OR REPLACE FUNCTION "public"."pelak_auth_revoketoken"(
+  "p_userid" int4,
   "p_idevice" text
 )
 RETURNS "pg_catalog"."json"
@@ -469,119 +496,119 @@ SECURITY DEFINER
 COST 100
 AS $BODY$
 DECLARE
-  v_token_record pelak.refresh_tokens%ROWTYPE;
+  v_token_record pelak.refreshtoken%ROWTYPE;
 BEGIN
-  -- پیدا کردن refresh token فعال برای این user_id و idevice
+  -- Find active refresh token for this userid and idevice
   SELECT * INTO v_token_record
-  FROM pelak.refresh_tokens
-  WHERE user_id = p_user_id
+  FROM pelak.refreshtoken
+  WHERE userid = p_userid
     AND idevice = p_idevice
-    AND expires_at > NOW()
-    AND revoked_at IS NULL;
+    AND expiresat > NOW()
+    AND revokedat IS NULL;
 
   IF NOT FOUND THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Token Not Found',
-      'message', 'توکن فعالی برای این دستگاه یافت نشد.'
+      'message', 'No active token found for this device.'
     );
   END IF;
 
-  -- انتقال توکن به تاریخچه
-  INSERT INTO pelak.refresh_tokens_history (
-    id,
-    token_hash,
-    user_id,
+  -- Move token to history
+  INSERT INTO pelak.refreshtokenhistory (
+    refreshtokenhistoryid,
+    tokenhash,
+    userid,
     idevice,
-    expires_at,
-    created_at,
-    revoked_at,
-    last_used_at,
-    last_used_ip,
-    archived_at
+    expiresat,
+    created,
+    revokedat,
+    lastusedat,
+    lastusedip,
+    archivedat
   ) VALUES (
-    v_token_record.id,
-    v_token_record.token_hash,
-    v_token_record.user_id,
+    v_token_record.refreshtokenid,
+    v_token_record.tokenhash,
+    v_token_record.userid,
     v_token_record.idevice,
-    v_token_record.expires_at,
-    v_token_record.created_at,
-    NOW(), -- revoked_at
-    v_token_record.last_used_at,
-    v_token_record.last_used_ip,
-    NOW()  -- archived_at
+    v_token_record.expiresat,
+    v_token_record.created,
+    NOW(), -- revokedat
+    v_token_record.lastusedat,
+    v_token_record.lastusedip,
+    NOW()  -- archivedat
   );
 
-  -- حذف توکن از جدول فعال
-  DELETE FROM pelak.refresh_tokens WHERE id = v_token_record.id;
+  -- Delete token from active table
+  DELETE FROM pelak.refreshtoken WHERE refreshtokenid = v_token_record.refreshtokenid;
 
   RETURN json_build_object(
     'success', true,
     'title', 'Token Revoked',
-    'message', 'توکن با موفقیت لغو شد.'
+    'message', 'Token revoked successfully.'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Revoke Failed',
-    'message', 'خطا در لغو توکن. لطفاً دوباره تلاش کنید.'
+    'message', 'Error revoking token. Please try again.'
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: auth_revoke_all_tokens
--- توضیحات: تمام توکن‌های فعال یک کاربر را لغو می‌کند (Logout از همه دستگاه‌ها)
+-- Function: pelak_auth_revokeall
+-- Description: Revoke all active tokens for a user (Logout from all devices)
 -- 
--- پارامترها:
---   p_mobile: شماره موبایل کاربر
+-- Parameters:
+--   p_mobile: User mobile number
 -- 
--- منطق کاری:
---   1. پیدا کردن user_id بر اساس شماره موبایل
---   2. حذف تمام refresh tokenهای این کاربر
+-- Logic:
+--   1. Find userid based on mobile number
+--   2. Delete all refresh tokens for this user
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Logged Out Everywhere", message: "..."}
---   خطا: {success: false, title: "User Not Found" | "Revoke Failed", message: "..."}
+-- Returns:
+--   Success: {success: true, title: "Logged Out Everywhere", message: "..."}
+--   Error: {success: false, title: "User Not Found" | "Revoke Failed", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT auth_revoke_all_tokens('09123456789');
+-- Usage Example:
+--   SELECT pelak_auth_revokeall('09123456789');
 -- 
--- نکته: این تابع توکن‌ها را به تاریخچه منتقل نمی‌کند، فقط حذف می‌کند
+-- Note: This function does not move tokens to history, only deletes them
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."auth_revoke_all_tokens"("p_mobile" varchar)
+CREATE OR REPLACE FUNCTION "public"."pelak_auth_revokeall"("p_mobile" varchar)
   RETURNS "pg_catalog"."json" AS $BODY$
 DECLARE
-  v_user_id INTEGER;
+  v_userid INTEGER;
 BEGIN
-  -- پیدا کردن user_id بر اساس موبایل
-  SELECT id INTO v_user_id
-  FROM pelak.users
+  -- Find userid based on mobile
+  SELECT userid INTO v_userid
+  FROM pelak.user
   WHERE mobile = p_mobile;
 
   IF NOT FOUND THEN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'کاربری با این شماره موبایل یافت نشد.'
+      'message', 'User with this mobile number not found.'
     );
   END IF;
 
-  -- حذف تمام refresh tokenهای این کاربر
-  DELETE FROM pelak.refresh_tokens WHERE user_id = v_user_id;
+  -- Delete all refresh tokens for this user
+  DELETE FROM pelak.refreshtoken WHERE userid = v_userid;
 
   RETURN json_build_object(
     'success', true,
     'title', 'Logged Out Everywhere',
-    'message', 'از تمام دستگاه‌ها با موفقیت خارج شدید.'
+    'message', 'Logged out from all devices successfully.'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Revoke Failed',
-    'message', 'خطا در خروج از دستگاه‌ها. لطفاً دوباره تلاش کنید.'
+    'message', 'Error logging out from devices. Please try again.'
   );
 END;
 $BODY$
@@ -589,37 +616,37 @@ $BODY$
   COST 100;
 
 -- ----------------------------------------------------------------------------
--- تابع: auth_check_idevice_refresh_token
--- توضیحات: بررسی وجود refresh token معتبر برای idevice
+-- Function: pelak_auth_checkrefreshtoken
+-- Description: Check if a valid refresh token exists for idevice
 -- 
--- پارامترها:
---   p_idevice: شناسه یکتای دستگاه
+-- Parameters:
+--   p_idevice: Unique device identifier
 -- 
--- منطق کاری:
---   1. بررسی وجود refresh token فعال برای این idevice
---   2. بازگشت وضعیت معتبر بودن
+-- Logic:
+--   1. Check if active refresh token exists for this idevice
+--   2. Return validation status
 -- 
--- مقادیر بازگشتی:
---   معتبر: {success: true, valid: true, title: "Token Valid", message: "..."}
---   نامعتبر: {success: false, valid: false, title: "Token Not Found" | "Error", message: "..."}
+-- Returns:
+--   Valid: {success: true, valid: true, title: "Token Valid", message: "..."}
+--   Invalid: {success: false, valid: false, title: "Token Not Found" | "Error", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT auth_check_idevice_refresh_token('device-fingerprint-123');
+-- Usage Example:
+--   SELECT pelak_auth_checkrefreshtoken('device-fingerprint-123');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."auth_check_idevice_refresh_token"("p_idevice" text)
+CREATE OR REPLACE FUNCTION "public"."pelak_auth_checkrefreshtoken"("p_idevice" text)
   RETURNS "pg_catalog"."json" AS $BODY$
 DECLARE
   v_token_exists BOOLEAN;
 BEGIN
-  -- بررسی وجود refresh token فعال برای این idevice
-  -- توجه: expires_at و NOW() هر دو timestamptz هستند، بنابراین مقایسه درست کار می‌کند
-  -- اگر expires_at <= NOW() باشد، توکن منقضی شده و معتبر نیست
+  -- Check if active refresh token exists for this idevice
+  -- Note: expiresat and NOW() are both timestamptz, so comparison works correctly
+  -- If expiresat <= NOW(), token is expired and invalid
   SELECT EXISTS(
     SELECT 1 
-    FROM pelak.refresh_tokens
+    FROM pelak.refreshtoken
     WHERE idevice = p_idevice
-      AND expires_at > NOW()  -- بررسی انقضای توکن: باید در آینده باشد
-      AND revoked_at IS NULL   -- بررسی لغو نشدن توکن
+      AND expiresat > NOW()  -- Check token expiration: must be in future
+      AND revokedat IS NULL   -- Check token not revoked
   ) INTO v_token_exists;
 
   IF v_token_exists THEN
@@ -627,14 +654,14 @@ BEGIN
       'success', true,
       'valid', true,
       'title', 'Token Valid',
-      'message', 'توکن معتبر است.'
+      'message', 'Token is valid.'
     );
   ELSE
     RETURN json_build_object(
       'success', false,
       'valid', false,
       'title', 'Token Not Found',
-      'message', 'توکن معتبری برای این دستگاه یافت نشد.'
+      'message', 'No valid token found for this device.'
     );
   END IF;
 
@@ -643,7 +670,7 @@ EXCEPTION WHEN OTHERS THEN
     'success', false,
     'valid', false,
     'title', 'Error',
-    'message', 'خطا در بررسی توکن.'
+    'message', 'Error checking token.'
   );
 END;
 $BODY$
@@ -651,113 +678,185 @@ $BODY$
   COST 100;
 
 -- ----------------------------------------------------------------------------
--- تابع: auth_cleanup_expired_tokens
--- توضیحات: انتقال توکن‌های منقضی شده به تاریخچه (برای اجرای دوره‌ای)
--- این تابع باید به صورت دوره‌ای اجرا شود (مثلاً هر ساعت)
+-- Function: pelak_auth_checkrefreshtoken_mobile
+-- Description: Check if a valid refresh token exists for a user by mobile number
 -- 
--- پارامترها:
---   هیچ پارامتری ندارد
+-- Parameters:
+--   p_mobile: User mobile number
 -- 
--- منطق کاری:
---   1. انتقال تمام توکن‌های منقضی شده به refresh_tokens_history
---   2. حذف توکن‌های منتقل شده از refresh_tokens
---   3. بازگشت تعداد توکن‌های منتقل شده
+-- Logic:
+--   1. Find user by mobile number
+--   2. Check if user has any active refresh tokens
+--   3. Return validation status
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Cleanup Completed", message: "...", moved_count: ...}
---   خطا: {success: false, title: "Cleanup Failed", message: "..."}
+-- Returns:
+--   Valid: {success: true, valid: true, title: "Token Valid", message: "..."}
+--   Invalid: {success: false, valid: false, title: "User Not Found" | "Token Not Found" | "Error", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT auth_cleanup_expired_tokens();
--- 
--- تنظیم Cron Job:
---   با pg_cron: SELECT cron.schedule('cleanup-expired-tokens', '0 * * * *', $$SELECT auth_cleanup_expired_tokens();$$);
---   یا با سیستم cron خارجی: 0 * * * * psql -U htni_admin -d dbname -c "SELECT auth_cleanup_expired_tokens();"
+-- Usage Example:
+--   SELECT pelak_auth_checkrefreshtoken_mobile('09123456789');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."auth_cleanup_expired_tokens"()
-RETURNS "pg_catalog"."json"
-LANGUAGE plpgsql
-VOLATILE
-SECURITY DEFINER
-COST 100
-AS $BODY$
+CREATE OR REPLACE FUNCTION "public"."pelak_auth_checkrefreshtoken_mobile"("p_mobile" varchar)
+  RETURNS "pg_catalog"."json" AS $BODY$
 DECLARE
-  v_moved_count INTEGER := 0;
+  v_userid INTEGER;
+  v_token_exists BOOLEAN;
 BEGIN
-  -- انتقال تمام توکن‌های منقضی شده به تاریخچه
-  WITH moved_tokens AS (
-    INSERT INTO pelak.refresh_tokens_history (
-      id,
-      token_hash,
-      user_id,
-      idevice,
-      expires_at,
-      created_at,
-      revoked_at,
-      last_used_at,
-      last_used_ip,
-      archived_at
-    )
-    SELECT 
-      id,
-      token_hash,
-      user_id,
-      idevice,
-      expires_at,
-      created_at,
-      revoked_at,
-      last_used_at,
-      last_used_ip,
-      NOW() -- archived_at
-    FROM pelak.refresh_tokens
-    WHERE expires_at < NOW()
-    RETURNING id
-  )
-  SELECT COUNT(*) INTO v_moved_count FROM moved_tokens;
+  -- Find user by mobile number
+  SELECT userid INTO v_userid
+  FROM pelak.user
+  WHERE mobile = p_mobile AND active = true;
 
-  -- حذف توکن‌های منتقل شده از جدول فعال
-  DELETE FROM pelak.refresh_tokens
-  WHERE expires_at < NOW();
+  IF NOT FOUND THEN
+    RETURN json_build_object(
+      'success', false,
+      'valid', false,
+      'title', 'User Not Found',
+      'message', 'User with this mobile number not found.'
+    );
+  END IF;
 
-  RETURN json_build_object(
-    'success', true,
-    'title', 'Cleanup Completed',
-    'message', format('تعداد %s توکن منقضی شده به تاریخچه منتقل شد.', v_moved_count),
-    'moved_count', v_moved_count
-  );
+  -- Check if user has any active refresh tokens
+  SELECT EXISTS(
+    SELECT 1 
+    FROM pelak.refreshtoken
+    WHERE userid = v_userid
+      AND expiresat > NOW()
+      AND revokedat IS NULL
+  ) INTO v_token_exists;
+
+  IF v_token_exists THEN
+    RETURN json_build_object(
+      'success', true,
+      'valid', true,
+      'title', 'Token Valid',
+      'message', 'Valid token found for this user.'
+    );
+  ELSE
+    RETURN json_build_object(
+      'success', false,
+      'valid', false,
+      'title', 'Token Not Found',
+      'message', 'No valid token found for this user.'
+    );
+  END IF;
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
-    'title', 'Cleanup Failed',
-    'message', 'خطا در پاکسازی توکن‌های منقضی شده.'
+    'valid', false,
+    'title', 'Error',
+    'message', 'Error checking token.'
   );
 END;
-$BODY$;
+$BODY$
+  LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+  COST 100;
 
 -- ----------------------------------------------------------------------------
--- تابع: user_update_name
--- توضیحات: ویرایش نام و نام خانوادگی کاربر
+-- Function: pelak_auth_checkrefreshtoken_device_mobile
+-- Description: Check if a valid refresh token exists for a user by device ID and mobile number
 -- 
--- پارامترها:
---   p_user_id: شناسه کاربر
---   p_firstname: نام جدید (nullable)
---   p_lastname: نام خانوادگی جدید (nullable)
+-- Parameters:
+--   p_idevice: Unique device identifier
+--   p_mobile: User mobile number
 -- 
--- منطق کاری:
---   1. بررسی وجود کاربر
---   2. به‌روزرسانی نام و نام خانوادگی
---   3. به‌روزرسانی updated_at
+-- Logic:
+--   1. Find user by mobile number
+--   2. Check if user has an active refresh token for the specified device
+--   3. Return validation status
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Name Updated", message: "..."}
---   خطا: {success: false, title: "User Not Found" | "Error", message: "..."}
+-- Returns:
+--   Valid: {success: true, valid: true, title: "Token Valid", message: "..."}
+--   Invalid: {success: false, valid: false, title: "User Not Found" | "Token Not Found" | "Error", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT user_update_name(1, 'علی', 'احمدی');
+-- Usage Example:
+--   SELECT pelak_auth_checkrefreshtoken_device_mobile('device-fingerprint-123', '09123456789');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."user_update_name"(
-  "p_user_id" int4,
+CREATE OR REPLACE FUNCTION "public"."pelak_auth_checkrefreshtoken_device_mobile"(
+  "p_idevice" text,
+  "p_mobile" varchar
+)
+  RETURNS "pg_catalog"."json" AS $BODY$
+DECLARE
+  v_userid INTEGER;
+  v_token_exists BOOLEAN;
+BEGIN
+  -- Find user by mobile number
+  SELECT userid INTO v_userid
+  FROM pelak.user
+  WHERE mobile = p_mobile AND active = true;
+
+  IF NOT FOUND THEN
+    RETURN json_build_object(
+      'success', false,
+      'valid', false,
+      'title', 'User Not Found',
+      'message', 'User with this mobile number not found.'
+    );
+  END IF;
+
+  -- Check if user has an active refresh token for the specified device
+  SELECT EXISTS(
+    SELECT 1 
+    FROM pelak.refreshtoken
+    WHERE userid = v_userid
+      AND idevice = p_idevice
+      AND expiresat > NOW()
+      AND revokedat IS NULL
+  ) INTO v_token_exists;
+
+  IF v_token_exists THEN
+    RETURN json_build_object(
+      'success', true,
+      'valid', true,
+      'title', 'Token Valid',
+      'message', 'Valid token found for this user and device.'
+    );
+  ELSE
+    RETURN json_build_object(
+      'success', false,
+      'valid', false,
+      'title', 'Token Not Found',
+      'message', 'No valid token found for this user and device.'
+    );
+  END IF;
+
+EXCEPTION WHEN OTHERS THEN
+  RETURN json_build_object(
+    'success', false,
+    'valid', false,
+    'title', 'Error',
+    'message', 'Error checking token.'
+  );
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+  COST 100;
+
+-- ----------------------------------------------------------------------------
+-- Function: pelak_user_updatename
+-- Description: Update user first name and last name
+-- 
+-- Parameters:
+--   p_userid: User identifier
+--   p_firstname: New first name (nullable)
+--   p_lastname: New last name (nullable)
+-- 
+-- Logic:
+--   1. Check if user exists
+--   2. Update first name and last name
+--   3. Update updated_at
+-- 
+-- Returns:
+--   Success: {success: true, title: "Name Updated", message: "..."}
+--   Error: {success: false, title: "User Not Found" | "Error", message: "..."}
+-- 
+-- Usage Example:
+--   SELECT pelak_user_updatename(1, 'Ali', 'Ahmadi');
+-- ----------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION "public"."pelak_user_updatename"(
+  "p_userid" int4,
   "p_firstname" varchar DEFAULT NULL,
   "p_lastname" varchar DEFAULT NULL
 )
@@ -768,66 +867,67 @@ SECURITY DEFINER
 COST 100
 AS $BODY$
 BEGIN
-  -- بررسی وجود کاربر
-  IF NOT EXISTS (SELECT 1 FROM pelak.users WHERE id = p_user_id AND is_active = true) THEN
+  -- Check if user exists
+  IF NOT EXISTS (SELECT 1 FROM pelak.user WHERE userid = p_userid AND active = true) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'کاربر یافت نشد یا غیرفعال است.'
+      'message', 'User not found or inactive.'
     );
   END IF;
 
-  -- به‌روزرسانی نام و نام خانوادگی
-  UPDATE pelak.users
+  -- Update first name and last name
+  UPDATE pelak.user
   SET firstname = COALESCE(p_firstname, firstname),
       lastname = COALESCE(p_lastname, lastname),
-      updated_at = NOW()
-  WHERE id = p_user_id;
+      updated = NOW()
+  WHERE userid = p_userid;
 
   RETURN json_build_object(
     'success', true,
     'title', 'Name Updated',
-    'message', 'نام و نام خانوادگی با موفقیت به‌روزرسانی شد.'
+    'message', 'First name and last name updated successfully.'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'خطا در به‌روزرسانی نام و نام خانوادگی.'
+    'message', 'Error updating first name and last name.'
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: user_update_profile_image
--- توضیحات: ویرایش تصویر پروفایل کاربر
--- تصویر می‌تواند از لیست تصاویر پیش‌فرض pelak انتخاب شود یا از URL خارجی باشد
--- فقط یکی از profile_image_id یا profile_image_url باید مقدار داشته باشد
+-- Function: pelak_user_updateprofile
+-- Description: Update user profile image
+-- Image can be selected from pelak default image list or from external URL
+-- Both profileimage and profileurl fields can have values simultaneously
+-- Display priority: profileurl > profileimage > default image
 -- 
--- پارامترها:
---   p_user_id: شناسه کاربر
---   p_profile_image_id: شناسه تصویر از جدول profile_images pelak (nullable)
---   p_profile_image_url: URL تصویر از سامانه خارجی (nullable)
+-- Parameters:
+--   p_userid: User identifier
+--   p_profileimage: Image identifier from pelak profile_images table (nullable)
+--   p_profileurl: Image URL from external system (nullable)
 -- 
--- منطق کاری:
---   1. بررسی وجود کاربر
---   2. اعتبارسنجی: فقط یکی از دو پارامتر باید مقدار داشته باشد
---   3. بررسی وجود تصویر در جدول profile_images در صورت استفاده از profile_image_id
---   4. به‌روزرسانی تصویر پروفایل
+-- Logic:
+--   1. Check if user exists
+--   2. Check if image exists in profile_images table if using profileimage
+--   3. Update profile image (can update both fields)
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Profile Image Updated", message: "..."}
---   خطا: {success: false, title: "User Not Found" | "Invalid Parameters" | "Profile Image Not Found" | "Error", message: "..."}
+-- Returns:
+--   Success: {success: true, title: "Profile Image Updated", message: "..."}
+--   Error: {success: false, title: "User Not Found" | "Profile Image Not Found" | "Error", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT user_update_profile_image(1, 5, NULL); -- استفاده از تصویر پیش‌فرض
---   SELECT user_update_profile_image(1, NULL, 'https://example.com/image.jpg'); -- استفاده از URL
+-- Usage Example:
+--   SELECT pelak_user_updateprofile(1, 5, NULL); -- Use default image
+--   SELECT pelak_user_updateprofile(1, NULL, 'https://example.com/image.jpg'); -- Use URL
+--   SELECT pelak_user_updateprofile(1, 5, 'https://example.com/image.jpg'); -- Use both
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."user_update_profile_image"(
-  "p_user_id" int4,
-  "p_profile_image_id" int4 DEFAULT NULL,
-  "p_profile_image_url" text DEFAULT NULL
+CREATE OR REPLACE FUNCTION "public"."pelak_user_updateprofile"(
+  "p_userid" int4,
+  "p_profileimage" int4 DEFAULT NULL,
+  "p_profileurl" text DEFAULT NULL
 )
 RETURNS "pg_catalog"."json"
 LANGUAGE plpgsql
@@ -835,210 +935,115 @@ VOLATILE
 SECURITY DEFINER
 COST 100
 AS $BODY$
-DECLARE
-  v_both_null BOOLEAN;
-  v_both_set BOOLEAN;
 BEGIN
-  -- بررسی وجود کاربر
-  IF NOT EXISTS (SELECT 1 FROM pelak.users WHERE id = p_user_id AND is_active = true) THEN
+  -- Check if user exists
+  IF NOT EXISTS (SELECT 1 FROM pelak.user WHERE userid = p_userid AND active = true) THEN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'کاربر یافت نشد یا غیرفعال است.'
+      'message', 'User not found or inactive.'
     );
   END IF;
 
-  -- بررسی اینکه هر دو null نباشند
-  v_both_null := (p_profile_image_id IS NULL AND p_profile_image_url IS NULL);
-  -- بررسی اینکه هر دو set نباشند
-  v_both_set := (p_profile_image_id IS NOT NULL AND p_profile_image_url IS NOT NULL);
-
-  IF v_both_null THEN
-    -- اگر هر دو null باشند، تصویر را حذف می‌کنیم
-    UPDATE pelak.users
-    SET profile_image_id = NULL,
-        profile_image_url = NULL,
-        updated_at = NOW()
-    WHERE id = p_user_id;
-
-    RETURN json_build_object(
-      'success', true,
-      'title', 'Profile Image Removed',
-      'message', 'تصویر پروفایل با موفقیت حذف شد.'
-    );
-  END IF;
-
-  IF v_both_set THEN
-    RETURN json_build_object(
-      'success', false,
-      'title', 'Invalid Parameters',
-      'message', 'فقط یکی از profile_image_id یا profile_image_url باید مقدار داشته باشد.'
-    );
-  END IF;
-
-  -- اگر از تصویر پیش‌فرض استفاده می‌شود، بررسی وجود آن
-  IF p_profile_image_id IS NOT NULL THEN
-    IF NOT EXISTS (SELECT 1 FROM pelak.profile_images WHERE id = p_profile_image_id AND is_active = true) THEN
+  -- If profileimageid provided, check if it exists in userprofile table
+  IF p_profileimage IS NOT NULL THEN
+    IF NOT EXISTS (SELECT 1 FROM pelak.userprofile WHERE profileid = p_profileimage AND active = true) THEN
       RETURN json_build_object(
         'success', false,
         'title', 'Profile Image Not Found',
-        'message', 'تصویر پروفایل انتخابی یافت نشد یا غیرفعال است.'
+        'message', 'Selected profile image not found or inactive.'
       );
     END IF;
-
-    -- به‌روزرسانی با تصویر پیش‌فرض
-    UPDATE pelak.users
-    SET profile_image_id = p_profile_image_id,
-        profile_image_url = NULL,
-        updated_at = NOW()
-    WHERE id = p_user_id;
-  ELSE
-    -- به‌روزرسانی با URL
-    UPDATE pelak.users
-    SET profile_image_id = NULL,
-        profile_image_url = p_profile_image_url,
-        updated_at = NOW()
-    WHERE id = p_user_id;
   END IF;
+
+  -- Update fields
+  -- If both are null, set both fields to null (remove image)
+  -- If only one has value, update only that one and don't change the other
+  -- If both have values, update both
+  UPDATE pelak.user
+  SET profileimageid = CASE 
+      WHEN p_profileimage IS NOT NULL THEN p_profileimage
+      WHEN p_profileimage IS NULL AND p_profileurl IS NULL THEN NULL
+      ELSE profileimageid  -- If only profileimageurl provided, don't change profileimageid
+    END,
+    profileimageurl = CASE 
+      WHEN p_profileurl IS NOT NULL THEN p_profileurl
+      WHEN p_profileimage IS NULL AND p_profileurl IS NULL THEN NULL
+      ELSE profileimageurl  -- If only profileimageid provided, don't change profileimageurl
+    END,
+    updated = NOW()
+  WHERE userid = p_userid;
 
   RETURN json_build_object(
     'success', true,
     'title', 'Profile Image Updated',
-    'message', 'تصویر پروفایل با موفقیت به‌روزرسانی شد.'
+    'message', 'Profile image updated successfully.'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'خطا در به‌روزرسانی تصویر پروفایل.'
+    'message', 'Error updating profile image.'
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: user_get_display_name
--- توضیحات: دریافت نام نمایشی کاربر
--- اگر کاربر نام و نام خانوادگی نداشته باشد، "کاربر جدید {user_id}" برمی‌گرداند
+-- Function: pelak_auth_checkuser
+-- Description: Check if user exists based on mobile number and password status
 -- 
--- پارامترها:
---   p_user_id: شناسه کاربر
+-- Parameters:
+--   p_mobile: User mobile number
 -- 
--- منطق کاری:
---   1. بررسی وجود کاربر
---   2. بررسی وجود نام و نام خانوادگی
---   3. بازگشت نام کامل یا "کاربر جدید {user_id}"
+-- Logic:
+--   1. Check if user exists with given mobile number
+--   2. Check if user has set a password or not
+--   3. Return user existence status and password status
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, display_name: "..."}
---   خطا: {success: false, title: "User Not Found" | "Error", display_name: null}
+-- Returns:
+--   User exists with password: {success: true, exists: true, has_password: true}
+--   User exists without password: {success: true, exists: true, has_password: false}
+--   User does not exist: {success: true, exists: false, has_password: false}
+--   Error: {success: false, title: "Error", message: "..."}
 -- 
--- مثال استفاده:
---   SELECT user_get_display_name(1);
+-- Usage Example:
+--   SELECT pelak_auth_checkuser('09123456789');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."user_get_display_name"("p_user_id" int4)
-RETURNS "pg_catalog"."json"
-LANGUAGE plpgsql
-STABLE
-SECURITY DEFINER
-COST 100
-AS $BODY$
-DECLARE
-  v_firstname varchar(50);
-  v_lastname varchar(50);
-  v_display_name text;
-BEGIN
-  -- دریافت نام و نام خانوادگی کاربر
-  SELECT firstname, lastname INTO v_firstname, v_lastname
-  FROM pelak.users
-  WHERE id = p_user_id;
-
-  IF NOT FOUND THEN
-    RETURN json_build_object(
-      'success', false,
-      'title', 'User Not Found',
-      'message', 'کاربر یافت نشد.',
-      'display_name', NULL::text
-    );
-  END IF;
-
-  -- ساخت نام نمایشی
-  IF v_firstname IS NOT NULL AND v_firstname != '' AND v_lastname IS NOT NULL AND v_lastname != '' THEN
-    v_display_name := v_firstname || ' ' || v_lastname;
-  ELSIF v_firstname IS NOT NULL AND v_firstname != '' THEN
-    v_display_name := v_firstname;
-  ELSIF v_lastname IS NOT NULL AND v_lastname != '' THEN
-    v_display_name := v_lastname;
-  ELSE
-    v_display_name := 'کاربر جدید ' || p_user_id::text;
-  END IF;
-
-  RETURN json_build_object(
-    'success', true,
-    'display_name', v_display_name
-  );
-
-EXCEPTION WHEN OTHERS THEN
-    RETURN json_build_object(
-      'success', false,
-      'title', 'Error',
-      'message', 'خطا در دریافت نام نمایشی.',
-      'display_name', NULL::text
-    );
-END;
-$BODY$;
-
--- ----------------------------------------------------------------------------
--- تابع: auth_check_user_exists
--- توضیحات: بررسی وجود کاربر بر اساس شماره موبایل و وضعیت پسورد
--- 
--- پارامترها:
---   p_mobile: شماره موبایل کاربر
--- 
--- منطق کاری:
---   1. بررسی وجود کاربر با شماره موبایل داده شده
---   2. بررسی اینکه آیا کاربر پسورد تنظیم کرده است یا نه
---   3. بازگشت وضعیت وجود کاربر و وضعیت پسورد
--- 
--- مقادیر بازگشتی:
---   کاربر موجود با پسورد: {success: true, exists: true, has_password: true}
---   کاربر موجود بدون پسورد: {success: true, exists: true, has_password: false}
---   کاربر وجود ندارد: {success: true, exists: false, has_password: false}
---   خطا: {success: false, title: "Error", message: "..."}
--- 
--- مثال استفاده:
---   SELECT auth_check_user_exists('09123456789');
--- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."auth_check_user_exists"("p_mobile" varchar)
+CREATE OR REPLACE FUNCTION "public"."pelak_auth_checkuser"("p_mobile" varchar)
   RETURNS "pg_catalog"."json" AS $BODY$
 DECLARE
   v_user_exists BOOLEAN;
   v_has_password BOOLEAN;
 BEGIN
-  -- بررسی وجود کاربر و وضعیت پسورد
+  -- Check user existence and password status
   SELECT EXISTS(
-    SELECT 1 FROM pelak.users 
-    WHERE mobile = p_mobile AND is_active = true
+    SELECT 1 FROM pelak.user 
+    WHERE mobile = p_mobile AND active = true
   ) INTO v_user_exists;
 
   IF v_user_exists THEN
-    -- بررسی اینکه آیا کاربر پسورد تنظیم کرده است
+    -- Check if user has set a password
     SELECT EXISTS(
-      SELECT 1 FROM pelak.users 
+      SELECT 1 FROM pelak.user 
       WHERE mobile = p_mobile 
-        AND is_active = true
+        AND active = true
         AND userpassword != 'hasNoPassword'
         AND userpassword IS NOT NULL
     ) INTO v_has_password;
 
     RETURN json_build_object(
       'success', true,
+    'title', 'Error',
+    'message', 'Error checking user existence.',
       'exists', true,
       'has_password', v_has_password
     );
   ELSE
     RETURN json_build_object(
       'success', true,
+    'title', 'Error',
+    'message', 'Error checking user existence.',
       'exists', false,
       'has_password', false
     );
@@ -1048,7 +1053,7 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'خطا در بررسی وجود کاربر.',
+    'message', 'Error checking user existence.',
     'exists', false,
     'has_password', false
   );
@@ -1057,3 +1062,87 @@ $BODY$
   LANGUAGE plpgsql STABLE SECURITY DEFINER
   COST 100;
 
+-- ----------------------------------------------------------------------------
+-- Function: pelak_auth_archive_inactive_tokens
+-- Description: Move expired or revoked refresh tokens from active table to history
+-- This function can be called periodically (e.g., via cron job) to clean up inactive tokens
+-- 
+-- Parameters:
+--   None
+-- 
+-- Logic:
+--   1. Find all tokens that are expired (expiresat < NOW()) or revoked (revokedat IS NOT NULL)
+--   2. Move them to refreshtokenhistory table
+--   3. Delete them from refreshtoken table
+--   4. Return count of archived tokens
+-- 
+-- Returns:
+--   Success: {success: true, title: "Tokens Archived", message: "...", archived_count: ...}
+--   Error: {success: false, title: "Error", message: "..."}
+-- 
+-- Usage Example:
+--   SELECT pelak_auth_archive_inactive_tokens();
+-- 
+-- Note: This function uses ON CONFLICT to prevent duplicate entries if run multiple times
+-- ----------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION "public"."pelak_auth_archive_inactive_tokens"()
+  RETURNS "pg_catalog"."json" AS $BODY$
+DECLARE
+  v_archived_count INTEGER := 0;
+BEGIN
+  -- Move expired or revoked tokens to history
+  INSERT INTO pelak.refreshtokenhistory (
+    refreshtokenhistoryid, 
+    tokenhash, 
+    userid, 
+    idevice, 
+    expiresat, 
+    created, 
+    revokedat, 
+    lastusedat, 
+    lastusedip, 
+    archivedat
+  )
+  SELECT 
+    refreshtokenid, 
+    tokenhash, 
+    userid, 
+    idevice, 
+    expiresat,
+    created, 
+    revokedat, 
+    lastusedat, 
+    lastusedip, 
+    NOW() as archivedat
+  FROM pelak.refreshtoken
+  WHERE expiresat < NOW() OR revokedat IS NOT NULL
+  ON CONFLICT (refreshtokenhistoryid) DO NOTHING; -- Prevent duplicates if run multiple times
+
+  -- Get count of archived tokens
+  GET DIAGNOSTICS v_archived_count = ROW_COUNT;
+
+  -- Delete archived tokens from active table
+  DELETE FROM pelak.refreshtoken
+  WHERE expiresat < NOW() OR revokedat IS NOT NULL;
+
+  RETURN json_build_object(
+    'success', true,
+    'title', 'Tokens Archived',
+    'message', 'Inactive tokens moved to history successfully.',
+    'archived_count', v_archived_count
+  );
+
+EXCEPTION WHEN OTHERS THEN
+  RETURN json_build_object(
+    'success', false,
+    'title', 'Error',
+    'message', 'Error archiving inactive tokens: ' || SQLERRM
+  );
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+  COST 100;
+
+-- ============================================================================
+-- ✅ All authentication functions have been created!
+-- ============================================================================

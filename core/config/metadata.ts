@@ -6,9 +6,7 @@ import type { Metadata, Viewport } from "next";
 /* --- Config ----------------------------------------------------------------------------------- */
 import { ENV } from "@/core/config/env";
 /* --- Lib -------------------------------------------------------------------------------------- */
-import { 
-  ROBOTS_ON, 
-  ROBOTS_OFF, 
+import {
   createSiteViewport, 
   createBaceSEO, 
   createBaceSEOLang,
@@ -16,7 +14,42 @@ import {
   type SiteConfig,
   type SiteLangConfig,
   type LanguageConfig
-} from "@/core/data/metadata/base";
+} from "./types";
+
+/* --- Robots ------------------------------------------------------- */
+/* --- Robots On -------------------- */
+export const ROBOTS_ON: Metadata = {
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+}
+
+/* --- Robots Off ------------------- */
+export const ROBOTS_OFF: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+      'max-video-preview': 0,
+      'max-image-preview': 'none',
+      'max-snippet': 0,
+    },
+  },
+}
 
 /* --- Metadata Configuration Interface --------------------------------------------------------- */
 export interface MetadataConfig<T extends string = string> {
@@ -44,7 +77,7 @@ export interface MetadataConfig<T extends string = string> {
 export const defaultMetadataConfig: MetadataConfig = {
   site: {
     Data: {
-      url: ENV.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+      url: ENV.NEXT_PUBLIC_BASE_URL,
       appName: 'Next.js App',
       logo: '/logo.png',
       googleVerification: '',

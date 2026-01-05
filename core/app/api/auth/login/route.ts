@@ -60,7 +60,7 @@ async function POSTHandler(request: NextRequest) {
       );
     }
 
-    const result = await callRpc("auth_login", {
+    const result = await callRpc("pelak_auth_login", {
       p_mobile: sanitizedMobile,
       p_password: sanitizedPassword,
       p_idevice: iDevice,
@@ -86,6 +86,7 @@ async function POSTHandler(request: NextRequest) {
       mobile: userData.mobile,
       firstname: userData.firstname || "",
       lastname: userData.lastname || "",
+      email: userData.email || "",
     });
 
     // Add rate limit headers to response if available
@@ -100,6 +101,7 @@ async function POSTHandler(request: NextRequest) {
         mobile: userData.mobile,
         firstname: userData.firstname,
         lastname: userData.lastname,
+        email: userData.email,
       },
       ERROR_MESSAGES.LOGIN_SUCCESS.message,
       200,
@@ -107,7 +109,7 @@ async function POSTHandler(request: NextRequest) {
     );
 
     if (hasRefreshToken(result)) {
-      response = setRefreshTokenInResponse(response, result.refresh_token);
+      response = setRefreshTokenInResponse(response, result.refreshtoken);
     }
 
     // Log successful login (non-blocking)
@@ -121,6 +123,7 @@ async function POSTHandler(request: NextRequest) {
           mobile: userData.mobile,
           firstname: userData.firstname,
           lastname: userData.lastname,
+          email: userData.email,
         });
       } catch (error) {
         // Silently fail - hooks shouldn't break the login flow

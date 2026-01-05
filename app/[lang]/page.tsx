@@ -1,8 +1,9 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { Metadata } from "next";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANGUAGE_DATA, LANG_PARAMS, LANG, LANGUAGE } from "@/core/config/site";
-import { HOME_SEO_LANG, ROBOTS_ON } from "@/project/data/metadata/metadata";
+import { LANGUAGE_DATA, LANG_PARAMS, LANG, LANGUAGE } from "@/project/config/site";
+import { HOME_SEO_LANG } from "@/project/config/metadata";
+import { ROBOTS_ON } from "@/core/config/metadata";
 /* --- Components ------------------------------------------------------------------------------ */
 import Home from "@/project/pages/Home";
 import { redirect } from "next/navigation";

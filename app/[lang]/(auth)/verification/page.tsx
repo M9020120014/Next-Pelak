@@ -1,4 +1,4 @@
-import { LANG_PARAMS, LANG } from "@/core/config/site";
+import { LANG_PARAMS, LANG } from "@/project/config/site";
 import { getIDeviceToken } from "@/core/lib/token/idevice";
 import VerificationComponent from "@/core/components/auth/verification";
 
@@ -20,7 +20,7 @@ const translator = {
     setPasswordButton: "تنظیم رمز عبور و ورود",
     setPasswordButtonLoading: "در حال تنظیم...",
     passwordMismatch: "رمز عبور و تکرار آن مطابقت ندارند",
-    passwordMinLength: "رمز عبور باید حداقل ۶ کاراکتر باشد",
+    passwordMinLength: "رمز عبور باید حداقل ۸ کاراکتر باشد",
     otpSent: "کد تایید ارسال شد",
     otpVerified: "کد تأیید شد",
     passwordSetSuccess: "رمز عبور تنظیم شد و ورود با موفقیت انجام شد!",
@@ -49,7 +49,7 @@ const translator = {
     setPasswordButton: "Set Password and Login",
     setPasswordButtonLoading: "Setting...",
     passwordMismatch: "Password and confirmation do not match",
-    passwordMinLength: "Password must be at least 6 characters",
+    passwordMinLength: "Password must be at least 8 characters",
     otpSent: "Verification code sent",
     otpVerified: "Code verified",
     passwordSetSuccess: "Password set successfully and logged in!",

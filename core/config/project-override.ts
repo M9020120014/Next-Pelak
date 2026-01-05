@@ -3,12 +3,12 @@
 /* Import this in app/layout.tsx and pass to setCoreConfig() */
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import type { CoreConfig } from '@/core/config/core-config';
+import type { CoreConfig } from '@/core/config/config';
 import type { MetadataConfig } from '@/core/config/metadata';
 import type { HooksConfig } from '@/core/config/hooks';
 import type { MessagesConfig } from '@/core/config/messages';
 /* --- Data ------------------------------------------------------------------------------------- */
-import { SITE, SITE_LANG, LANGUAGE, LANGUAGE_TYPE } from './site';
+import { SITE, SITE_LANG, LANGUAGE, LANGUAGE_TYPE } from '../../project/config/site';
 
 /* --- Project Metadata Configuration ----------------------------------------------------------- */
 const projectMetadataConfig: MetadataConfig<LANGUAGE_TYPE> = {

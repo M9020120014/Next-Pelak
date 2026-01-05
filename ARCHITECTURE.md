@@ -20,7 +20,7 @@
   - `config/metadata.ts` - Metadata configuration interface
   - `config/hooks.ts` - Hooks configuration interface
   - `config/messages.ts` - Messages configuration interface
-  - `config/core-config.ts` - Main configuration interface
+  - `config/config.ts` - Main configuration interface
 - `core/app/` - ساختار Next.js پایه
 - `core/proxy.ts` - Proxy اصلی
 
@@ -42,7 +42,7 @@ Core از سیستم **Configuration Injection** استفاده می‌کند ک
 در `app/layout.tsx`:
 
 ```typescript
-import { setCoreConfig } from "@/core/config/core-config";
+import { setCoreConfig } from "@/core/config/config";
 import { projectCoreConfig } from "@/project/config/core-override";
 
 // Set core configuration before rendering
@@ -54,7 +54,7 @@ setCoreConfig(projectCoreConfig);
 در `core/config/project-override.ts`:
 
 ```typescript
-import type { CoreConfig } from '@/core/config/core-config';
+import type { CoreConfig } from '@/core/config/config';
 
 export const projectCoreConfig: CoreConfig = {
   metadata: {
@@ -85,7 +85,7 @@ export const projectCoreConfig: CoreConfig = {
 ```typescript
 // ✅ درست - از core config استفاده کنید
 import { ROUTES } from '@/core/config/security'
-import { getCoreConfig } from '@/core/config/core-config'
+import { getCoreConfig } from '@/core/config/config'
 
 // دریافت config
 const config = getCoreConfig()
@@ -226,7 +226,7 @@ import { ROUTES, TOKEN, RATE_LIMIT } from '@/config/security'
 
 ```typescript
 // در core/config/project-override.ts
-import type { CoreConfig } from '@/core/config/core-config';
+import type { CoreConfig } from '@/core/config/config';
 import { ROUTES } from '@/core/config/security'
 
 export const projectCoreConfig: CoreConfig = {
@@ -307,7 +307,7 @@ core/config/
 │   │   ├── metadata.ts       # Metadata config interface
 │   │   ├── hooks.ts          # Hooks config interface
 │   │   ├── messages.ts        # Messages config interface
-│   │   └── core-config.ts    # Main config interface
+│   │   └── config.ts    # Main config interface
 │   ├── app/                  # ساختار Next.js پایه
 │   │   └── layout.tsx        # Base layout (uses config injection)
 │   └── proxy.ts              # Proxy اصلی
@@ -330,13 +330,13 @@ core/config/
 
 برای عملکرد بهتر، index های زیر در دیتابیس ایجاد شده‌اند:
 
-- `idx_refresh_tokens_user_device`: Composite index روی `(user_id, idevice)` برای جستجوی سریع‌تر
-- `idx_refresh_tokens_expires_at`: Index روی `expires_at` برای cleanup
-- `idx_refresh_tokens_token_hash`: Index روی `token_hash` برای جستجوی توکن
+- `idx_refreshtokens_user_device`: Composite index روی `(userid, idevice)` برای جستجوی سریع‌تر
+- `idx_refreshtokens_expires_at`: Index روی `expires_at` برای cleanup
+- `idx_refreshtokens_token_hash`: Index روی `token_hash` برای جستجوی توکن
 
 ### استفاده از Index
 
-Index `idx_refresh_tokens_user_device` به صورت partial index است و فقط روی توکن‌های فعال (`expires_at > NOW() AND revoked_at IS NULL`) ایجاد شده است که باعث بهبود عملکرد می‌شود.
+Index `idx_refreshtokens_user_device` به صورت partial index است و فقط روی توکن‌های فعال (`expires_at > NOW() AND revoked_at IS NULL`) ایجاد شده است که باعث بهبود عملکرد می‌شود.
 
 ## مثال کامل: استفاده در پروژه جدید
 
@@ -365,7 +365,7 @@ cp -r core/ new-project/
 
 ```typescript
 // new-project/project/config/core-override.ts
-import type { CoreConfig } from '@/core/config/core-config';
+import type { CoreConfig } from '@/core/config/config';
 
 export const projectCoreConfig: CoreConfig = {
   metadata: {
@@ -398,7 +398,7 @@ export const projectCoreConfig: CoreConfig = {
 ```typescript
 // new-project/app/layout.tsx
 import CoreLayout from "@/core/app/layout";
-import { setCoreConfig } from "@/core/config/core-config";
+import { setCoreConfig } from "@/core/config/config";
 import { projectCoreConfig } from "@/project/config/core-override";
 
 setCoreConfig(projectCoreConfig);

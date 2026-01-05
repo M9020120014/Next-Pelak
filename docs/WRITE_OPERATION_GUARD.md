@@ -30,14 +30,14 @@ flowchart TD
 
 ## اجزای سیستم
 
-### 1. تابع دیتابیس: `auth_check_idevice_refresh_token`
+### 1. تابع دیتابیس: `pelak_auth_checkrefreshtoken`
 
 **مسیر**: `core/database/functions/database_functions.sql`
 
 این تابع بررسی می‌کند که آیا یک `idevice` دارای `refresh token` معتبر است:
 
 ```sql
-CREATE OR REPLACE FUNCTION "public"."auth_check_idevice_refresh_token"("p_idevice" text)
+CREATE OR REPLACE FUNCTION "public"."pelak_auth_checkrefreshtoken"("p_idevice" text)
   RETURNS "pg_catalog"."json"
 ```
 
@@ -65,7 +65,7 @@ CREATE OR REPLACE FUNCTION "public"."auth_check_idevice_refresh_token"("p_idevic
 ```
 
 **شرایط بررسی**:
-- `idevice` در جدول `refresh_tokens` وجود دارد
+- `idevice` در جدول `refreshtokens` وجود دارد
 - `expires_at > NOW()` (توکن منقضی نشده)
 - `revoked_at IS NULL` (توکن لغو نشده)
 
@@ -163,7 +163,7 @@ async function POSTHandler(request: NextRequest) {
   // Two-step verification
   return guardWriteOperation(body, async () => {
     // Step 2: Execute write operation
-    const result = await callRpc("comments_create", {
+    const result = await callRpc("pelak_comment_create", {
       p_userid: userId,
       p_pageid: pageId,
       p_content: content.trim(),
@@ -389,7 +389,7 @@ Authorization: Bearer <access_token>
 ## فایل‌های مرتبط
 
 - **Middleware**: `core/lib/security/write-operation-guard.ts`
-- **Database Function**: `core/database/functions/database_functions.sql` (تابع `auth_check_idevice_refresh_token`)
+- **Database Function**: `core/database/functions/database_functions.sql` (تابع `pelak_auth_checkrefreshtoken`)
 - **Error Messages**: `core/lib/api/error-messages.ts` (`IDEVICE_REFRESH_TOKEN_REQUIRED`)
 - **مثال استفاده**: `core/app/api/comments/route.ts`
 

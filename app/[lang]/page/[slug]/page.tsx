@@ -2,8 +2,9 @@
 import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANG, SITE, SITE_LANG, LANGUAGE_DATA } from "@/core/config/site";
-import { ROBOTS_ON, ROBOTS_OFF, BACE_SEO_LANG } from "@/project/data/metadata/metadata";
+import { LANG, SITE, SITE_LANG, LANGUAGE_DATA } from "@/project/config/site";
+import { BACE_SEO_LANG } from "@/project/config/metadata";
+import { ROBOTS_OFF, ROBOTS_ON } from "@/core/config/metadata";
 import { ENV } from "@/core/config/env";
 import { getIDeviceToken } from "@/core/lib/token/idevice";
 /* --- Components ------------------------------------------------------------------------------ */
@@ -38,11 +39,11 @@ interface PageType {
   content: string | null;
   media: string | null;
   url: string;
-  published_time: string | null;
-  modified_time: string | null;
+  publishedtime: string | null;
+  modifiedtime: string | null;
   authors: number | null;
-  section_id: number | null;
-  type_id: number | null;
+  sectionid: number | null;
+  typeid: number | null;
   tags: string | null;
   status: number | null;
   lang: number | null;
@@ -132,10 +133,10 @@ export async function generateMetadata({
             alt: page.title || SITE_LANG[validatedLang].Data.alt,
           },
         ],
-        publishedTime: page.published_time || undefined,
-        modifiedTime: page.modified_time || undefined,
+        publishedTime: page.publishedtime || undefined,
+        modifiedTime: page.modifiedtime || undefined,
         authors: page.authors ? [String(page.authors)] : undefined,
-        section: page.section_id ? String(page.section_id) : undefined,
+        section: page.sectionid ? String(page.sectionid) : undefined,
         tags: tags.length > 0 ? tags : undefined,
       },
       twitter: {

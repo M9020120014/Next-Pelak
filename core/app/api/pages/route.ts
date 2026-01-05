@@ -48,7 +48,7 @@ async function GETHandler(request: NextRequest) {
   }
 
   // Call database function
-  const result = await callRpc("page_get_summaries", {
+  const result = await callRpc("pelak_page_getsummaries", {
     p_limit: limit,
     p_offset: offset,
     p_lang: langId,

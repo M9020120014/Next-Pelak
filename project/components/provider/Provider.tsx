@@ -1,6 +1,6 @@
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { LANGUAGE_TYPE } from "@/core/config/site";
+import { LANGUAGE_TYPE } from "@/project/config/site";
 import { HeaderProvider } from "../theme/header/HeaderProvider";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Providers ---------------------------------------------------- */

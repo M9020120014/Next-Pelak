@@ -63,7 +63,7 @@ describe('RPC Utility Functions', () => {
         success: true,
         title: 'Success',
         message: 'OK',
-        user_id: 1,
+        userid: 1,
         mobile: '09123456789',
         firstname: 'John',
         lastname: 'Doe',
@@ -84,7 +84,7 @@ describe('RPC Utility Functions', () => {
       expect(userData).toBeNull()
     })
 
-    it('should return null for response without user_id', () => {
+    it('should return null for response without userid', () => {
       const response: RpcResponseType = {
         success: true,
         title: 'Success',
@@ -102,7 +102,7 @@ describe('RPC Utility Functions', () => {
         success: true,
         title: 'Success',
         message: 'OK',
-        refresh_token: 'valid-token-string',
+        refreshtoken: 'valid-token-string',
       }
       expect(hasRefreshToken(response)).toBe(true)
     })
@@ -112,7 +112,7 @@ describe('RPC Utility Functions', () => {
         success: true,
         title: 'Success',
         message: 'OK',
-        refresh_token: '',
+        refreshtoken: '',
       }
       expect(hasRefreshToken(response)).toBe(false)
     })

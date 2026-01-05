@@ -1,23 +1,21 @@
 "use client"
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { usePathname, useParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 /* --- Components ------------------------------------------------------------------------------- */
 import { UI as P } from '@/core/components/ui/Pelak';
 import { ClassName as cn } from '@/core/components/ui/Pelak';
 /* --- Data ------------------------------------------------------------------------------------- */
 import { MobileMenu } from '@/project/data/menu';
-import { LANGUAGE_TYPE, LANG_CHECK } from '@/core/config/site';
+import { extractLangFromPathname } from '@/project/config/site';
 
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Mobile Navbar ----------------------------------------------- */
 export default function MobileNavbar({ className }: { className?: string }) {
   /* --- Check Path ----------------- */
   const pathname = usePathname();
-  const params = useParams();
-  const langParam = (params.lang as string) || "fa";
-  const lang: LANGUAGE_TYPE = LANG_CHECK(langParam) ? langParam : "fa";
+  const lang = extractLangFromPathname(pathname);
   
   /* --- Nav ------------------------ */
   return (

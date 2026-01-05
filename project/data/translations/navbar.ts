@@ -1,4 +1,4 @@
-import { LANGUAGE_TYPE } from "@/core/config/site";
+import { LANGUAGE_TYPE } from "@/project/config/site";
 
 export const navbarTranslator = {
   fa: {

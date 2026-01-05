@@ -1,5 +1,5 @@
 // /app/[lang]/(admin)/dashboard/page.tsx
-import { LANG_PARAMS, LANG } from '@/core/config/site'
+import { LANG_PARAMS, LANG } from '@/project/config/site'
 import { getIDeviceToken } from '@/core/lib/token/idevice'
 import DashboardClient from '@/project/pages/DashboardClient'
 

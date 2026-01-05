@@ -2,14 +2,14 @@
 
 /* --- Base ------------------------------------------------------------------------------------- */
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { Container } from "@/core/components/ui/Container"
 import { Button } from "@/core/components/ui/Button"
 import { Separator } from "@/core/components/ui/Separator"
 import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/Card"
 import { SvgLogoType } from "@/project/components/media/svg"
 import { ClassName as cn, UI as P } from "@/core/components/ui/Pelak"
-import { LANG_CHECK, LANGUAGE_TYPE } from "@/core/config/site"
+import { extractLangFromPathname, } from "@/project/config/site"
 import { footerTranslator } from "@/project/data/translations/footer"
 
 /* --- Types ------------------------------------------------------------------------------------ */
@@ -20,9 +20,9 @@ export interface FooterProps {
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Footer ------------------------------------------------------- */
 export default function Footer({ className }: FooterProps) {
-  const params = useParams()
-  const langParam = (params.lang as string) || "fa"
-  const lang: LANGUAGE_TYPE = LANG_CHECK(langParam) ? langParam : "fa"
+
+  const pathname = usePathname();
+  const lang = extractLangFromPathname(pathname);
   const t = footerTranslator[lang]
   return (
     <div className="pb-056-M lg:pb-0 bg-Background">

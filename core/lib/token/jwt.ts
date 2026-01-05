@@ -22,14 +22,20 @@ export function generateAccessToken(user: {
   mobile: string;
   firstname: string | null;
   lastname: string | null;
+  email: string | null;
+  profileimage: string | null;
+  profileurl: string | null;
 }): string {
   const SECRET = getJWTSecret();
   
   const payload = {
-    user_id: user.id,
+    userid: user.id,
     mobile: user.mobile,
     firstname: user.firstname,
     lastname: user.lastname,
+    email: user.email,
+    profileimage: user.profileimage,
+    profileurl: user.profileurl,
     role: "user",
     iat: Math.floor(Date.now() / 1000),
     exp: Math.floor(Date.now() / 1000) + TOKEN.ACCESS_TOKEN_EXPIRY,
@@ -48,10 +54,13 @@ export function generateAccessToken(user: {
 }
 
 export function verifyAccessToken(token: string): {
-  user_id: number;
+  userid: number;
   mobile: string;
   firstname: string | null;
   lastname: string | null;
+  email: string | null;
+  profileimage: string | null;
+  profileurl: string | null;
   role: string;
   iat: number;
   exp: number;
@@ -96,7 +105,7 @@ export function verifyAccessToken(token: string): {
 
     // Validate payload structure
     if (!payload || typeof payload !== 'object') return null;
-    if (typeof payload.user_id !== 'number' || typeof payload.mobile !== 'string') return null;
+    if (typeof payload.userid !== 'number' || typeof payload.mobile !== 'string') return null;
     if (typeof payload.exp !== 'number' || typeof payload.iat !== 'number') return null;
 
     // چک انقضا
@@ -115,10 +124,13 @@ export function verifyAccessToken(token: string): {
  * @deprecated Use decodeTokenPayload from '@/core/lib/token/jwt-client' in client components
  */
 export function decodeTokenPayload(token: string): {
-  user_id: number;
+  userid: number;
   mobile: string;
   firstname: string | null;
   lastname: string | null;
+  email: string | null;
+  profileimage: string | null;
+  profileurl: string | null;
   role: string;
   iat: number;
   exp: number;
@@ -143,8 +155,9 @@ export function decodeTokenPayload(token: string): {
     
     // Validate payload structure
     if (!payload || typeof payload !== 'object') return null;
-    if (typeof payload.user_id !== 'number' || typeof payload.mobile !== 'string') return null;
+    if (typeof payload.userid !== 'number' || typeof payload.mobile !== 'string') return null;
     if (typeof payload.exp !== 'number' || typeof payload.iat !== 'number') return null;
+    if (typeof payload.profileimage !== 'string' || typeof payload.profileurl !== 'string') return null;
     
     return payload;
   } catch {

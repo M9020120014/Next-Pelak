@@ -10,7 +10,7 @@ import { Skeleton } from '@/core/components/ui/Skeleton'
 import { AspectRatio } from '@/core/components/ui/AspectRatio'
 import { Icon } from '@/core/components/ui/Icon'
 /* --- Types ------------------------------------------------------------------------------------ */
-import { LANGUAGE_TYPE, LANGUAGE_DATA } from '@/core/config/site'
+import { LANGUAGE_TYPE, LANGUAGE_DATA } from '@/project/config/site'
 import { pagesTranslator } from '@/project/data/translations/pages'
 import { ENV } from '@/core/config/env'
 /* --- Functions -------------------------------------------------------------------------------- */
@@ -39,8 +39,8 @@ interface PageType {
   title: string | null
   description: string | null
   url: string
-  modified_time: string | null
-  published_time: string | null
+  modifiedtime: string | null
+  publishedtime: string | null
   media: string | null
 }
 

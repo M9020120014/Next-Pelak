@@ -1,28 +1,27 @@
 -- ============================================================================
--- ماژول: توابع مدیریت محتوا
--- توضیحات: توابع مربوط به سلکتورها (فقط برای شمای htni) و صفحات سایت
--- توجه: شمای pelak دیگر از selector استفاده نمی‌کند و از جداول اختصاصی استفاده می‌کند
+-- Module: Content Management Functions
+-- Description: Functions related to selectors (only for project schema) and site pages
+-- Note: Pelak schema no longer uses selector and uses dedicated tables
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- تابع helper: selector_tree
--- توضیحات: ساخت JSON سلسله مراتبی برای یک selector با children
--- این تابع به صورت recursive کار می‌کند و تمام فرزندان را می‌یابد
--- توجه: این تابع فقط برای شمای htni کار می‌کند
+-- Helper Function: project_selector_tree
+-- Description: Build hierarchical JSON for a selector with children
+-- This function works recursively and finds all children
+-- Note: This function only works for project schema
 -- 
--- پارامترها:
---   p_selector_id: شناسه selector
---   p_type_id: شناسه نوع selector
---   p_schema: نام schema (فقط htni) - پیش‌فرض: htni
+-- Parameters:
+--   p_selectorid: Selector identifier
+--   p_typeid: Selector type identifier
 -- 
--- مقادیر بازگشتی:
---   JSONB object شامل selector و children (recursive)
---   NULL در صورت عدم یافتن selector یا استفاده از schema نامعتبر
+-- Returns:
+--   JSONB object containing selector and children (recursive)
+--   NULL if selector not found
 -- 
--- مثال استفاده:
---   SELECT selector_tree(1, 1, 'htni');
+-- Usage Example:
+--   SELECT project_selector_tree(1, 1);
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."selector_tree"("p_selector_id" int4, "p_type_id" int4, "p_schema" varchar DEFAULT 'htni')
+CREATE OR REPLACE FUNCTION "public"."project_selector_tree"("p_selectorid" int4, "p_typeid" int4)
 RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
@@ -32,78 +31,67 @@ DECLARE
   v_child_selector RECORD;
   v_children jsonb := '[]'::jsonb;
   v_child jsonb;
-  v_schema_name varchar := LOWER(COALESCE(p_schema, 'htni'));
 BEGIN
-  -- اعتبارسنجی schema - فقط htni مجاز است
-  IF v_schema_name != 'htni' THEN
-    RETURN NULL;
-  END IF;
-
-  -- دریافت اطلاعات selector با استفاده از dynamic SQL
-  EXECUTE format('
-    SELECT id, title, type, selectorid, txt, num
-    FROM %I.selector
-    WHERE id = $1 AND type = $2
-  ', v_schema_name) USING p_selector_id, p_type_id INTO v_selector;
+  -- Get selector information from project schema
+  SELECT selectorid, title, type, parentselectorid, txt, "order"
+  INTO v_selector
+  FROM project.selector
+  WHERE selectorid = p_selectorid AND type = p_typeid;
 
   IF NOT FOUND THEN
     RETURN NULL;
   END IF;
 
-  -- دریافت children به صورت recursive
-  -- توجه: children باید selectorid = parent_id داشته باشند
+  -- Get children recursively
+  -- Note: children must have parentselectorid = parent_id
   FOR v_child_selector IN
-    EXECUTE format('
-      SELECT id, title, type, selectorid, txt, num
-      FROM %I.selector
-      WHERE selectorid = $1
-      ORDER BY num ASC, title ASC
-    ', v_schema_name) USING p_selector_id
+    SELECT selectorid, title, type, parentselectorid, txt, "order"
+    FROM project.selector
+    WHERE parentselectorid = p_selectorid
+    ORDER BY "order" ASC, title ASC
   LOOP
-    -- برای children، type را از خود child می‌گیریم تا recursive call درست کار کند
-    v_child := selector_tree(v_child_selector.id, v_child_selector.type, v_schema_name);
+    -- For children, get type from child itself so recursive call works correctly
+    v_child := project_selector_tree(v_child_selector.selectorid, v_child_selector.type);
     IF v_child IS NOT NULL THEN
       v_children := v_children || jsonb_build_array(v_child);
     END IF;
   END LOOP;
 
-  -- ساخت JSON برای selector با children
+  -- Build JSON for selector with children
   RETURN jsonb_build_object(
-    'id', v_selector.id,
+    'id', v_selector.selectorid,
     'title', v_selector.title,
     'type', v_selector.type,
-    'selectorid', v_selector.selectorid,
+    'parentselectorid', v_selector.parentselectorid,
     'txt', v_selector.txt,
-    'num', v_selector.num,
+    'order', v_selector.order,
     'children', v_children
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: selectors_get_tree
--- توضیحات: دریافت selectorها بر اساس code یا title از selectortype با ساختار سلسله مراتبی
--- این تابع selectorها را به صورت درختی با تمام فرزندان برمی‌گرداند
--- توجه: این تابع فقط برای شمای htni کار می‌کند
+-- Function: project_selector_gettree
+-- Description: Get selectors based on code or title from selectortype with hierarchical structure
+-- This function returns selectors as a tree with all children
+-- Note: This function only works for project schema
 -- 
--- پارامترها:
---   p_type_identifier: code یا title از selectortype
---   p_schema: نام schema (فقط htni) - پیش‌فرض: htni
+-- Parameters:
+--   p_typeidentifier: code or title from selectortype
 -- 
--- منطق کاری:
---   1. بررسی schema (فقط htni مجاز است)
---   2. پیدا کردن selectortype بر اساس code یا title
---   3. دریافت root selectorها (selectorid IS NULL)
---   4. ساخت JSON سلسله مراتبی با استفاده از selector_tree
+-- Logic:
+--   1. Find selectortype based on code or title
+--   2. Get root selectors (parentselectorid IS NULL)
+--   3. Build hierarchical JSON using project_selector_tree
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Selectors Retrieved", selectors: [...]}
---   خطا: {success: false, title: "Invalid Schema" | "Type Not Found" | "Error", selectors: []}
+-- Returns:
+--   Success: {success: true, title: "Selectors Retrieved", selectors: [...]}
+--   Error: {success: false, title: "Type Not Found" | "Error", selectors: []}
 -- 
--- مثال استفاده:
---   SELECT selectors_get_tree('province', 'htni'); -- با code از htni
+-- Usage Example:
+--   SELECT project_selector_gettree('province'); -- with code from project
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."selectors_get_tree"("p_type_identifier" varchar, "p_schema" varchar DEFAULT 'htni')
+CREATE OR REPLACE FUNCTION "public"."project_selector_gettree"("p_typeidentifier" varchar)
 RETURNS "pg_catalog"."json"
 LANGUAGE plpgsql
 VOLATILE
@@ -111,66 +99,50 @@ SECURITY DEFINER
 COST 100
 AS $BODY$
 DECLARE
-  v_type_id INTEGER;
+  v_typeid INTEGER;
   v_selectors JSONB := '[]'::jsonb;
   v_root_selector RECORD;
   v_selector_json jsonb;
-  v_schema_name varchar := LOWER(COALESCE(p_schema, 'htni'));
 BEGIN
-  -- اعتبارسنجی schema - فقط htni مجاز است
-  IF v_schema_name != 'htni' THEN
-    RETURN json_build_object(
-      'success', false,
-      'title', 'Invalid Schema',
-      'message', 'این تابع فقط برای شمای htni کار می‌کند. شمای pelak دیگر از selector استفاده نمی‌کند.',
-      'selectors', '[]'::json
-    );
-  END IF;
-
-  -- پیدا کردن selectortype بر اساس code یا title
-  EXECUTE format('
-    SELECT id
-    FROM %I.selectortype
-    WHERE code = $1 OR title = $1
-    LIMIT 1
-  ', v_schema_name) USING p_type_identifier INTO v_type_id;
+  -- Find selectortype based on code or title from project schema
+  SELECT selectortypeid
+  INTO v_typeid
+  FROM project.selectortype
+  WHERE code = p_typeidentifier OR title = p_typeidentifier
+  LIMIT 1;
 
   IF NOT FOUND THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Type Not Found',
-      'message', 'نوع سلکتور یافت نشد.',
+      'message', 'Selector type not found.',
       'selectors', '[]'::json
     );
   END IF;
 
-  -- دریافت root selectorها (selectorid IS NULL) و ساخت JSON سلسله مراتبی
+  -- Get root selectors (parentselectorid IS NULL) and build hierarchical JSON
   FOR v_root_selector IN
-    EXECUTE format('
-      SELECT id, title, type, selectorid, txt, num
-      FROM %I.selector
-      WHERE type = $1 AND selectorid IS NULL
-      ORDER BY num ASC, title ASC
-    ', v_schema_name) USING v_type_id
+    SELECT selectorid, title, type, parentselectorid, txt, "order"
+    FROM project.selector
+    WHERE type = v_typeid AND parentselectorid IS NULL
+    ORDER BY "order" ASC, title ASC
   LOOP
-    v_selector_json := selector_tree(v_root_selector.id, v_type_id, v_schema_name);
+    v_selector_json := project_selector_tree(v_root_selector.selectorid, v_typeid);
     IF v_selector_json IS NOT NULL THEN
       v_selectors := v_selectors || jsonb_build_array(v_selector_json);
     END IF;
   END LOOP;
 
-  -- اگر root selector وجود نداشت، همه selectorها را به صورت سلسله مراتبی برگردان
-  -- (این حالت زمانی رخ می‌دهد که همه selectorها فرزند هستند)
+  -- If no root selector exists, return all selectors hierarchically
+  -- (This happens when all selectors are children)
   IF v_selectors = '[]'::jsonb THEN
     FOR v_root_selector IN
-      EXECUTE format('
-        SELECT id, title, type, selectorid, txt, num
-        FROM %I.selector
-        WHERE type = $1
-        ORDER BY num ASC, title ASC
-      ', v_schema_name) USING v_type_id
+      SELECT selectorid, title, type, parentselectorid, txt, "order"
+      FROM project.selector
+      WHERE type = v_typeid
+      ORDER BY "order" ASC, title ASC
     LOOP
-      v_selector_json := selector_tree(v_root_selector.id, v_type_id, v_schema_name);
+      v_selector_json := project_selector_tree(v_root_selector.selectorid, v_typeid);
       IF v_selector_json IS NOT NULL THEN
         v_selectors := v_selectors || jsonb_build_array(v_selector_json);
       END IF;
@@ -180,7 +152,7 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Selectors Retrieved',
-    'message', 'سلکتورها با موفقیت دریافت شدند.',
+    'message', 'Selectors retrieved successfully.',
     'selectors', v_selectors
   );
 
@@ -188,35 +160,33 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'خطا در دریافت سلکتورها.',
+    'message', 'Error retrieving selectors.',
     'selectors', '[]'::json
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: selectors_get
--- توضیحات: دریافت همه selectorها بر اساس code یا title از selectortype بدون ساختار سلسله مراتبی
--- این تابع selectorها را به صورت flat list برمی‌گرداند (بدون children)
--- توجه: این تابع فقط برای شمای htni کار می‌کند
+-- Function: project_selector_get
+-- Description: Get all selectors based on code or title from selectortype without hierarchical structure
+-- This function returns selectors as a flat list (without children)
+-- Note: This function only works for project schema
 -- 
--- پارامترها:
---   p_type_identifier: code یا title از selectortype
---   p_schema: نام schema (فقط htni) - پیش‌فرض: htni
+-- Parameters:
+--   p_typeidentifier: code or title from selectortype
 -- 
--- منطق کاری:
---   1. بررسی schema (فقط htni مجاز است)
---   2. پیدا کردن selectortype بر اساس code یا title
---   3. دریافت همه selectorها بدون فرزندان
+-- Logic:
+--   1. Find selectortype based on code or title
+--   2. Get all selectors without children
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Selectors Retrieved", selectors: [...]}
---   خطا: {success: false, title: "Invalid Schema" | "Type Not Found" | "Error", selectors: []}
+-- Returns:
+--   Success: {success: true, title: "Selectors Retrieved", selectors: [...]}
+--   Error: {success: false, title: "Type Not Found" | "Error", selectors: []}
 -- 
--- مثال استفاده:
---   SELECT selectors_get('province', 'htni');
+-- Usage Example:
+--   SELECT project_selector_get('province');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."selectors_get"("p_type_identifier" varchar, "p_schema" varchar DEFAULT 'htni')
+CREATE OR REPLACE FUNCTION "public"."project_selector_get"("p_typeidentifier" varchar)
 RETURNS "pg_catalog"."json"
 LANGUAGE plpgsql
 VOLATILE
@@ -224,60 +194,47 @@ SECURITY DEFINER
 COST 100
 AS $BODY$
 DECLARE
-  v_type_id INTEGER;
+  v_typeid INTEGER;
   v_selectors JSONB := '[]'::jsonb;
-  v_schema_name varchar := LOWER(COALESCE(p_schema, 'htni'));
 BEGIN
-  -- اعتبارسنجی schema - فقط htni مجاز است
-  IF v_schema_name != 'htni' THEN
-    RETURN json_build_object(
-      'success', false,
-      'title', 'Invalid Schema',
-      'message', 'این تابع فقط برای شمای htni کار می‌کند. شمای pelak دیگر از selector استفاده نمی‌کند.',
-      'selectors', '[]'::json
-    );
-  END IF;
-
-  -- پیدا کردن selectortype بر اساس code یا title
-  EXECUTE format('
-    SELECT id
-    FROM %I.selectortype
-    WHERE code = $1 OR title = $1
-    LIMIT 1
-  ', v_schema_name) USING p_type_identifier INTO v_type_id;
+  -- Find selectortype based on code or title from project schema
+  SELECT selectortypeid
+  INTO v_typeid
+  FROM project.selectortype
+  WHERE code = p_typeidentifier OR title = p_typeidentifier
+  LIMIT 1;
 
   IF NOT FOUND THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Type Not Found',
-      'message', 'نوع سلکتور یافت نشد.',
+      'message', 'Selector type not found.',
       'selectors', '[]'::json
     );
   END IF;
 
-  -- دریافت همه selectorها بدون فرزندان
-  EXECUTE format('
-    SELECT COALESCE(
-      jsonb_agg(
-        jsonb_build_object(
-          ''id'', id,
-          ''title'', title,
-          ''type'', type,
-          ''selectorid'', selectorid,
-          ''txt'', txt,
-          ''num'', num
-        ) ORDER BY num ASC, title ASC
-      ),
-      ''[]''::jsonb
-    )
-    FROM %I.selector
-    WHERE type = $1
-  ', v_schema_name) USING v_type_id INTO v_selectors;
+  -- Get all selectors without children from project schema
+  SELECT COALESCE(
+    jsonb_agg(
+      jsonb_build_object(
+        'id', selectorid,
+        'title', title,
+        'type', type,
+        'parentselectorid', parentselectorid,
+        'txt', txt,
+        'order', "order"
+      ) ORDER BY "order" ASC, title ASC
+    ),
+    '[]'::jsonb
+  )
+  INTO v_selectors
+  FROM project.selector
+  WHERE type = v_typeid;
 
   RETURN json_build_object(
     'success', true,
     'title', 'Selectors Retrieved',
-    'message', 'سلکتورها با موفقیت دریافت شدند.',
+    'message', 'Selectors retrieved successfully.',
     'selectors', v_selectors
   );
 
@@ -285,36 +242,34 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'خطا در دریافت سلکتورها.',
+    'message', 'Error retrieving selectors.',
     'selectors', '[]'::json
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: selectors_get_selector
--- توضیحات: دریافت selectorها بر اساس code یا title از selectortype و selectorid بدون ساختار سلسله مراتبی
--- این تابع selectorهای فرزند یک selector خاص را برمی‌گرداند
--- توجه: این تابع فقط برای شمای htni کار می‌کند
+-- Function: project_selector_getselector
+-- Description: Get selectors based on code or title from selectortype and selectorid without hierarchical structure
+-- This function returns child selectors of a specific selector
+-- Note: This function only works for project schema
 -- 
--- پارامترها:
---   p_type_identifier: code یا title از selectortype
---   p_selectorid: شناسه selector والد
---   p_schema: نام schema (فقط htni) - پیش‌فرض: htni
+-- Parameters:
+--   p_typeidentifier: code or title from selectortype
+--   p_selectorid: Parent selector identifier
 -- 
--- منطق کاری:
---   1. بررسی schema (فقط htni مجاز است)
---   2. پیدا کردن selectortype بر اساس code یا title
---   3. دریافت selectorها با شرط type و selectorid
+-- Logic:
+--   1. Find selectortype based on code or title
+--   2. Get selectors with condition type and parentselectorid
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Selectors Retrieved", selectors: [...]}
---   خطا: {success: false, title: "Invalid Schema" | "Type Not Found" | "Error", selectors: []}
+-- Returns:
+--   Success: {success: true, title: "Selectors Retrieved", selectors: [...]}
+--   Error: {success: false, title: "Type Not Found" | "Error", selectors: []}
 -- 
--- مثال استفاده:
---   SELECT selectors_get_selector('city', 5, 'htni'); -- شهرهای استان با id=5 در htni
+-- Usage Example:
+--   SELECT project_selector_getselector('city', 5); -- Cities of province with id=5 in project
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."selectors_get_selector"("p_type_identifier" varchar, "p_selectorid" int4, "p_schema" varchar DEFAULT 'htni')
+CREATE OR REPLACE FUNCTION "public"."project_selector_getselector"("p_typeidentifier" varchar, "p_selectorid" int4)
 RETURNS "pg_catalog"."json"
 LANGUAGE plpgsql
 VOLATILE
@@ -322,60 +277,47 @@ SECURITY DEFINER
 COST 100
 AS $BODY$
 DECLARE
-  v_type_id INTEGER;
+  v_typeid INTEGER;
   v_selectors JSONB := '[]'::jsonb;
-  v_schema_name varchar := LOWER(COALESCE(p_schema, 'htni'));
 BEGIN
-  -- اعتبارسنجی schema - فقط htni مجاز است
-  IF v_schema_name != 'htni' THEN
-    RETURN json_build_object(
-      'success', false,
-      'title', 'Invalid Schema',
-      'message', 'این تابع فقط برای شمای htni کار می‌کند. شمای pelak دیگر از selector استفاده نمی‌کند.',
-      'selectors', '[]'::json
-    );
-  END IF;
-
-  -- پیدا کردن selectortype بر اساس code یا title
-  EXECUTE format('
-    SELECT id
-    FROM %I.selectortype
-    WHERE code = $1 OR title = $1
-    LIMIT 1
-  ', v_schema_name) USING p_type_identifier INTO v_type_id;
+  -- Find selectortype based on code or title from project schema
+  SELECT selectortypeid
+  INTO v_typeid
+  FROM project.selectortype
+  WHERE code = p_typeidentifier OR title = p_typeidentifier
+  LIMIT 1;
 
   IF NOT FOUND THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Type Not Found',
-      'message', 'نوع سلکتور یافت نشد.',
+      'message', 'Selector type not found.',
       'selectors', '[]'::json
     );
   END IF;
 
-  -- دریافت selectorها با شرط type و selectorid
-  EXECUTE format('
-    SELECT COALESCE(
-      jsonb_agg(
-        jsonb_build_object(
-          ''id'', id,
-          ''title'', title,
-          ''type'', type,
-          ''selectorid'', selectorid,
-          ''txt'', txt,
-          ''num'', num
-        ) ORDER BY num ASC, title ASC
-      ),
-      ''[]''::jsonb
-    )
-    FROM %I.selector
-    WHERE type = $1 AND selectorid = $2
-  ', v_schema_name) USING v_type_id, p_selectorid INTO v_selectors;
+  -- Get selectors with condition type and parentselectorid from project schema
+  SELECT COALESCE(
+    jsonb_agg(
+      jsonb_build_object(
+        'id', selectorid,
+        'title', title,
+        'type', type,
+        'parentselectorid', parentselectorid,
+        'txt', txt,
+        'order', "order"
+      ) ORDER BY "order" ASC, title ASC
+    ),
+    '[]'::jsonb
+  )
+  INTO v_selectors
+  FROM project.selector
+  WHERE type = v_typeid AND parentselectorid = p_selectorid;
 
   RETURN json_build_object(
     'success', true,
     'title', 'Selectors Retrieved',
-    'message', 'سلکتورها با موفقیت دریافت شدند.',
+    'message', 'Selectors retrieved successfully.',
     'selectors', v_selectors
   );
 
@@ -383,36 +325,36 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'خطا در دریافت سلکتورها.',
+    'message', 'Error retrieving selectors.',
     'selectors', '[]'::json
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: page_get_summaries
--- توضیحات: دریافت خلاصه صفحات با pagination و فیلتر بر اساس status و lang
--- این تابع فقط فیلدهای خلاصه را برمی‌گرداند (نه محتوای کامل)
+-- Function: pelak_page_getsummaries
+-- Description: Get page summaries with pagination and filter by status and lang
+-- This function only returns summary fields (not full content)
 -- 
--- پارامترها:
---   p_limit: تعداد صفحات در هر صفحه (pagination)
---   p_offset: تعداد صفحات برای skip کردن (pagination)
---   p_lang: زبان صفحات (1 = فارسی, 2 = انگلیسی) - Foreign Key به pelak.languages.id
+-- Parameters:
+--   p_limit: Number of pages per page (pagination)
+--   p_offset: Number of pages to skip (pagination)
+--   p_lang: Page language (1 = Persian, 2 = English) - Foreign Key to pelak.languages.id
 -- 
--- منطق کاری:
---   1. فیلتر صفحات با status=1 (منتشر شده) و lang مشخص شده
---   2. مرتب‌سازی بر اساس published_time DESC و id DESC
---   3. اعمال limit و offset
+-- Logic:
+--   1. Filter pages with status=1 (published) and specified lang
+--   2. Sort by publishedtime DESC and id DESC
+--   3. Apply limit and offset
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Pages Retrieved", pages: [...]}
---   خطا: {success: false, title: "Error", pages: []}
+-- Returns:
+--   Success: {success: true, title: "Pages Retrieved", pages: [...]}
+--   Error: {success: false, title: "Error", pages: []}
 -- 
--- مثال استفاده:
---   SELECT page_get_summaries(10, 0, 1); -- 10 صفحه اول فارسی
---   SELECT page_get_summaries(20, 20, 2); -- صفحات 21-40 انگلیسی
+-- Usage Example:
+--   SELECT pelak_page_getsummaries(10, 0, 1); -- First 10 Persian pages
+--   SELECT pelak_page_getsummaries(20, 20, 2); -- Pages 21-40 English
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."page_get_summaries"("p_limit" int4, "p_offset" int4, "p_lang" int2)
+CREATE OR REPLACE FUNCTION "public"."pelak_page_getsummaries"("p_limit" int4, "p_offset" int4, "p_lang" int2)
 RETURNS "pg_catalog"."json"
 LANGUAGE plpgsql
 VOLATILE
@@ -422,16 +364,16 @@ AS $BODY$
 DECLARE
   v_pages JSONB := '[]'::jsonb;
 BEGIN
-  -- دریافت صفحات با شرایط مشخص شده
+  -- Get pages with specified conditions
   SELECT COALESCE(
     jsonb_agg(
       jsonb_build_object(
-        'id', id,
+        'id', pageid,
         'title', title,
         'description', description,
         'url', url,
-        'modified_time', modified_time,
-        'published_time', published_time,
+        'modifiedtime', modifiedtime,
+        'publishedtime', publishedtime,
         'media', media
       )
     ),
@@ -439,16 +381,16 @@ BEGIN
   ) INTO v_pages
   FROM (
     SELECT 
-      id,
+      pageid,
       title,
       description,
       url,
-      modified_time,
-      published_time,
+      modifiedtime,
+      publishedtime,
       media
     FROM pelak.page
     WHERE status = 1 AND lang = p_lang
-    ORDER BY published_time DESC, id DESC
+    ORDER BY publishedtime DESC, pageid DESC
     LIMIT p_limit
     OFFSET p_offset
   ) AS filtered_pages;
@@ -456,7 +398,7 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Pages Retrieved',
-    'message', 'صفحات با موفقیت دریافت شدند.',
+    'message', 'Pages retrieved successfully.',
     'pages', v_pages
   );
 
@@ -464,32 +406,32 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'خطا در دریافت صفحات.',
+    'message', 'Error retrieving pages.',
     'pages', '[]'::json
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: page_get_url
--- توضیحات: دریافت کامل اطلاعات یک صفحه بر اساس URL
--- این تابع تمام فیلدهای صفحه را برمی‌گرداند
+-- Function: pelak_page_geturl
+-- Description: Get complete information of a page based on URL
+-- This function returns all page fields
 -- 
--- پارامترها:
---   p_url: URL صفحه
+-- Parameters:
+--   p_url: Page URL
 -- 
--- منطق کاری:
---   1. جستجوی صفحه بر اساس URL
---   2. بازگشت تمام فیلدهای صفحه
+-- Logic:
+--   1. Search page based on URL
+--   2. Return all page fields
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Page Retrieved", page: {...}}
---   خطا: {success: false, title: "Page Not Found" | "Error", page: null}
+-- Returns:
+--   Success: {success: true, title: "Page Retrieved", page: {...}}
+--   Error: {success: false, title: "Page Not Found" | "Error", page: null}
 -- 
--- مثال استفاده:
---   SELECT page_get_url('/about-us');
+-- Usage Example:
+--   SELECT pelak_page_geturl('/about-us');
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."page_get_url"("p_url" text)
+CREATE OR REPLACE FUNCTION "public"."pelak_page_geturl"("p_url" text)
 RETURNS "pg_catalog"."json"
 LANGUAGE plpgsql
 VOLATILE
@@ -499,25 +441,25 @@ AS $BODY$
 DECLARE
   v_page JSONB;
 BEGIN
-  -- دریافت صفحه بر اساس URL
+  -- Get page based on URL
   SELECT jsonb_build_object(
-    'id', id,
+    'id', pageid,
     'title', title,
     'description', description,
     'keywords', keywords,
     'content', content,
     'media', media,
     'url', url,
-    'published_time', published_time,
-    'modified_time', modified_time,
+    'publishedtime', publishedtime,
+    'modifiedtime', modifiedtime,
     'authors', authors,
-    'section_id', section_id,
-    'type_id', type_id,
+    'sectionid', sectionid,
+    'typeid', typeid,
     'tags', tags,
     'status', status,
     'lang', lang,
-    'created_at', created_at,
-    'updated_at', updated_at
+    'created', created,
+    'updated', updated
   ) INTO v_page
   FROM pelak.page
   WHERE url = p_url
@@ -527,7 +469,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Page Not Found',
-      'message', 'صفحه با این URL یافت نشد.',
+      'message', 'Page with this URL not found.',
       'page', NULL::json
     );
   END IF;
@@ -535,7 +477,7 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Page Retrieved',
-    'message', 'صفحه با موفقیت دریافت شد.',
+    'message', 'Page retrieved successfully.',
     'page', v_page
   );
 
@@ -543,32 +485,32 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'خطا در دریافت صفحه.',
+    'message', 'Error retrieving page.',
     'page', NULL::json
   );
 END;
 $BODY$;
 
 -- ----------------------------------------------------------------------------
--- تابع: page_get_id
--- توضیحات: دریافت کامل اطلاعات یک صفحه بر اساس ID
--- این تابع تمام فیلدهای صفحه را برمی‌گرداند
+-- Function: pelak_page_getid
+-- Description: Get complete information of a page based on ID
+-- This function returns all page fields
 -- 
--- پارامترها:
---   p_id: شناسه صفحه
+-- Parameters:
+--   p_id: Page identifier
 -- 
--- منطق کاری:
---   1. جستجوی صفحه بر اساس ID
---   2. بازگشت تمام فیلدهای صفحه
+-- Logic:
+--   1. Search page based on ID
+--   2. Return all page fields
 -- 
--- مقادیر بازگشتی:
---   موفق: {success: true, title: "Page Retrieved", page: {...}}
---   خطا: {success: false, title: "Page Not Found" | "Error", page: null}
+-- Returns:
+--   Success: {success: true, title: "Page Retrieved", page: {...}}
+--   Error: {success: false, title: "Page Not Found" | "Error", page: null}
 -- 
--- مثال استفاده:
---   SELECT page_get_id(1);
+-- Usage Example:
+--   SELECT pelak_page_getid(1);
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION "public"."page_get_id"("p_id" int4)
+CREATE OR REPLACE FUNCTION "public"."pelak_page_getid"("p_id" int4)
 RETURNS "pg_catalog"."json"
 LANGUAGE plpgsql
 VOLATILE
@@ -578,35 +520,35 @@ AS $BODY$
 DECLARE
   v_page JSONB;
 BEGIN
-  -- دریافت صفحه بر اساس ID
+  -- Get page based on ID
   SELECT jsonb_build_object(
-    'id', id,
+    'id', pageid,
     'title', title,
     'description', description,
     'keywords', keywords,
     'content', content,
     'media', media,
     'url', url,
-    'published_time', published_time,
-    'modified_time', modified_time,
+    'publishedtime', publishedtime,
+    'modifiedtime', modifiedtime,
     'authors', authors,
-    'section_id', section_id,
-    'type_id', type_id,
+    'sectionid', sectionid,
+    'typeid', typeid,
     'tags', tags,
     'status', status,
     'lang', lang,
-    'created_at', created_at,
-    'updated_at', updated_at
+    'created', created,
+    'updated', updated
   ) INTO v_page
   FROM pelak.page
-  WHERE id = p_id
+  WHERE pageid = p_id
   LIMIT 1;
 
   IF v_page IS NULL THEN
     RETURN json_build_object(
       'success', false,
       'title', 'Page Not Found',
-      'message', 'صفحه با این ID یافت نشد.',
+      'message', 'Page with this ID not found.',
       'page', NULL::json
     );
   END IF;
@@ -614,7 +556,7 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Page Retrieved',
-    'message', 'صفحه با موفقیت دریافت شد.',
+    'message', 'Page retrieved successfully.',
     'page', v_page
   );
 
@@ -622,9 +564,12 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'خطا در دریافت صفحه.',
+    'message', 'Error retrieving page.',
     'page', NULL::json
   );
 END;
 $BODY$;
 
+-- ============================================================================
+-- ✅ All content functions have been created!
+-- ============================================================================

@@ -1,5 +1,5 @@
 
-import { LANG_PARAMS, LANG, LANGUAGE } from "@/core/config/site";
+import { LANG_PARAMS, LANG, LANGUAGE } from "@/project/config/site";
 import Link from "next/link";
 import { commonTranslator } from "@/project/data/translations/common";
 

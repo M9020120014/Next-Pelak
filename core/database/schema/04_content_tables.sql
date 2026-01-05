@@ -1,88 +1,91 @@
 -- ============================================================================
--- ماژول: مدیریت محتوا
--- توضیحات: جداول مربوط به صفحات سایت
--- این جداول به users و page_sections و page_types و languages وابسته هستند و باید بعد از آن‌ها ساخته شوند
+-- Module: Content Management
+-- Description: Tables related to site pages
+-- These tables depend on user and pagesection and pagetype and language and must be created after them
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- جدول: page
--- توضیحات: صفحات سایت
--- هر صفحه می‌تواند نویسنده، بخش و نوع داشته باشد
+-- Table: page
+-- Description: Site pages
+-- Each page can have author, section and type
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS "pelak"."page" (
-  -- شناسه یکتای صفحه (Primary Key, Auto Increment)
-  "id" int4 NOT NULL DEFAULT nextval('"pelak".page_id_seq'::regclass),
+  -- Unique page identifier (Primary Key, Auto Increment)
+  "pageid" int4 NOT NULL DEFAULT nextval('"pelak".page_pageid_seq'::regclass),
   
-  -- عنوان صفحه
+  -- Page title
   "title" varchar(200) COLLATE "pg_catalog"."default",
   
-  -- توضیحات کوتاه صفحه (برای SEO و preview)
+  -- Short page description (for SEO and preview)
   "description" varchar(300) COLLATE "pg_catalog"."default",
   
-  -- کلمات کلیدی (برای SEO)
+  -- Keywords (for SEO)
   "keywords" varchar(100) COLLATE "pg_catalog"."default",
   
-  -- محتوای کامل صفحه (HTML یا Markdown)
+  -- Full page content (HTML or Markdown)
   "content" text COLLATE "pg_catalog"."default",
   
-  -- لینک‌های رسانه (تصاویر، ویدیو و غیره) - JSON یا comma-separated
+  -- Media links (images, videos, etc.) - JSON or comma-separated
   "media" text COLLATE "pg_catalog"."default",
   
-  -- URL یکتای صفحه (Unique, Not Null)
-  -- برای دسترسی به صفحه از طریق URL
+  -- Unique page URL (Unique, Not Null)
+  -- For accessing page through URL
   "url" text COLLATE "pg_catalog"."default" NOT NULL,
   
-  -- تاریخ انتشار
-  "published_time" date,
+  -- Publication date
+  "publishedtime" date,
   
-  -- تاریخ آخرین ویرایش
-  "modified_time" date,
+  -- Last modification date
+  "modifiedtime" date,
   
-  -- شناسه نویسنده (Foreign Key → users.id)
+  -- Author identifier (Foreign Key → user.userid)
   "authors" int4,
   
-  -- شناسه بخش (Foreign Key → page_sections.id)
-  -- برای دسته‌بندی صفحات
-  "section_id" int4,
+  -- Section identifier (Foreign Key → pagesection.sectionid)
+  -- For page categorization
+  "sectionid" int4,
   
-  -- شناسه نوع صفحه (Foreign Key → page_types.id)
-  -- برای تفکیک انواع صفحات (مقاله، خبر، و غیره)
-  "type_id" int4,
+  -- Page type identifier (Foreign Key → pagetype.typeid)
+  -- For distinguishing page types (article, news, etc.)
+  "typeid" int4,
   
-  -- تگ‌های صفحه (comma-separated)
+  -- Page tags (comma-separated)
   "tags" varchar(300) COLLATE "pg_catalog"."default",
   
-  -- وضعیت صفحه (0 = پیش‌نویس, 1 = منتشر شده, 2 = بایگانی شده)
+  -- Page status (0 = draft, 1 = published, 2 = archived)
   "status" int2,
   
-  -- زبان صفحه (Foreign Key → languages.id) (1 = فارسی, 2 = انگلیسی)
+  -- Page language (Foreign Key → language.languageid) (1 = Persian, 2 = English)
   "lang" int2,
   
-  -- زمان ایجاد رکورد (Default: زمان فعلی)
-  "created_at" timestamptz(6) DEFAULT now(),
+  -- Record creation time (Default: current time)
+  "created" timestamptz(6) DEFAULT now(),
   
-  -- زمان آخرین به‌روزرسانی (Default: زمان فعلی)
-  "updated_at" timestamptz(6) DEFAULT now(),
+  -- Last update time (Default: current time)
+  "updated" timestamptz(6) DEFAULT now(),
   
   -- Primary Key
-  CONSTRAINT "page_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "page_pkey" PRIMARY KEY ("pageid"),
   
-  -- Unique Constraint: هر URL فقط یک بار می‌تواند وجود داشته باشد
+  -- Unique Constraint: Each URL can only exist once
   CONSTRAINT "page_url_key" UNIQUE ("url"),
   
-  -- Foreign Key: نویسنده (CASCADE در صورت حذف کاربر)
-  CONSTRAINT "page_authors_fkey" FOREIGN KEY ("authors") REFERENCES "pelak"."users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  -- Foreign Key: Author (CASCADE on user deletion)
+  CONSTRAINT "page_authors_fkey" FOREIGN KEY ("authors") REFERENCES "pelak"."user" ("userid") ON DELETE CASCADE ON UPDATE CASCADE,
   
-  -- Foreign Key: بخش (SET NULL در صورت حذف)
-  CONSTRAINT "page_section_id_fkey" FOREIGN KEY ("section_id") REFERENCES "pelak"."page_sections" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+  -- Foreign Key: Section (SET NULL on deletion)
+  CONSTRAINT "page_sectionid_fkey" FOREIGN KEY ("sectionid") REFERENCES "pelak"."pagesection" ("sectionid") ON DELETE SET NULL ON UPDATE CASCADE,
   
-  -- Foreign Key: نوع صفحه (SET NULL در صورت حذف)
-  CONSTRAINT "page_type_id_fkey" FOREIGN KEY ("type_id") REFERENCES "pelak"."page_types" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+  -- Foreign Key: Page type (SET NULL on deletion)
+  CONSTRAINT "page_typeid_fkey" FOREIGN KEY ("typeid") REFERENCES "pelak"."pagetype" ("typeid") ON DELETE SET NULL ON UPDATE CASCADE,
   
-  -- Foreign Key: زبان صفحه (SET NULL در صورت حذف)
-  CONSTRAINT "page_lang_fkey" FOREIGN KEY ("lang") REFERENCES "pelak"."languages" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+  -- Foreign Key: Page language (SET NULL on deletion)
+  CONSTRAINT "page_lang_fkey" FOREIGN KEY ("lang") REFERENCES "pelak"."language" ("languageid") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 ALTER TABLE "pelak"."page" 
   OWNER TO "htni_admin";
 
+-- ============================================================================
+-- ✅ All content tables have been created!
+-- ============================================================================

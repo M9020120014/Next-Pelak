@@ -29,7 +29,7 @@ export async function verifyIDeviceRefreshToken(
   }
 
   // Check if idevice has refresh token in database
-  const result = await callRpc('auth_check_idevice_refresh_token', {
+  const result = await callRpc('pelak_auth_checkrefreshtoken', {
     p_idevice: idevice,
   })
 
@@ -92,7 +92,7 @@ export async function extractIDevice(
  *   const body = await request.json()
  *   return guardWriteOperation(body, async () => {
  *     // Your write operation here
- *     const result = await callRpc("comments_create", {...})
+ *     const result = await callRpc("pelak_comment_create", {...})
  *     return successResponse({...})
  *   })
  * }

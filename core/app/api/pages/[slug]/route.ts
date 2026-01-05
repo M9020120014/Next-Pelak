@@ -34,7 +34,7 @@ export async function GET(
     }
 
     // Call database function
-    const result = await callRpc("page_get_url", {
+    const result = await callRpc("pelak_page_geturl", {
       p_url: slug.trim(),
     });
 

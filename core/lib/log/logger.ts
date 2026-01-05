@@ -13,11 +13,11 @@ const LOGGING_API_KEY = ENV.LOGGING_API_KEY
 const SENSITIVE_FIELDS = [
   'password',
   'p_password',
-  'p_new_password',
+  'p_password',
   'confirmPassword',
   'token',
   'access_token',
-  'refresh_token',
+  'refreshtoken',
   'api_key',
   'apiKey',
   'otpSecret',

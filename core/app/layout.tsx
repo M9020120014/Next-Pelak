@@ -4,7 +4,7 @@ import type { Metadata, Viewport } from "next";
 import Security from "@/core/components/provider/Security";
 /* --- Config ----------------------------------------------------------------------------------- */
 import { IS_PRODUCTION, validateEnv } from "@/core/config/env";
-import { getCoreConfig } from "@/core/config/core-config";
+import { getCoreConfig } from "@/core/config/config";
 import { createMetadataFromConfig, createViewportFromConfig } from "@/core/config/metadata";
 /* --- Hooks ------------------------------------------------------------------------------------ */
 import { loadProjectHooksSync } from "@/core/lib/hooks/loader";
