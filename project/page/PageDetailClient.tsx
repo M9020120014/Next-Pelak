@@ -79,7 +79,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
   const formattedDate = page.publishedtime
     ? new Date(page.publishedtime).toLocaleDateString(lang === 'fa' ? 'fa-IR' : 'en-US')
     : ''
-  const shareUrl = `${SITE.Data.url}/${lang}/${page.id}`
+  const shareUrl = `${SITE.Data.url}/p/${page.id}`
   const shareText = page.title || ''
   const tags = page.tags
     ? page.tags.split(',').map((tag) => tag.trim()).filter((tag) => tag !== '')
@@ -91,7 +91,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
       <main className=" bg-Background pt-008-2 lg:pt-040-8">
         <P.Container className='space-y-018-4'>
           {/* --- Main Image --------- */}
-          <div className="bg-White rounded-4 border border-Border shadow-sm overflow-hidden">
+          <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
             <AspectRatio ratio={16 / 9} className="bg-Background relative">
               {imageUrl ? (
                 <div className="relative w-full h-full flex items-center justify-center">
@@ -112,14 +112,14 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
                   <p className="text-G text-Mid">{t.noImage}</p>
                 </div>
               )}
-              {formattedDate && (
+              {/* {formattedDate && (
                 <div className="absolute top-018-4 left-0 px-018-4 py-012-3 flex items-center gap-008-2 text-Background bg-Shadow/72 rounded-s-2">
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   <span>{formattedDate}</span>
                 </div>
-              )}
+              )} */}
               {shortDescription && (
                 <p className="absolute bottom-0 right-0 left-0 bg-Background/72 px-018-4 py-012-3">
                   {shortDescription}
@@ -187,7 +187,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
 
           {/* --- Content Card --------- */}
           {page.content && (
-            <div className="bg-White rounded-4 border border-Border shadow-sm overflow-hidden">
+            <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
               <div className="p-024-5 lg:p-028-6">
                 <article
                   className="prose prose-invert max-w-none text-Text leading-relaxed text-justify prose-headings:font-bold prose-p:mb-4 prose-a:text-Primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-md prose-img:max-w-full prose-img:h-auto page-content-article HTML"
@@ -199,7 +199,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
           )}
 
           {/* --- Meta Info Card --------- */}
-          <div className="bg-White rounded-4 border border-Border shadow-sm overflow-hidden">
+          <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
             <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
               <div className="flex items-center gap-008-2">
                 <P.Icon Icon="dashboard" Size="md" className="text-Primary" />
@@ -244,7 +244,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
 
           {/* --- Related Categories Card --------- */}
           {tags && tags.length > 0 && (
-            <div className="bg-White rounded-4 border border-Border shadow-sm overflow-hidden">
+            <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
               <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
                 <div className="flex items-center gap-008-2">
                   <P.Icon Icon="categories" Size="md" className="text-Primary" />
@@ -269,7 +269,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
 
           {/* --- No Content Message ---- */}
           {!page.content && (
-            <div className="bg-White rounded-4 border border-Border shadow-sm p-028-6">
+            <div className="bg-White rounded-lg border border-Border shadow-sm p-028-6">
               <div className="flex flex-col items-center gap-012-3 text-center">
                 <div className="w-048-N h-048-N rounded-3 bg-Background flex items-center justify-center">
                   <P.Icon Icon="categories" Size="xl" className="text-Mid/60" />
@@ -281,7 +281,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
 
           {/* --- Comments Card --------- */}
           {page.id && (
-            <div className="bg-White rounded-4 border border-Border shadow-sm overflow-hidden">
+            <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
               <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
                 <div className="flex items-center gap-008-2">
                   <P.Icon Icon="categories" Size="md" className="text-Primary" />

@@ -88,15 +88,15 @@ const parseDate = (dateStr: string | undefined): { year: number; month: number; 
   return null
 }
 
-/* --- DatePickerCalendar Component ------------------------------------------------------------- */
-interface DatePickerCalendarProps {
+/* --- Calendar Component (shadcn-style) -------------------------------------------------------- */
+interface CalendarProps {
   year: number
   month: number
   selectedDate: { year: number; month: number; day: number } | null
   onDateSelect: (year: number, month: number, day: number) => void
 }
 
-function DatePickerCalendar({ year, month, selectedDate, onDateSelect }: DatePickerCalendarProps) {
+function Calendar({ year, month, selectedDate, onDateSelect }: CalendarProps) {
   const daysInMonth = getDaysInMonth(year, month)
   const firstDay = getFirstDayOfMonth(year, month)
   
@@ -123,53 +123,51 @@ function DatePickerCalendar({ year, month, selectedDate, onDateSelect }: DatePic
            selectedDate.day === day
   }
   
-  // Calculate number of rows needed (always 6 rows for consistent height)
-  const totalCells = days.length
-  const rowsNeeded = Math.ceil(totalCells / 7)
-  const cellsToShow = rowsNeeded * 7
-  
-  // Pad days array to always have 6 rows (42 cells)
-  const paddedDays = [...days]
-  while (paddedDays.length < cellsToShow) {
-    paddedDays.push(null)
-  }
-  
   return (
-    <div className="grid grid-cols-7 gap-1 min-h-[280px]">
+    <div className="p-3">
       {/* Weekday headers */}
-      {PERSIAN_WEEKDAYS.map((day) => (
-        <div
-          key={day}
-          className="text-center text-sm font-medium text-Mid py-2"
-        >
-          {day}
-        </div>
-      ))}
+      <div className="grid grid-cols-7 mb-1">
+        {PERSIAN_WEEKDAYS.map((day) => (
+          <div
+            key={day}
+            className="text-Mid text-sm font-medium text-center py-2"
+          >
+            {day}
+          </div>
+        ))}
+      </div>
       
-      {/* Calendar days */}
-      {paddedDays.map((day, index) => (
-        <button
-          key={index}
-          type="button"
-          onClick={() => day && onDateSelect(year, month, day)}
-          disabled={!day}
-          className={cn(
-            "aspect-square text-sm rounded-lg transition-colors min-h-[36px] flex items-center justify-center",
-            !day && "cursor-default opacity-0 pointer-events-none",
-            day && "hover:bg-Mid/10 cursor-pointer",
-            isSelected(day) && "bg-Mid text-white hover:bg-Mid/90",
-            day && !isSelected(day) && "text-Text"
-          )}
-        >
-          {day || ''}
-        </button>
-      ))}
+      {/* Calendar grid */}
+      <div className="grid grid-cols-7 gap-1">
+        {days.map((day, index) => {
+          const isDaySelected = isSelected(day)
+          
+          return (
+            <button
+              key={index}
+              type="button"
+              onClick={() => day && onDateSelect(year, month, day)}
+              disabled={!day}
+              className={cn(
+                "relative flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-Primary focus-visible:ring-offset-2",
+                !day && "cursor-default opacity-0 pointer-events-none",
+                day && !isDaySelected && "text-Text hover:bg-Background hover:text-Text",
+                day && isDaySelected && "bg-Primary text-PrimaryForeground hover:bg-PrimaryDark hover:text-PrimaryForeground focus:bg-Primary",
+                day && !isDaySelected && "hover:bg-Background"
+              )}
+            >
+              {day || ''}
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
 
-/* --- DatePickerHeader Component --------------------------------------------------------------- */
-interface DatePickerHeaderProps {
+/* --- CalendarHeader Component --------------------------------------------------------------- */
+interface CalendarHeaderProps {
   year: number
   month: number
   onPreviousMonth: () => void
@@ -179,7 +177,7 @@ interface DatePickerHeaderProps {
   onYearSelect?: (year: number) => void
 }
 
-function DatePickerHeader({
+function CalendarHeader({
   year,
   month,
   onPreviousMonth,
@@ -187,7 +185,7 @@ function DatePickerHeader({
   onPreviousYear,
   onNextYear,
   onYearSelect,
-}: DatePickerHeaderProps) {
+}: CalendarHeaderProps) {
   const [showYearInput, setShowYearInput] = useState(false)
   const [yearInput, setYearInput] = useState(year.toString())
   const yearInputRef = useRef<HTMLInputElement>(null)
@@ -223,77 +221,83 @@ function DatePickerHeader({
   }
   
   return (
-    <div className="flex items-center justify-between mb-4 px-1">
-      <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between px-3 pt-4">
+      <div className="flex items-center gap-1">
         <Button
           type="button"
           onClick={onPreviousYear}
-          className="p-2"
+          className="h-7 w-7 p-0"
           Size="sm"
+          ThemeProps="ghost"
+          Theme="light"
         >
-          <Icon Icon="back" Stroke="sm" className="size-4" />
+          <Icon Icon="back" Stroke="sm" className="h-4 w-4" />
         </Button>
         <Button
           type="button"
           onClick={onPreviousMonth}
-          className="p-2"
+          className="h-7 w-7 p-0"
           Size="sm"
+          ThemeProps="ghost"
+          Theme="light"
         >
-          <Icon Icon="back" Stroke="sm" className="size-4 rotate-90" />
+          <Icon Icon="back" Stroke="sm" className="h-4 w-4 rotate-90" />
         </Button>
       </div>
       
       <div className="flex items-center gap-2">
         {showYearInput ? (
-          <div className="flex items-center gap-2">
-            <Input
-              ref={yearInputRef}
-              type="text"
-              value={yearInput}
-              onChange={handleYearInputChange}
-              onBlur={handleYearSubmit}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  handleYearSubmit()
-                } else if (e.key === 'Escape') {
-                  setShowYearInput(false)
-                  setYearInput(year.toString())
-                }
-              }}
-              className="w-20 text-center font-semibold"
-              autoFocus
-              maxLength={4}
-            />
-          </div>
+          <input
+            ref={yearInputRef}
+            type="text"
+            value={yearInput}
+            onChange={handleYearInputChange}
+            onBlur={handleYearSubmit}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                handleYearSubmit()
+              } else if (e.key === 'Escape') {
+                setShowYearInput(false)
+                setYearInput(year.toString())
+              }
+            }}
+            className="w-20 h-7 text-center font-semibold rounded-md border border-Border bg-White px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-Primary focus-visible:ring-offset-2"
+            autoFocus
+            maxLength={4}
+          />
         ) : (
           <button
             type="button"
             onClick={() => setShowYearInput(true)}
-            className="px-3 py-1 text-lg font-semibold text-Text hover:bg-Mid/10 rounded-lg transition-colors"
+            className="px-2 py-1 text-sm font-semibold text-Text hover:bg-Background rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-Primary focus-visible:ring-offset-2"
           >
             {year}
           </button>
         )}
-        <span className="text-lg font-semibold text-Text">{PERSIAN_MONTHS[month]}</span>
+        <span className="text-sm font-semibold text-Text min-w-[80px] text-center">{PERSIAN_MONTHS[month]}</span>
       </div>
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <Button
           type="button"
           onClick={onNextMonth}
-          className="p-2"
+          className="h-7 w-7 p-0"
           Size="sm"
+          ThemeProps="ghost"
+          Theme="light"
         >
-          <Icon Icon="back" Stroke="sm" className="size-4 -rotate-90" />
+          <Icon Icon="back" Stroke="sm" className="h-4 w-4 -rotate-90" />
         </Button>
         <Button
           type="button"
           onClick={onNextYear}
-          className="p-2"
+          className="h-7 w-7 p-0"
           Size="sm"
+          ThemeProps="ghost"
+          Theme="light"
         >
-          <Icon Icon="back" Stroke="sm" className="size-4 rotate-180" />
+          <Icon Icon="back" Stroke="sm" className="h-4 w-4 rotate-180" />
         </Button>
       </div>
     </div>
@@ -402,8 +406,8 @@ export function DatePicker({
   const displayError = error || localError
   
   const calendarContent = (
-    <div className={cn("p-4", mode === 'popup' && "min-w-[320px]")}>
-      <DatePickerHeader
+    <div className={cn("", mode === 'popup' && "min-w-[320px]")}>
+      <CalendarHeader
         year={displayYear}
         month={displayMonth}
         onPreviousMonth={handlePreviousMonth}
@@ -412,37 +416,41 @@ export function DatePicker({
         onNextYear={handleNextYear}
         onYearSelect={handleYearSelect}
       />
-      <DatePickerCalendar
+      <Calendar
         year={displayYear}
         month={displayMonth}
         selectedDate={parsedDate}
         onDateSelect={handleDateSelect}
       />
-      <div className="flex items-center justify-between mt-4 pt-4 border-t border-Border/30">
-        {parsedDate && (
-          <Button
-            type="button"
-            onClick={handleClear}
-            className="text-sm"
-            Size="sm"
-            ThemeProps="ghost"
-            Theme="light"
-          >
-            پاک کردن
-          </Button>
-        )}
-        {displayError && (
-          <p className="text-sm text-red-600 dark:text-red-400">{displayError}</p>
-        )}
-        {!parsedDate && !displayError && <div />}
-      </div>
+      {(parsedDate || displayError) && (
+        <div className="flex items-center justify-between px-3 pb-3 pt-2 border-t border-Border">
+          {parsedDate && (
+            <Button
+              type="button"
+              onClick={handleClear}
+              className="text-sm h-7"
+              Size="sm"
+              ThemeProps="ghost"
+              Theme="light"
+            >
+              پاک کردن
+            </Button>
+          )}
+          {displayError && (
+            <p className="text-sm text-Error">{displayError}</p>
+          )}
+          {!parsedDate && !displayError && <div />}
+        </div>
+      )}
     </div>
   )
   
   if (mode === 'inline') {
     return (
       <div className={cn("space-y-2", className)}>
-        {calendarContent}
+        <div className="rounded-lg border border-Border bg-White shadow-sm">
+          {calendarContent}
+        </div>
       </div>
     )
   }
@@ -461,8 +469,8 @@ export function DatePicker({
               readOnly
               className={cn(
                 "w-full cursor-pointer",
-                required && !parsedDate && "border-red-500",
-                displayError && "border-red-500",
+                required && !parsedDate && "border-Error",
+                displayError && "border-Error",
                 !disabled && "pr-10"
               )}
             />
@@ -474,10 +482,11 @@ export function DatePicker({
           </div>
         </Dialog.DialogTrigger>
         <Dialog.DialogContent className="max-w-sm p-0">
-          {calendarContent}
+          <div className="rounded-lg border border-Border bg-White shadow-sm">
+            {calendarContent}
+          </div>
         </Dialog.DialogContent>
       </Dialog.Dialog>
     </div>
   )
 }
-

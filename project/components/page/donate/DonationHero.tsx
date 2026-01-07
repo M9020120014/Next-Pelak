@@ -145,9 +145,9 @@ export default function DonationHero({ lang, iDevice, userMobile: initialUserMob
                       alt="donate"
                       width={800}
                       height={400}
-                      className='object-cover object-center w-auto h-full border-2 border-dotted border-Border rounded-4 mx-auto'
+                      className='object-cover object-center w-auto h-full border-2 border-dotted border-Border rounded-lg mx-auto'
                     />
-                    <div className='absolute inset-0 group-hover:bg-Primary/12 w-full h-full rounded-4 transition-colors duration-300' />
+                    <div className='absolute inset-0 group-hover:bg-Primary/12 w-full h-full rounded-lg transition-colors duration-300' />
                     <div className='absolute inset-0 flex items-center justify-center'>
                       <SvgVideo width={400} height={150} className='mx-018-4' />
                     </div>

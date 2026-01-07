@@ -142,7 +142,7 @@ export default function PagesClient({ lang }: PagesClientProps) {
       <main className=" bg-Background pt-008-2 lg:pt-040-8">
         <P.Container className='space-y-018-4'>
         {/* Header */}
-        <div className="bg-linear-to-br from-PrimaryLight/20 via-Primary/10 to-SecondaryLight/20 rounded-4 p-028-6 border border-PrimaryLight/30">
+        <div className="bg-linear-to-br from-PrimaryLight/20 via-Primary/10 to-SecondaryLight/20 rounded-lg p-028-6 border border-PrimaryLight/30">
           <div className="flex items-center gap-008-2 mb-012-3">
             <div className="w-040-8 h-040-8 rounded-2 bg-Primary/20 flex items-center justify-center text-Primary">
               <Icon Icon="categories" Size="lg" />
@@ -156,7 +156,7 @@ export default function PagesClient({ lang }: PagesClientProps) {
 
         {/* Error State */}
         {error && (
-          <div className="bg-ErrorLight/10 border border-ErrorLight/30 rounded-4 p-028-6">
+          <div className="bg-ErrorLight/10 border border-ErrorLight/30 rounded-lg p-028-6">
               <p className="text-Error">{error}</p>
           </div>
         )}
@@ -168,7 +168,7 @@ export default function PagesClient({ lang }: PagesClientProps) {
             Array.from({ length: 12 }).map((_, index) => (
               <div
                 key={`skeleton-${index}`}
-                className="h-full bg-White rounded-4 border border-Border shadow-sm overflow-hidden"
+                className="h-full bg-White rounded-md border border-Border shadow-sm overflow-hidden"
               >
                 <AspectRatio ratio={16 / 9} className="bg-Background w-full h-full">
                   <Skeleton className="w-full h-full" />
@@ -184,7 +184,7 @@ export default function PagesClient({ lang }: PagesClientProps) {
           {/* Real items */}
           {page.map((page) => (
             <Link href={`/${lang}/page/${page.url}`} key={page.id} className="group">
-              <div className="h-full bg-White rounded-4 border border-Border shadow-sm hover:border-Primary hover:shadow-md transition-all duration-200 overflow-hidden">
+              <div className="h-full bg-White rounded-md border border-Border shadow-sm hover:border-Primary hover:shadow-md transition-all duration-200 overflow-hidden">
                 {/* Image with 16/9 aspect ratio */}
                 <AspectRatio ratio={16 / 9} className="bg-Background w-full h-full relative">
                   {getImageUrl(page.media) ? (
@@ -243,7 +243,7 @@ export default function PagesClient({ lang }: PagesClientProps) {
         {/* --- No More Items ---- */}
         {!hasMore && page.length > 0 && (
           <div className="w-full flex justify-center items-center pt-028-6">
-            <div className="bg-PrimaryLight/5 border border-PrimaryLight/20 rounded-3 px-018-4 py-012-3">
+            <div className="bg-PrimaryLight/5 border border-PrimaryLight/20 rounded-md px-018-4 py-012-3">
               <p className="text-Mid text-F">{t.noMoreItems}</p>
             </div>
           </div>
@@ -252,13 +252,13 @@ export default function PagesClient({ lang }: PagesClientProps) {
         {/* --- Empty State ------ */}
         {!loading && page.length === 0 && !error && (
           <div className="w-full flex justify-center items-center py-028-6">
-            <div className="bg-White rounded-4 border border-Border shadow-sm p-028-6">
+            <div className="bg-White rounded-lg border border-Border shadow-sm p-028-6 rounded-lg">
               <div className="flex flex-col items-center gap-012-3 text-center">
-                <div className="w-048-N h-048-N rounded-3 bg-Background flex items-center justify-center">
+                <div className="w-048-N h-048-N rounded-md bg-Background flex items-center justify-center">
                   <Icon Icon="categories" Size="xl" className="text-Mid/60" />
                 </div>
-                <p className="text-F font-title text-Text">{t.emptyTitle}</p>
-                <p className="text-G text-Mid max-w-md">{t.emptyDescription}</p>
+                <p className="font-title text-Text">{t.emptyTitle}</p>
+                <p className="text-Mid max-w-md">{t.emptyDescription}</p>
               </div>
             </div>
           </div>

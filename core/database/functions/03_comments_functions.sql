@@ -63,12 +63,14 @@ BEGIN
           'updated', c.updated,
           'importance', COALESCE(c.importance, 0),
           'likes_count', COALESCE(likes.likes_count, 0),
-          'user_liked', COALESCE(user_like.user_liked, false)
+          'user_liked', COALESCE(user_like.user_liked, false),
+          'userfullname', TRIM(CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.lastname, '')))
         ) ORDER BY c.created ASC
       ),
       '[]'::jsonb
     ) INTO v_comments
     FROM pelak.comments c
+    LEFT JOIN pelak.user u ON c.userid = u.userid
     LEFT JOIN (
       SELECT 
         commentid,
@@ -101,12 +103,14 @@ BEGIN
           'updated', c.updated,
           'importance', COALESCE(c.importance, 0),
           'likes_count', COALESCE(likes.likes_count, 0),
-          'user_liked', COALESCE(user_like.user_liked, false)
+          'user_liked', COALESCE(user_like.user_liked, false),
+          'userfullname', TRIM(CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.lastname, '')))
         ) ORDER BY COALESCE(likes.likes_count, 0) DESC, c.created DESC
       ),
       '[]'::jsonb
     ) INTO v_comments
     FROM pelak.comments c
+    LEFT JOIN pelak.user u ON c.userid = u.userid
     LEFT JOIN (
       SELECT 
         commentid,
@@ -139,12 +143,14 @@ BEGIN
           'updated', c.updated,
           'importance', COALESCE(c.importance, 0),
           'likes_count', COALESCE(likes.likes_count, 0),
-          'user_liked', COALESCE(user_like.user_liked, false)
+          'user_liked', COALESCE(user_like.user_liked, false),
+          'userfullname', TRIM(CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.lastname, '')))
         ) ORDER BY COALESCE(c.importance, 0) DESC, c.created DESC
       ),
       '[]'::jsonb
     ) INTO v_comments
     FROM pelak.comments c
+    LEFT JOIN pelak.user u ON c.userid = u.userid
     LEFT JOIN (
       SELECT 
         commentid,
@@ -177,12 +183,14 @@ BEGIN
           'updated', c.updated,
           'importance', COALESCE(c.importance, 0),
           'likes_count', COALESCE(likes.likes_count, 0),
-          'user_liked', COALESCE(user_like.user_liked, false)
+          'user_liked', COALESCE(user_like.user_liked, false),
+          'userfullname', TRIM(CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.lastname, '')))
         ) ORDER BY c.created DESC
       ),
       '[]'::jsonb
     ) INTO v_comments
     FROM pelak.comments c
+    LEFT JOIN pelak.user u ON c.userid = u.userid
     LEFT JOIN (
       SELECT 
         commentid,

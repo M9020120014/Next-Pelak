@@ -23,6 +23,7 @@ type CommentRecord = {
   likes_count?: number
   importance?: number
   user_liked?: boolean
+  userfullname?: string
   children?: CommentRecord[]
 }
 
@@ -95,6 +96,7 @@ export default function CommentsSection({
         importance: comment.importance ?? 0,
         user_liked: comment.user_liked ?? false,
         parentid: comment.parentid ?? null,
+        userfullname: comment.userfullname ?? undefined,
       }))
   }
 
@@ -570,15 +572,15 @@ function CommentNode({ comment, depth, onReply, onLike, likesMap, isAuthenticate
             <div className="flex items-center justify-between gap-008-2 flex-wrap">
               <div className="flex items-center gap-008-2">
                 <span className="inline-flex items-center px-012-3 py-006-1.5 rounded-2 bg-Background text-Mid font-title">
-                  {comment.userid}
+                  {comment.userfullname && comment.userfullname.trim() ? comment.userfullname : comment.userid}
                 </span>
               </div>
-              <div className="flex items-center gap-006-1.5 text-Mid">
+              {/* <div className="flex items-center gap-006-1.5 text-Mid">
                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 <span>{formattedDate}</span>
-              </div>
+              </div> */}
             </div>
             
             <p className="leading-relaxed text-Text whitespace-pre-wrap">

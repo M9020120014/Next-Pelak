@@ -14,7 +14,7 @@ const LANG_ID_TO_CODE: Record<number, string> = {
 /* --- GET Page by ID (Short Link) ------------------------------------------------------------- */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ lang: string; id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Get id from params
