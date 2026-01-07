@@ -256,7 +256,7 @@ project/
 ├── hooks/                   # Project-specific hooks (optional)
 │   └── custom.ts           # Hook های سفارشی دیگر (اختیاری)
 ├── components/             # Project-specific components
-├── pages/                  # Project-specific pages
+├── page/                  # Project-specific page
 └── styles/                 # Project-specific styles
 
 core/config/

@@ -88,7 +88,8 @@ export default async function proxy(
     // 1. Proxy must be fast (no async backend calls or database queries)
     // 2. Invalid tokens will be rejected by API routes which perform full validation
     // 3. Format validation prevents obviously invalid/malformed tokens from passing through
-    // 4. Actual token validation (signature, expiration, database check) happens in /api/auth/refresh
+    // 4. Actual token validation (signature, expiration, database check) happens in API routes
+    //    via checkAuthorizationWithRefresh() which verifies refresh token exists in database
     // 5. If format is invalid, user is redirected to login (but we don't clear cookie here - let API handle it)
     if (!isAuthenticated) {
       if (!refreshToken || !validateRefreshTokenFormat(refreshToken)) {
@@ -110,8 +111,10 @@ export default async function proxy(
       }
       // Refresh token format is valid - allow access to page
       // Full token validation (signature, expiration, database verification) will happen
-      // when user makes API calls (e.g., /api/auth/refresh)
-      // This two-stage validation provides both performance and security
+      // when user makes API calls. Protected API routes use checkAuthorizationWithRefresh()
+      // which checks if refresh token exists in database for the iDevice.
+      // If refresh token doesn't exist in DB, API will return 401 and client should logout.
+      // This two-stage validation provides both performance (fast proxy) and security (DB check in API)
       isAuthenticated = true
     }
   }
@@ -168,11 +171,25 @@ export default async function proxy(
     }
   }
   
-  // Build connect-src directive with PostHog host if available
+
+  // Build connect-src directive with PostHog host and assets if available
+  // PostHog requires both the main host and assets domain for proper functionality
   const connectSrc = posthogHostCSP 
-    ? `connect-src 'self' ${posthogHostCSP}`
-    : "connect-src 'self'"
+    ? `connect-src 'self' ${posthogHostCSP} https://eu-assets.i.posthog.com`
+    : "connect-src 'self' https://eu-assets.i.posthog.com"
   
+  // Build script-src directive with PostHog assets domain
+  // PostHog needs to load scripts from eu-assets.i.posthog.com
+  const scriptSrc = posthogHostCSP
+    ? `script-src 'self' 'nonce-${nonce}' 'sha256-1ejjuJTafqPpU5E26Lr6F53b1OwFIGPOZWX4Afjkfrg=' ${posthogHostCSP} https://eu-assets.i.posthog.com 'strict-dynamic'`
+    : `script-src 'self' 'nonce-${nonce}' 'sha256-1ejjuJTafqPpU5E26Lr6F53b1OwFIGPOZWX4Afjkfrg=' https://eu-assets.i.posthog.com 'strict-dynamic'`
+  
+  // Build style-src directive with PostHog assets domain
+  // PostHog needs to load styles from eu-assets.i.posthog.com
+  const styleSrc = posthogHostCSP
+    ? `style-src 'self' 'nonce-${nonce}' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=' ${posthogHostCSP} https://eu-assets.i.posthog.com 'unsafe-hashes'`
+    : `style-src 'self' 'nonce-${nonce}' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=' https://eu-assets.i.posthog.com 'unsafe-hashes'`
+    
   // CSP configuration for Next.js
   // Using 'strict-dynamic' with nonce provides better security than 'unsafe-inline'
   // 'strict-dynamic' allows scripts loaded by nonce-verified scripts
@@ -181,20 +198,20 @@ export default async function proxy(
   // Order matters: 'self' -> 'nonce' -> 'hash' -> 'strict-dynamic'
   const cspHeader = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'sha256-1ejjuJTafqPpU5E26Lr6F53b1OwFIGPOZWX4Afjkfrg=' 'strict-dynamic'`,
-    `style-src 'self' 'nonce-${nonce}'`, // Use nonce for styles when possible
+    scriptSrc,
+    styleSrc,
     "img-src 'self' data: https:",
     "font-src 'self'",
     connectSrc,
-    "media-src 'self'",
+    "media-src 'self' https://htni-box.s3.ir-thr-at1.arvanstorage.ir", // Added Arvan Storage for videos
     "object-src 'none'",
-    "frame-src 'none'",
+    "frame-src 'self' https://www.aparat.com", // Added Aparat for video embeds
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
     "upgrade-insecure-requests",
     // Additional CSP directives for enhanced security
-    "worker-src 'self'",
+    "worker-src 'self' blob:", // Added blob: for PostHog workers
     "manifest-src 'self'"
   ].join('; ')
 

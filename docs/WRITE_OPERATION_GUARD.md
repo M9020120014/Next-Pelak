@@ -227,7 +227,7 @@ async function POSTHandler(request: NextRequest) {
   - و سایر API های احراز هویت
 - API های خواندن (GET):
   - `/api/comments` (GET)
-  - `/api/pages` (GET)
+  - `/api/page` (GET)
   - و سایر API های فقط خواندن
 
 ## نحوه استخراج iDevice

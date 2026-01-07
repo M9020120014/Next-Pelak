@@ -2,7 +2,7 @@
 // Step 1: Verify iDevice has refresh token
 // Step 2: Execute write operation
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { callRpc } from '@/core/lib/rest/rpc'
 import { getIDeviceToken } from '@/core/lib/token/idevice'
 import { validateDeviceId } from '@/core/lib/validation'

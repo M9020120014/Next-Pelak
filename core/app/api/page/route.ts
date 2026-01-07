@@ -46,7 +46,7 @@ async function GETHandler(request: NextRequest) {
   if (isNaN(langId) || (langId !== 1 && langId !== 2)) {
     return invalidInputError("پارامتر lang باید 1 (فارسی) یا 2 (انگلیسی) باشد.");
   }
-
+  
   // Call database function
   const result = await callRpc("pelak_page_getsummaries", {
     p_limit: limit,
@@ -58,13 +58,13 @@ async function GETHandler(request: NextRequest) {
     return serverError(result.message || "خطا در دریافت صفحات.");
   }
 
-  // Return success response with pages data
-  // Note: result.pages comes from database as JSONB array, parsed by PostgREST
-  const pages = (result as Record<string, unknown>).pages as unknown[] || []
+  // Return success response with page data
+  // Note: result.page comes from database as JSONB array, parsed by PostgREST
+  const page = (result as Record<string, unknown>).page as unknown[] || []
   
   return successResponse(
     {
-      pages,
+      page,
       title: result.title || "صفحات دریافت شدند",
     },
     result.message,
@@ -73,5 +73,5 @@ async function GETHandler(request: NextRequest) {
   );
 }
 
-export const GET = withErrorHandlingAndTracking(GETHandler, '/api/pages')
+export const GET = withErrorHandlingAndTracking(GETHandler, '/api/page')
 

@@ -193,16 +193,16 @@ export const SITE_LANG = {
   /* --- fa ---------------------- */
   fa: {
     Data: {
-      name: "سیستم طراحی پلاک", // data.metadata.BACE_SEO_LANG // libs.schema.getJsonLd // manifest
+      name: "حزب تمدن نوین اسلامی", // data.metadata.BACE_SEO_LANG // libs.schema.getJsonLd // manifest
       locale: "fa_IR", // data.metadata.BACE_SEO_LANG
-      title: "سیستم طراحی پلاک", // data.metadata.HOME_SEO_LANG // configs.Map
-      description: "یک سیستم طراحی یکپارچه به‌عنوان زیرساخت مشترک برای محصولات دیجیتال که ساختار، رفتار و زیبایی را با قوانین ثابت هم‌راستا می‌کند.", // data.metadata.HOME_SEO_LANG // libs.schema.getJsonLd // manifest // configs.Map
+      title: "حزب تمدن نوین اسلامی – مسیر تمدن‌سازی نوین اسلامی", // data.metadata.HOME_SEO_LANG // configs.Map
+      description: "پایگاه رسمی حزب تمدن نوین اسلامی؛ اخبار، مواضع، برنامه‌ها و تحلیل‌ها در مسیر تمدن‌سازی نوین. به جمع همراهان ما بپیوندید.", // data.metadata.HOME_SEO_LANG // libs.schema.getJsonLd // manifest // configs.Map
       image: "/image.png", // data.metadata.HOME_SEO_LANG
       video: "/video.mp4", // data.metadata.HOME_SEO_LANG
       audio: "/audio.mp3", // data.metadata.HOME_SEO_LANG
-      alt: "سیستم طراحی پلاک", // data.metadata.HOME_SEO_LANG
-      shortName: "پلاک", // manifest // configs.Map
-      section: "وب‌سایت سیستم طراحی پلاک", // data.metadata.HOME_SEO_LANG-Article
+      alt: "وب سایت رسمی حزب تمدن نوین اسلامی", // data.metadata.HOME_SEO_LANG
+      shortName: "HTNI", // manifest // configs.Map
+      section: "وب سایت رسمی حزب تمدن نوین اسلامی", // data.metadata.HOME_SEO_LANG-Article
     },
     Check: {
       absoluteTitle: true // data.metadata.HOME_SEO_LANG
@@ -211,36 +211,39 @@ export const SITE_LANG = {
       founders: [
         {
           "@type": "Person",
-          "name": "مهدی گودینی"
+          "name": "سید یاسر جبرائیلی"
         } // libs.schema.getJsonLd
       ],
     },
     Keywords: [
-      "پلاک",
-      "سیستم طراحی پلاک",
-      "سیستم طراحی پلاک نکست",
-      "سیستم طراحی نکست جی‌اس",
-      "نکست جی‌اس پلاک"
+      "حزب تمدن نوین اسلامی",
+      "وب سایت رسمی حزب تمدن نوین اسلامی",
+      "تمدن نوین اسلامی",
+      "حزب سیاسی",
+      "حزب اسلامی",
+      "تحلیل سیاسی",
+      "حکمرانی اسلامی",
     ], // data.metadata.HOME_SEO_LANG // libs.schema.getJsonLd
     Tag: [
-      "سیستم طراحی پلاک نکست",
-      "سیستم طراحی نکست جی‌اس",
-      "سیستم طراحی پلاک با نکست جی‌اس"
+      "حزب تمدن نوین اسلامی",
+      "وب سایت رسمی حزب تمدن نوین اسلامی",
+      "تمدن نوین اسلامی",
+      "حزب سیاسی",
     ] // data.metadata.HOME_SEO_LANG-Article
   },
   /* --- en ---------------------- */
   en: {
     Data: {
-      name: "PELAK Design System", // data.metadata.BACE_SEO_LANG // libs.schema.getJsonLd // manifest
+      name: "Islamic New Civilization Party", // data.metadata.BACE_SEO_LANG // libs.schema.getJsonLd // manifest
       locale: "en-US", // data.metadata.BACE_SEO_LANG
-      title: "PELAK Design System", // data.metadata.HOME_SEO_LANG // configs.Map
-      description: "A universal design system built as a shared foundation for digital products, aligning structure, behavior, and aesthetics through consistent rules.", // data.metadata.HOME_SEO_LANG // libs.schema.getJsonLd // manifest // configs.Map
+      title: "Islamic New Civilization Party – Path to Building a New Islamic Civilization", // data.metadata.HOME_SEO_LANG // configs.Map
+      description: "Official website of the Islamic New Civilization Party; news, positions, programs, and analyses on the path to building a new civilization. Join our community.", // data.metadata.HOME_SEO_LANG // libs.schema.getJsonLd // manifest // configs.Map
       image: "/image.png", // data.metadata.HOME_SEO_LANG
       video: "/video.mp4", // data.metadata.HOME_SEO_LANG
       audio: "/audio.mp3", // data.metadata.HOME_SEO_LANG
-      alt: "Pelak Design System", // data.metadata.HOME_SEO_LANG
-      shortName: "PELAK", // manifest // configs.Map
-      section: "Web Site of the PELAK Design System", // data.metadata.HOME_SEO_LANG-Article
+      alt: "Official website of the Islamic New Civilization Party", // data.metadata.HOME_SEO_LANG
+      shortName: "HTNI", // manifest // configs.Map
+      section: "Official website of the Islamic New Civilization Party", // data.metadata.HOME_SEO_LANG-Article
     },
     Check: {
       absoluteTitle: true // data.metadata.HOME_SEO_LANG
@@ -249,21 +252,24 @@ export const SITE_LANG = {
       founders: [
         {
           "@type": "Person",
-          "name": "Mahdi Goodini"
+          "name": "Seyed Yaser Jebraili"
         } // libs.schema.getJsonLd
       ]
     },
     Keywords: [
-      "Pelak",
-      "Pelak Design System",
-      "Next Pelak Design System",
-      "Next JS Design System",
-      "Next JS Pelak"
+      "Islamic New Civilization Party",
+      "Official website of the Islamic New Civilization Party",
+      "New Islamic Civilization",
+      "Political Party",
+      "Islamic Party",
+      "Political Analysis",
+      "Islamic Governance",
     ], // data.metadata.HOME_SEO_LANG // libs.schema.getJsonLd
     Tag: [
-      "Next Pelak Design System",
-      "Next JS Design System",
-      "Next JS Pelak Design System"
+      "Islamic New Civilization Party",
+      "Official website of the Islamic New Civilization Party",
+      "New Islamic Civilization",
+      "Political Party",
     ] // data.metadata.HOME_SEO_LANG-Article
   }
 } as const satisfies ConfigSiteLangObject<typeof LANGUAGE.list>
@@ -278,11 +284,11 @@ export const SITE = {
     telegram: "https://t.me/HokmranTV"
   }, // libs.schema.getJsonLd
   Data: {
-    appName: "PELAK Design System", // data.metadata.BACE_SEO
+    appName: "HTNI", // data.metadata.BACE_SEO
     url: BASE_URL, // data.metadata.BACE_SEO // data.metadata.BACE_SEO_LANG // data.metadata.HOME_SEO_LANG // libs.schema.getJsonLd // robots // manifest
     logo: "/logo.png", // data.metadata.BACE_SEO // libs.schema.getJsonLd
-    googleVerification: "1234567890123456789012345678901234567890123", // data.metadata.BACE_SEO
-    twitter: "@MahdiGoodini", // data.metadata.BACE_SEO
+    googleVerification: "uqBYwALrIDXVDxYyCHeBtpUBv5bGNrMpxNwLzhJnZQc", // data.metadata.BACE_SEO
+    twitter: "@Hokmranonline", // data.metadata.BACE_SEO
   },
   Date: {
     foundingDate: new Date("2025-10-09") // libs.schema.getJsonLd

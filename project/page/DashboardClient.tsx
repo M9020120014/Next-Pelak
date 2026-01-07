@@ -185,6 +185,7 @@ export default function DashboardClient({ iDevice, lang }: DashboardClientProps)
   const token = getAccessToken()
   const userInfo = token ? decodeTokenPayload(token) : null
 
+
   // Determine profile image URL
   const getProfileImageUrl = (): string => {
     if (profileData?.profileurl) {
@@ -251,7 +252,6 @@ export default function DashboardClient({ iDevice, lang }: DashboardClientProps)
       </div>
     )
   }
-
 
   return (
     <main className="bg-Background pt-008-2 lg:pt-040-8 min-h-screen">

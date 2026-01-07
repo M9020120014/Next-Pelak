@@ -273,12 +273,6 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
     return String(value)
   }
 
-  // Helper function to get selector title
-  const getSelectorTitle = (type: string, id: number | null): string => {
-    if (!id) return '-'
-    return selectorTitles[`${type}_${id}`] || `ID: ${id}`
-  }
-
   // Component to render selector title with skeleton if not loaded
   const SelectorTitleDisplay = ({ type, id }: { type: string, id: number | null }) => {
     if (!id) return <span>-</span>

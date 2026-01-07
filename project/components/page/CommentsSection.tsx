@@ -443,7 +443,7 @@ export default function CommentsSection({
 
       {/* Comment Form */}
       <div ref={commentFormRef} className="bg-White rounded-3 border border-Border shadow-sm overflow-hidden">
-        <div className="px-018-4 py-012-3 border-b border-Border bg-gradient-to-br from-PrimaryLight/20 to-Primary/10">
+        <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
           <div className="flex items-center gap-008-2">
             <P.Icon Icon="categories" Size="md" className="text-Primary" />
             <h3 className="font-title text-Text">{t.addComment}</h3>

@@ -1,7 +1,7 @@
 "use client"
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, startTransition } from 'react'
 import { ClassName as cn } from "./Pelak"
 import { Input } from "./Input"
 import { Button } from "./Button"
@@ -114,7 +114,7 @@ function DatePickerCalendar({ year, month, selectedDate, onDateSelect }: DatePic
     }
     
     return daysArray
-  }, [year, month, daysInMonth, firstDay])
+  }, [daysInMonth, firstDay])
   
   const isSelected = (day: number | null) => {
     if (!day || !selectedDate) return false
@@ -312,6 +312,26 @@ export function DatePicker({
   error,
   isLoading = false,
 }: DatePickerProps) {
+  // All hooks must be called before any early returns
+  const parsedDate = parseDate(value)
+  const currentDate = parsedDate || { year: 1403, month: 1, day: 1 }
+  
+  const [open, setOpen] = useState(false)
+  const [localError, setLocalError] = useState<string>("")
+  const [displayYear, setDisplayYear] = useState(currentDate.year)
+  const [displayMonth, setDisplayMonth] = useState(currentDate.month)
+  
+  // Update display when value changes
+  // Use startTransition to prevent cascading renders
+  useEffect(() => {
+    if (parsedDate) {
+      startTransition(() => {
+        setDisplayYear(parsedDate.year)
+        setDisplayMonth(parsedDate.month)
+      })
+    }
+  }, [parsedDate])
+  
   // Show skeleton if isLoading is true
   if (isLoading) {
     return (
@@ -320,23 +340,6 @@ export function DatePicker({
       </div>
     )
   }
-
-  const [open, setOpen] = useState(false)
-  const [localError, setLocalError] = useState<string>("")
-  
-  const parsedDate = parseDate(value)
-  const currentDate = parsedDate || { year: 1403, month: 1, day: 1 }
-  
-  const [displayYear, setDisplayYear] = useState(currentDate.year)
-  const [displayMonth, setDisplayMonth] = useState(currentDate.month)
-  
-  // Update display when value changes
-  useEffect(() => {
-    if (parsedDate) {
-      setDisplayYear(parsedDate.year)
-      setDisplayMonth(parsedDate.month)
-    }
-  }, [value])
   
   const handleDateSelect = (year: number, month: number, day: number) => {
     const dateStr = formatDate(year, month, day)
@@ -422,7 +425,8 @@ export function DatePicker({
             onClick={handleClear}
             className="text-sm"
             Size="sm"
-            Theme="ghost"
+            ThemeProps="ghost"
+            Theme="light"
           >
             پاک کردن
           </Button>

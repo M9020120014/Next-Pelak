@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: LANG_PARAMS): Promise<Metadat
     title: lang === 'fa' ? 'همه صفحات' : 'All Pages',
     description: lang === 'fa' 
       ? 'در این بخش می‌توانید آخرین صفحات منتشر شده در سایت را مشاهده کنید و جزئیات هر صفحه را ببینید.'
-      : 'In this section, you can view the latest published pages on the site and see details of each page.',
+      : 'In this section, you can view the latest published page on the site and see details of each page.',
   };
 };
 /* --- Pages Page ------------------------------------------------------ */

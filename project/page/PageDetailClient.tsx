@@ -5,8 +5,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 /* --- Components ------------------------------------------------------------------------------- */
 import { AspectRatio } from '@/core/components/ui/AspectRatio'
-import CopyLinkButton from '@/project/components/pages/CopyLinkButton'
-import CommentsSectionWrapper from '@/project/components/pages/CommentsSectionWrapper'
+import CopyLinkButton from '@/project/components/page/CopyLinkButton'
+import CommentsSectionWrapper from '@/project/components/page/CommentsSectionWrapper'
 import { UI as P } from '@/core/components/ui/Pelak'
 /* --- Types ------------------------------------------------------------------------------------ */
 import { LANGUAGE_TYPE, SITE } from '@/project/config/site'
@@ -79,7 +79,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
   const formattedDate = page.publishedtime
     ? new Date(page.publishedtime).toLocaleDateString(lang === 'fa' ? 'fa-IR' : 'en-US')
     : ''
-  const shareUrl = `${SITE.Data.url}/${lang}/page/${page.url}`
+  const shareUrl = `${SITE.Data.url}/${lang}/${page.id}`
   const shareText = page.title || ''
   const tags = page.tags
     ? page.tags.split(',').map((tag) => tag.trim()).filter((tag) => tag !== '')
@@ -94,7 +94,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
           <div className="bg-White rounded-4 border border-Border shadow-sm overflow-hidden">
             <AspectRatio ratio={16 / 9} className="bg-Background relative">
               {imageUrl ? (
-                <div className="relative w-full h-full">
+                <div className="relative w-full h-full flex items-center justify-center">
                   <Image
                     src={imageUrl}
                     alt={page.title || ''}
@@ -105,7 +105,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
                   />
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center space-y-2 w-full h-full bg-gradient-to-br from-PrimaryLight/10 to-Primary/5">
+                <div className="flex flex-col items-center justify-center space-y-2 w-full h-full bg-linear-to-br from-PrimaryLight/10 to-Primary/5">
                   <div className="w-16 h-16 text-Mid/50">
                     <P.Icon Icon="categories" Size="xl" />
                   </div>
@@ -200,7 +200,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
 
           {/* --- Meta Info Card --------- */}
           <div className="bg-White rounded-4 border border-Border shadow-sm overflow-hidden">
-            <div className="px-018-4 py-012-3 border-b border-Border bg-gradient-to-br from-PrimaryLight/20 to-Primary/10">
+            <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
               <div className="flex items-center gap-008-2">
                 <P.Icon Icon="dashboard" Size="md" className="text-Primary" />
                 <h2 className="text-E font-title text-Text">{t.pageInfo}</h2>
@@ -245,7 +245,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
           {/* --- Related Categories Card --------- */}
           {tags && tags.length > 0 && (
             <div className="bg-White rounded-4 border border-Border shadow-sm overflow-hidden">
-              <div className="px-018-4 py-012-3 border-b border-Border bg-gradient-to-br from-PrimaryLight/20 to-Primary/10">
+              <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
                 <div className="flex items-center gap-008-2">
                   <P.Icon Icon="categories" Size="md" className="text-Primary" />
                   <h2 className="text-E font-title text-Text">{t.relatedCategories}</h2>
@@ -282,7 +282,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
           {/* --- Comments Card --------- */}
           {page.id && (
             <div className="bg-White rounded-4 border border-Border shadow-sm overflow-hidden">
-              <div className="px-018-4 py-012-3 border-b border-Border bg-gradient-to-br from-PrimaryLight/20 to-Primary/10">
+              <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
                 <div className="flex items-center gap-008-2">
                   <P.Icon Icon="categories" Size="md" className="text-Primary" />
                   <h2 className="text-E font-title text-Text">{t.comments}</h2>

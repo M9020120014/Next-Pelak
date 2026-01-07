@@ -11,7 +11,7 @@ import { AspectRatio } from '@/core/components/ui/AspectRatio'
 import { Icon } from '@/core/components/ui/Icon'
 /* --- Types ------------------------------------------------------------------------------------ */
 import { LANGUAGE_TYPE, LANGUAGE_DATA } from '@/project/config/site'
-import { pagesTranslator } from '@/project/data/translations/pages'
+import { pageTranslator } from '@/project/data/translations/page'
 import { ENV } from '@/core/config/env'
 /* --- Functions -------------------------------------------------------------------------------- */
 
@@ -48,7 +48,7 @@ interface PagesResponse {
   success: boolean
   title?: string
   message?: string
-  pages?: PageType[]
+  page?: PageType[]
 }
 
 /* --- Pages Client Component ----------------------------------------- */
@@ -57,13 +57,13 @@ interface PagesClientProps {
 }
 
 export default function PagesClient({ lang }: PagesClientProps) {
-  const [pages, setPages] = useState<PageType[]>([])
+  const [page, setPages] = useState<PageType[]>([])
   const [offset, setOffset] = useState(0)
   const [loading, setLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const t = pagesTranslator[lang]
+  const t = pageTranslator[lang]
   const langId = LANGUAGE_DATA.langId[lang]
 
   /* --- Fetch Pages ---------------- */
@@ -78,7 +78,7 @@ export default function PagesClient({ lang }: PagesClientProps) {
         lang: langId,
       })
 
-      const response = await fetch(`/api/pages?${params.toString()}`)
+      const response = await fetch(`/api/page?${params.toString()}`)
       const data: PagesResponse = await response.json()
 
       if (!response.ok || !data.success) {
@@ -86,16 +86,16 @@ export default function PagesClient({ lang }: PagesClientProps) {
         return
       }
 
-      if (!data.pages || data.pages.length === 0) {
+      if (!data.page || data.page.length === 0) {
         setHasMore(false)
       } else {
         setPages(prev => {
           const existingIds = new Set(prev.map(item => item.id))
-          const nextItems = data.pages!.filter(item => !existingIds.has(item.id))
+          const nextItems = data.page!.filter(item => !existingIds.has(item.id))
           return [...prev, ...nextItems]
         })
         setOffset(currentOffset + 12)
-        if (data.pages.length < 12) {
+        if (data.page.length < 12) {
           setHasMore(false)
         }
       }
@@ -142,7 +142,7 @@ export default function PagesClient({ lang }: PagesClientProps) {
       <main className=" bg-Background pt-008-2 lg:pt-040-8">
         <P.Container className='space-y-018-4'>
         {/* Header */}
-        <div className="bg-gradient-to-br from-PrimaryLight/20 via-Primary/10 to-SecondaryLight/20 rounded-4 p-028-6 border border-PrimaryLight/30">
+        <div className="bg-linear-to-br from-PrimaryLight/20 via-Primary/10 to-SecondaryLight/20 rounded-4 p-028-6 border border-PrimaryLight/30">
           <div className="flex items-center gap-008-2 mb-012-3">
             <div className="w-040-8 h-040-8 rounded-2 bg-Primary/20 flex items-center justify-center text-Primary">
               <Icon Icon="categories" Size="lg" />
@@ -164,7 +164,7 @@ export default function PagesClient({ lang }: PagesClientProps) {
         {/* --- Pages List ------- */}
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-018-4">
           {/* Loading skeletons on first load */}
-          {loading && pages.length === 0 &&
+          {loading && page.length === 0 &&
             Array.from({ length: 12 }).map((_, index) => (
               <div
                 key={`skeleton-${index}`}
@@ -182,7 +182,7 @@ export default function PagesClient({ lang }: PagesClientProps) {
             ))}
 
           {/* Real items */}
-          {pages.map((page) => (
+          {page.map((page) => (
             <Link href={`/${lang}/page/${page.url}`} key={page.id} className="group">
               <div className="h-full bg-White rounded-4 border border-Border shadow-sm hover:border-Primary hover:shadow-md transition-all duration-200 overflow-hidden">
                 {/* Image with 16/9 aspect ratio */}
@@ -196,13 +196,13 @@ export default function PagesClient({ lang }: PagesClientProps) {
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   ) : (
-                    <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-PrimaryLight/10 to-Primary/5">
+                    <div className="flex flex-col items-center justify-center w-full h-full bg-linear-to-br from-PrimaryLight/10 to-Primary/5">
                       <Icon Icon="categories" Size="xl" className="text-Mid/40" />
                       <p className="text-G text-Background">{t.noImage}</p>
                     </div>
                   )}
                   {/* Overlay footer */}
-                  <div className="absolute top-0 bottom-0 left-0 right-0 bg-gradient-to-t from-Background/80 via-Background/40 to-Primary/5"></div>
+                  <div className="absolute top-0 bottom-0 left-0 right-0 bg-linear-to-t from-Background/80 via-Background/40 to-Primary/5"></div>
                   {/* Overlay footer */}
                   <div className="absolute bottom-0 left-0 right-0 bg-Background/40 group-hover:bg-Background/72 to-transparent px-012-3 py-012-3 border-t border-Border/50 group-hover:border-Primary">
                     <h3 className="text-E font-title text-Text group-hover:text-PrimaryDark line-clamp-2 transition-colors">
@@ -241,7 +241,7 @@ export default function PagesClient({ lang }: PagesClientProps) {
         )}
 
         {/* --- No More Items ---- */}
-        {!hasMore && pages.length > 0 && (
+        {!hasMore && page.length > 0 && (
           <div className="w-full flex justify-center items-center pt-028-6">
             <div className="bg-PrimaryLight/5 border border-PrimaryLight/20 rounded-3 px-018-4 py-012-3">
               <p className="text-Mid text-F">{t.noMoreItems}</p>
@@ -250,7 +250,7 @@ export default function PagesClient({ lang }: PagesClientProps) {
         )}
 
         {/* --- Empty State ------ */}
-        {!loading && pages.length === 0 && !error && (
+        {!loading && page.length === 0 && !error && (
           <div className="w-full flex justify-center items-center py-028-6">
             <div className="bg-White rounded-4 border border-Border shadow-sm p-028-6">
               <div className="flex flex-col items-center gap-012-3 text-center">

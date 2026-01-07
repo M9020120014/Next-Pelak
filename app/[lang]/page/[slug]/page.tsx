@@ -63,7 +63,7 @@ async function fetchPageData(slug: string): Promise<PageType | null> {
   try {
     const baseUrl = SITE.Data.url;
     
-    const response = await fetch(`${baseUrl}/api/pages/${encodeURIComponent(slug)}`, {
+    const response = await fetch(`${baseUrl}/api/page/${encodeURIComponent(slug)}`, {
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
@@ -100,7 +100,6 @@ export async function generateMetadata({
     
     if (!page) {
       return {
-        ...BACE_SEO_LANG(validatedLang),
         ...ROBOTS_OFF,
       };
     }
@@ -115,7 +114,6 @@ export async function generateMetadata({
     const robotsConfig = page.status === 1 ? ROBOTS_ON : ROBOTS_OFF;
 
     return {
-      ...BACE_SEO_LANG(validatedLang),
       ...robotsConfig,
       title: page.title || SITE_LANG[validatedLang].Data.title,
       description: page.description || SITE_LANG[validatedLang].Data.description,
@@ -177,7 +175,7 @@ export default async function PageDetailPage({
   const requestedLangId = LANGUAGE_DATA.langId[validatedLang];
   
   if (pageLangId && pageLangId.toString() !== requestedLangId) {
-    // Redirect to pages list if language doesn't match
+    // Redirect to page list if language doesn't match
     redirect(`/${validatedLang}/page`);
   }
 

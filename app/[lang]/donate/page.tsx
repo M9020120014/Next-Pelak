@@ -1,38 +1,29 @@
+/* --- Base ------------------------------------------------------------------------------------- */
+import type { Metadata } from "next"
+/* --- Data ------------------------------------------------------------------------------------- */
+import { LANG_PARAMS, LANG } from "@/project/config/site"
+import { ROBOTS_ON } from "@/core/config/metadata"
+/* --- Components ------------------------------------------------------------------------------ */
+import DonateClient from "@/project/page/DonateClient"
+import { getIDeviceToken } from "@/core/lib/token/idevice"
+/* --- Functions -------------------------------------------------------------------------------- */
 
-import { LANG_PARAMS, LANG, LANGUAGE } from "@/project/config/site";
-import Link from "next/link";
-import { commonTranslator } from "@/project/data/translations/common";
+/* --- Donate Page Metadata --------------------------------------------- */
+export async function generateMetadata({ params }: LANG_PARAMS): Promise<Metadata> {
+  const { lang } = await LANG(params)
+  return {
+    ...ROBOTS_ON,
+    title: lang === 'fa' ? 'حمایت مالی' : 'Financial Support',
+    description: lang === 'fa' 
+      ? 'با حمایت مالی خود، در ساخت تمدن نوین اسلامی سهیم شوید'
+      : 'Join us in building the new Islamic civilization through your financial support',
+  }
+}
 
-export default async function AliPage({ params }: LANG_PARAMS) {
-  const { lang, otherLanguages } = await LANG(params);
-  const t = commonTranslator[lang];
-  return (
-    <main className="flex flex-col gap-12 items-center justify-center w-full h-screen text-center">
-      <h1 className="text-4xl font-bold">Ali Page</h1>
-      <p className="text-gray-500">--------------------------------</p>
-      <p className="text-2xl">زبان فعلی: <strong>{lang.toUpperCase()}</strong></p>
-      <p className="text-gray-500">--------------------------------</p>
-      <div className="flex gap-8">
-        {otherLanguages.map((l) => (
-          <Link
-            key={l}
-            href={`/${l}/ali`}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-          >
-            {l.toUpperCase()}
-          </Link>
-        ))}
-      </div>
-      <p className="text-gray-500 mt-8">--------------------------------</p>
-      <Link href={lang === LANGUAGE.default ? "/" : `/${lang}`} className="text-lg text-blue-600 hover:underline" >
-        {t.returnToHome}
-      </Link>
-      <p className="text-gray-500 mt-8">--------------------------------</p>
-      <Link href={`/${lang}/login`}>Login</Link>
-      <p>--------------------------------</p>
-      <Link href={"/faa/ali"} className="text-lg text-blue-600 hover:underline URL" >
-        /faa/ali
-      </Link>
-    </main>
-  );
+/* --- Donate Page ------------------------------------------------------ */
+export default async function DonatePage({ params }: LANG_PARAMS) {
+  const { lang } = await LANG(params)
+  const iDevice = await getIDeviceToken()
+  
+  return <DonateClient lang={lang} iDevice={iDevice} />
 }

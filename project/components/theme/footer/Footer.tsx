@@ -26,48 +26,43 @@ export default function Footer({ className }: FooterProps) {
   const t = footerTranslator[lang]
   return (
     <div className="pb-056-M lg:pb-0 bg-Background">
-      
-      <div className="h-1 w-full bg-gradient-to-l from-PrimaryLight via-Primary to-SecondaryLight" />
+
+      <div className="h-1 w-full bg-linear-to-l from-PrimaryLight via-Primary to-SecondaryLight" />
 
       <Container
-        Padding="xl"
         SectionClassName={cn("bg-Background", className ?? "")}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
       >
 
         <Card className="bg-Background border-Border shadow-sm">
-          <CardHeader className="px-3">
-            <CardTitle className="text-lg font-title text-Primary">
-              <SvgLogoType className="p-4 max-h-28 mx-auto" />
-            </CardTitle>
+          <CardHeader className="px-012-3 text-Primary">
+            <SvgLogoType className="p-018-4 max-h-110-C mx-auto" />
           </CardHeader>
-          <CardContent className="px-3">
-            <Separator className="mb-2" />
-            <p className="text-base font-title text-Text">
+          <CardContent className="px-012-3 mb-012-3">
+            <Separator className="mb-012-3" />
+            <p className="font-title">
               {t.partyName}
             </p>
-            <p className="text-sm text-Mid">
+            <p className="text-xs text-Mid">
               {t.partyDescription}
             </p>
           </CardContent>
         </Card>
 
         <Card className="bg-Background border-Border shadow-sm">
-          <CardHeader className="px-3">
-            <CardTitle className="text-lg font-title text-Text">
-              {t.usefulLinks}
-            </CardTitle>
+          <CardHeader className="p-012-3 text-Text font-title">
+            {t.usefulLinks}
           </CardHeader>
-          <CardContent className="px-3">
-            <Separator className="mb-2" />
-            <ul className="space-y-1.5 text-sm text-Mid">
+          <CardContent className="px-012-3 mb-012-3">
+            <Separator className="mb-012-3" />
+            <ul className="space-y-004-1 text-xs text-Mid">
               <li>
                 <Button
                   Theme="primary"
                   ThemeProps="ghost"
                   Size="sm"
                   asChild
-                  className="justify-start w-full px-0 text-sm hover:text-Primary"
+                  className="justify-start w-full px-0 text-xs hover:text-Primary"
                 >
                   <Link href={`/${lang}/verification`}>{t.joinParty}</Link>
                 </Button>
@@ -78,7 +73,7 @@ export default function Footer({ className }: FooterProps) {
                   ThemeProps="ghost"
                   Size="sm"
                   asChild
-                  className="justify-start w-full px-0 text-sm hover:text-Primary"
+                  className="justify-start w-full px-0 text-xs hover:text-Primary"
                 >
                   <Link href={`/${lang}/page`}>{t.newsAndEvents}</Link>
                 </Button>
@@ -89,7 +84,7 @@ export default function Footer({ className }: FooterProps) {
                   ThemeProps="ghost"
                   Size="sm"
                   asChild
-                  className="justify-start w-full px-0 text-sm hover:text-Primary"
+                  className="justify-start w-full px-0 text-xs hover:text-Primary"
                 >
                   <Link href={`/${lang}/donate`}>{t.financialSupport}</Link>
                 </Button>
@@ -100,7 +95,7 @@ export default function Footer({ className }: FooterProps) {
                   ThemeProps="ghost"
                   Size="sm"
                   asChild
-                  className="justify-start w-full px-0 text-sm hover:text-Primary"
+                  className="justify-start w-full px-0 text-xs hover:text-Primary"
                 >
                   <Link href={`/${lang}/dashboard`}>{t.userDashboard}</Link>
                 </Button>
@@ -110,39 +105,37 @@ export default function Footer({ className }: FooterProps) {
         </Card>
 
         <Card className="bg-Background border-Border shadow-sm">
-          <CardHeader className="px-3">
-            <CardTitle className="text-lg font-title text-Text">
-              {t.contactInfo}
-            </CardTitle>
+          <CardHeader className="p-012-3 text-Text font-title">
+            {t.contactInfo}
           </CardHeader>
-          <CardContent className="px-3">
+          <CardContent className="p-012-3">
             <Separator className="mb-2" />
             <div className="text-sm text-Mid space-y-2">
               <div>
-                <p className="font-title text-Text text-base">
+                <p className="font-title text-Mid text-sm mt-012-3">
                   {t.baleSupport}
                 </p>
                 <Link
                   href="https://web.bale.ai/@htni_support"
                   target="_blank"
-                  className="text-Mid hover:text-Primary transition-colors"
+                  className="text-Mid hover:text-Primary transition-colors pt-004-1"
                 >
-                  <p className="text-sm">@htni_support</p>
+                  <p className="text-sm text-Foreground">@htni_support</p>
                 </Link>
               </div>
               <div>
-                <p className="font-title text-Text text-base">{t.eitaChannel}</p>
+                <p className="font-title text-Mid text-sm">{t.eitaChannel}</p>
                 <Link
                   href="https://eitaa.com/s/htni_ir/"
                   target="_blank"
-                  className="text-Mid hover:text-Primary transition-colors"
+                  className="text-Mid hover:text-Primary transition-colors pt-004-1"
                 >
-                  <p className="text-sm">@htni_ir</p>
+                  <p className="text-sm text-Foreground">@htni_ir</p>
                 </Link>
               </div>
               <div>
-                <p className="font-title text-Text text-base">{t.responseHours}</p>
-                <p className="text-sm">{t.responseHoursTime}</p>
+                <p className="font-title text-Mid text-sm">{t.responseHours}</p>
+                <p className="text-sm text-Foreground">{t.responseHoursTime}</p>
               </div>
             </div>
           </CardContent>
@@ -150,13 +143,13 @@ export default function Footer({ className }: FooterProps) {
 
         <Card className="bg-Background border-Border flex items-center justify-center">
           <CardContent className="px-3 py-3">
-            {/* <div
+            <div
               className="inline-block rounded-md border border-Border bg-White px-3 py-2 shadow-sm"
               dangerouslySetInnerHTML={{
                 __html:
                   "<Link referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=668062&Code=Tp2C6D52DObZamUetoEihrt8L4Qiej0g'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=668062&Code=Tp2C6D52DObZamUetoEihrt8L4Qiej0g' alt='نماد اعتماد الکترونیکی' style='cursor:pointer' code='Tp2C6D52DObZamUetoEihrt8L4Qiej0g'></Link>",
               }}
-            /> */}
+            />
           </CardContent>
         </Card>
       </Container>
@@ -164,14 +157,14 @@ export default function Footer({ className }: FooterProps) {
       <Container
         Padding="sm"
         SectionClassName="border-t border-Border bg-Background"
-        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-008-2"
       >
         <div className="w-full md:w-2/3">
-          <p className="text-sm text-Mid">
+          <p className="text-sm text-Mid text-center md:text-start">
             {t.copyright}
           </p>
         </div>
-        <div className="w-full md:w-1/3 flex justify-start md:justify-end gap-3">
+        <div className="w-full md:w-1/3 flex justify-center md:justify-end gap-008-2">
           <P.Button
             Theme="primary"
             ThemeProps="link"

@@ -1,12 +1,12 @@
 -- ============================================================================
 -- Module: Content Management
--- Description: Tables related to site pages
+-- Description: Tables related to site page
 -- These tables depend on user and pagesection and pagetype and language and must be created after them
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- Table: page
--- Description: Site pages
+-- Description: Site page
 -- Each page can have author, section and type
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS "pelak"."page" (

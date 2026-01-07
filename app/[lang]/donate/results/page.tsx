@@ -1,38 +1,31 @@
+/* --- Base ------------------------------------------------------------------------------------- */
+import type { Metadata } from "next"
+/* --- Data ------------------------------------------------------------------------------------- */
+import { LANG_PARAMS, LANG } from "@/project/config/site"
+import { ROBOTS_ON } from "@/core/config/metadata"
+/* --- Components ------------------------------------------------------------------------------ */
+import DonateResultsClient from "@/project/page/DonateResultsClient"
+/* --- Functions -------------------------------------------------------------------------------- */
 
-import { LANG_PARAMS, LANG, LANGUAGE } from "@/project/config/site";
-import Link from "next/link";
-import { commonTranslator } from "@/project/data/translations/common";
-
-export default async function AliPage({ params }: LANG_PARAMS) {
-  const { lang, otherLanguages } = await LANG(params);
-  const t = commonTranslator[lang];
-  return (
-    <main className="flex flex-col gap-12 items-center justify-center w-full h-screen text-center">
-      <h1 className="text-4xl font-bold">Ali Page</h1>
-      <p className="text-gray-500">--------------------------------</p>
-      <p className="text-2xl">زبان فعلی: <strong>{lang.toUpperCase()}</strong></p>
-      <p className="text-gray-500">--------------------------------</p>
-      <div className="flex gap-8">
-        {otherLanguages.map((l) => (
-          <Link
-            key={l}
-            href={`/${l}/ali`}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-          >
-            {l.toUpperCase()}
-          </Link>
-        ))}
-      </div>
-      <p className="text-gray-500 mt-8">--------------------------------</p>
-      <Link href={lang === LANGUAGE.default ? "/" : `/${lang}`} className="text-lg text-blue-600 hover:underline" >
-        {t.returnToHome}
-      </Link>
-      <p className="text-gray-500 mt-8">--------------------------------</p>
-      <Link href={`/${lang}/login`}>Login</Link>
-      <p>--------------------------------</p>
-      <Link href={"/faa/ali"} className="text-lg text-blue-600 hover:underline URL" >
-        /faa/ali
-      </Link>
-    </main>
-  );
+/* --- Results Page Metadata --------------------------------------------- */
+export async function generateMetadata({ params }: LANG_PARAMS): Promise<Metadata> {
+  const { lang } = await LANG(params)
+  return {
+    ...ROBOTS_ON,
+    title: lang === 'fa' ? 'نتیجه پرداخت' : 'Payment Result',
+  }
 }
+
+/* --- Results Page ------------------------------------------------------ */
+interface ResultsPageProps extends LANG_PARAMS {
+  searchParams: Promise<{ Status?: string }>
+}
+
+export default async function ResultsPage({ params, searchParams }: ResultsPageProps) {
+  const { lang } = await LANG(params)
+  const params_data = await searchParams
+  const status = params_data.Status
+
+  return <DonateResultsClient lang={lang} status={status} />
+}
+

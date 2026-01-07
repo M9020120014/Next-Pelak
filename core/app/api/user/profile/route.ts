@@ -2,13 +2,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateAPIRequest } from "@/core/lib/security/api-middleware";
 import { verifyAccessToken } from "@/core/lib/token/jwt";
-import { checkAuthorization } from "@/core/lib/security/authorization";
+import { checkAuthorizationWithRefresh } from "@/core/lib/security/authorization";
 import { callRpc } from "@/core/lib/rest/rpc";
 import { successResponse, unauthorizedError, invalidInputError, serverError } from "@/core/lib/api/response";
 import { RATE_LIMIT } from "@/core/config/security";
 import { withErrorHandlingAndTracking } from "@/core/lib/performance/monitoring";
 import { guardWriteOperation } from "@/core/lib/security/write-operation-guard";
 import { logError } from "@/core/lib/log/logger-utils";
+import { setRefreshTokenInResponse } from "@/core/lib/token/auth-cookie";
 
 async function GETHandler(request: NextRequest) {
   // Security validation - GET requests don't require CSRF
@@ -20,17 +21,18 @@ async function GETHandler(request: NextRequest) {
     return securityCheck.response!;
   }
 
-  // Check authentication
+  // Check authentication with refresh token validation
   const authHeader = request.headers.get("authorization");
   const accessToken = authHeader?.replace("Bearer ", "") || null;
   
-  const authCheck = checkAuthorization(accessToken, 'user');
+  const authCheck = await checkAuthorizationWithRefresh(request, accessToken, 'user');
   if (!authCheck.allowed) {
-    return unauthorizedError("برای مشاهده پروفایل نیاز به ورود به حساب کاربری دارید.");
+    return unauthorizedError(authCheck.reason || "برای مشاهده پروفایل نیاز به ورود به حساب کاربری دارید.");
   }
 
-  // Get user ID from token
-  const tokenPayload = verifyAccessToken(accessToken!);
+  // Get user ID from token (use new token if refreshed)
+  const tokenToUse = authCheck.newAccessToken || accessToken;
+  const tokenPayload = verifyAccessToken(tokenToUse!);
   if (!tokenPayload) {
     return unauthorizedError("توکن نامعتبر است.");
   }
@@ -48,7 +50,7 @@ async function GETHandler(request: NextRequest) {
     );
   }
 
-  return successResponse(
+  let response = successResponse(
     {
       title: "Profile Retrieved",
       message: "اطلاعات پروفایل با موفقیت دریافت شد.",
@@ -64,6 +66,18 @@ async function GETHandler(request: NextRequest) {
     },
     "اطلاعات پروفایل با موفقیت دریافت شد."
   );
+
+  // Add new access token to response header if refreshed
+  if (authCheck.newAccessToken) {
+    response.headers.set('X-New-Access-Token', authCheck.newAccessToken);
+  }
+
+  // Set new refresh token in cookie if rotated
+  if (authCheck.newRefreshToken) {
+    response = setRefreshTokenInResponse(response, authCheck.newRefreshToken);
+  }
+
+  return response;
 }
 
 /* --- POST Profile Update ---------------------------------------------------------------------- */
@@ -80,17 +94,18 @@ async function POSTHandler(request: NextRequest) {
     return securityCheck.response!;
   }
 
-  // Check authentication
+  // Check authentication with refresh token validation
   const authHeader = request.headers.get("authorization");
   const accessToken = authHeader?.replace("Bearer ", "") || null;
   
-  const authCheck = checkAuthorization(accessToken, 'user');
+  const authCheck = await checkAuthorizationWithRefresh(request, accessToken, 'user');
   if (!authCheck.allowed) {
-    return unauthorizedError("برای به‌روزرسانی پروفایل نیاز به ورود به حساب کاربری دارید.");
+    return unauthorizedError(authCheck.reason || "برای به‌روزرسانی پروفایل نیاز به ورود به حساب کاربری دارید.");
   }
 
-  // Get user ID from token
-  const tokenPayload = verifyAccessToken(accessToken!);
+  // Get user ID from token (use new token if refreshed)
+  const tokenToUse = authCheck.newAccessToken || accessToken;
+  const tokenPayload = verifyAccessToken(tokenToUse!);
   if (!tokenPayload) {
     return unauthorizedError("توکن نامعتبر است.");
   }
@@ -138,6 +153,8 @@ async function POSTHandler(request: NextRequest) {
 
       // Call database function to update user name
       // Note: RPC function accepts null values to clear fields, but RpcParamValue type doesn't include null
+      // Use type assertion since backend accepts null but TypeScript type doesn't reflect it
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await callRpc("pelak_user_updatename", rpcParams as any);
 
       if (!result.success) {
@@ -154,7 +171,7 @@ async function POSTHandler(request: NextRequest) {
         return serverError(result.message || "خطا در به‌روزرسانی اطلاعات پروفایل");
       }
 
-      const response = successResponse(
+      let response = successResponse(
         {
           title: result.title || "Profile Updated",
           message: result.message || "اطلاعات پروفایل با موفقیت به‌روزرسانی شد.",
@@ -163,6 +180,16 @@ async function POSTHandler(request: NextRequest) {
         200,
         securityCheck.rateLimitHeaders
       );
+
+      // Add new access token to response header if refreshed
+      if (authCheck.newAccessToken) {
+        response.headers.set('X-New-Access-Token', authCheck.newAccessToken);
+      }
+
+      // Set new refresh token in cookie if rotated
+      if (authCheck.newRefreshToken) {
+        response = setRefreshTokenInResponse(response, authCheck.newRefreshToken);
+      }
 
       // Track performance (non-blocking)
       const duration = Date.now() - startTime

@@ -1,6 +1,6 @@
 import { LANGUAGE_TYPE } from "@/project/config/site";
 
-export const pagesTranslator = {
+export const pageTranslator = {
   fa: {
     title: "همه صفحات",
     description: "در این بخش می‌توانید آخرین صفحات منتشر شده در سایت را مشاهده کنید و جزئیات هر صفحه را ببینید.",
@@ -13,12 +13,12 @@ export const pagesTranslator = {
   },
   en: {
     title: "All Pages",
-    description: "In this section, you can view the latest published pages on the site and see details of each page.",
+    description: "In this section, you can view the latest published page on the site and see details of each page.",
     loadMore: "Load More",
     loading: "Loading...",
-    noMoreItems: "All available pages have been displayed.",
-    emptyTitle: "No pages found.",
-    emptyDescription: "Please check back later, or use the menu to find other pages.",
+    noMoreItems: "All available page have been displayed.",
+    emptyTitle: "No page found.",
+    emptyDescription: "Please check back later, or use the menu to find other page.",
     noImage: "Page image not found",
   },
 } as const satisfies Record<LANGUAGE_TYPE, Record<string, string>>;

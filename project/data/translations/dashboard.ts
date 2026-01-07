@@ -5,7 +5,7 @@ export const dashboardTranslator = {
     loading: "در حال بارگذاری...",
     pleaseLoginAgain: "لطفاً دوباره وارد شوید.",
     dashboard: "داشبورد",
-    logout: "خروج از حساب کاربری",
+    logout: "خروج از حساب",
     loggingOut: "در حال خروج...",
     welcomeToDashboard: "خوش آمدید به داشبورد",
     mobileNumber: "شماره موبایل",

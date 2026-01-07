@@ -6,9 +6,10 @@ import { callRpc } from "@/core/lib/rest/rpc"
 import { successResponse, serverError, invalidInputError, unauthorizedError } from "@/core/lib/api/response"
 import { RATE_LIMIT } from "@/core/config/security"
 import { withErrorHandlingAndTracking } from "@/core/lib/performance/monitoring"
-import { checkAuthorization } from "@/core/lib/security/authorization"
+import { checkAuthorizationWithRefresh } from "@/core/lib/security/authorization"
 import { verifyAccessToken } from "@/core/lib/token/jwt"
 import { guardWriteOperation } from "@/core/lib/security/write-operation-guard"
+import { setRefreshTokenInResponse } from "@/core/lib/token/auth-cookie"
 /* --- Functions -------------------------------------------------------------------------------- */
 
 /* --- POST Comment Like ------------------------------------------------------------------------ */
@@ -25,17 +26,18 @@ async function POSTHandler(request: NextRequest) {
     return securityCheck.response!;
   }
 
-  // Check authentication
+  // Check authentication with refresh token validation
   const authHeader = request.headers.get("authorization");
   const accessToken = authHeader?.replace("Bearer ", "") || null;
   
-  const authCheck = checkAuthorization(accessToken, 'user');
+  const authCheck = await checkAuthorizationWithRefresh(request, accessToken, 'user');
   if (!authCheck.allowed) {
     return unauthorizedError(authCheck.reason || "برای لایک کردن نیاز به ورود به حساب کاربری دارید.");
   }
 
-  // Get user ID from token
-  const tokenPayload = verifyAccessToken(accessToken!);
+  // Get user ID from token (use new token if refreshed)
+  const tokenToUse = authCheck.newAccessToken || accessToken;
+  const tokenPayload = verifyAccessToken(tokenToUse!);
   if (!tokenPayload) {
     return unauthorizedError("توکن نامعتبر است.");
   }
@@ -68,7 +70,7 @@ async function POSTHandler(request: NextRequest) {
       return serverError(result.message || "خطا در لایک/آنلایک کردن کامنت.");
     }
 
-    const response = successResponse(
+    let response = successResponse(
       {
         liked: (result as Record<string, unknown>).liked as boolean,
         likesCount: (result as Record<string, unknown>).likes_count as number,
@@ -78,6 +80,16 @@ async function POSTHandler(request: NextRequest) {
       200,
       securityCheck.rateLimitHeaders
     );
+
+    // Add new access token to response header if refreshed
+    if (authCheck.newAccessToken) {
+      response.headers.set('X-New-Access-Token', authCheck.newAccessToken);
+    }
+
+    // Set new refresh token in cookie if rotated
+    if (authCheck.newRefreshToken) {
+      response = setRefreshTokenInResponse(response, authCheck.newRefreshToken);
+    }
 
     // Track performance (non-blocking)
     const duration = Date.now() - startTime

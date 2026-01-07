@@ -99,7 +99,7 @@ const nextConfig: NextConfig = {
             hostname: url.hostname,
             pathname: '/**',
           });
-        } catch (error) {
+        } catch (_error) {
           console.warn('Invalid SSS_OBJECT URL:', sssObject);
         }
       }

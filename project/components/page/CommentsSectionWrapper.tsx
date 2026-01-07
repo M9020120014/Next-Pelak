@@ -1,7 +1,7 @@
 'use client'
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, startTransition } from 'react'
 import { getAccessToken } from '@/core/lib/auth/token-manager'
 import { decodeTokenPayload } from '@/core/lib/token/jwt-client'
 /* --- Components ------------------------------------------------------------------------------- */
@@ -22,18 +22,23 @@ export default function CommentsSectionWrapper({ pageId, lang, iDevice }: Commen
   const [userName, setUserName] = useState<string | null>(null)
 
   // Set user info after component mounts (client-side only)
+  // Use startTransition to prevent cascading renders
   useEffect(() => {
-    setMounted(true)
+    startTransition(() => {
+      setMounted(true)
+    })
     const token = getAccessToken()
     const userInfo = token ? decodeTokenPayload(token) : null
     
     if (userInfo) {
-      setUserId(userInfo.userid ?? null)
-      setUserName(
-        userInfo.firstname && userInfo.lastname 
-          ? `${userInfo.firstname} ${userInfo.lastname}`
-          : userInfo.mobile ?? null
-      )
+      startTransition(() => {
+        setUserId(userInfo.userid ?? null)
+        setUserName(
+          userInfo.firstname && userInfo.lastname 
+            ? `${userInfo.firstname} ${userInfo.lastname}`
+            : userInfo.mobile ?? null
+        )
+      })
     }
   }, [])
   

@@ -1,5 +1,5 @@
 /* --- Base ------------------------------------------------------------------------------------- */
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { validateAPIRequest } from "@/core/lib/security/api-middleware"
 import { callRpc } from "@/core/lib/rest/rpc"
@@ -13,7 +13,7 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const startTime = Date.now()
-  const routeEndpoint = '/api/pages/[slug]'
+  const routeEndpoint = '/api/page/[slug]'
 
   try {
     // Security validation - GET requests don't require CSRF

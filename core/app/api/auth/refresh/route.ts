@@ -76,9 +76,11 @@ async function POSTHandler(request: NextRequest) {
     const accessToken = generateAccessToken({
       id: userData.id,
       mobile: userData.mobile,
-      firstname: userData.firstname || "",
-      lastname: userData.lastname || "",
-      email: userData.email || "",
+      firstname: userData.firstname ?? null,
+      lastname: userData.lastname ?? null,
+      email: userData.email ?? null,
+      profileimage: userData.profileimage ? String(userData.profileimage) : null,
+      profileurl: userData.profileurl ?? null,
     });
 
     let response = successResponse(

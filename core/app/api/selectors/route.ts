@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateAPIRequest } from "@/core/lib/security/api-middleware";
 import { callRpc } from "@/core/lib/rest/rpc";
-import { successResponse, unauthorizedError, invalidInputError } from "@/core/lib/api/response";
+import { successResponse, invalidInputError } from "@/core/lib/api/response";
 import { RATE_LIMIT } from "@/core/config/security";
 import { withErrorHandlingAndTracking } from "@/core/lib/performance/monitoring";
 

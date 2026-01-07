@@ -1,6 +1,6 @@
 -- ============================================================================
 -- Module: Content Management Functions
--- Description: Functions related to selectors (only for project schema) and site pages
+-- Description: Functions related to selectors (only for project schema) and site page
 -- Note: Pelak schema no longer uses selector and uses dedicated tables
 -- ============================================================================
 
@@ -337,21 +337,21 @@ $BODY$;
 -- This function only returns summary fields (not full content)
 -- 
 -- Parameters:
---   p_limit: Number of pages per page (pagination)
---   p_offset: Number of pages to skip (pagination)
+--   p_limit: Number of page per page (pagination)
+--   p_offset: Number of page to skip (pagination)
 --   p_lang: Page language (1 = Persian, 2 = English) - Foreign Key to pelak.languages.id
 -- 
 -- Logic:
---   1. Filter pages with status=1 (published) and specified lang
+--   1. Filter page with status=1 (published) and specified lang
 --   2. Sort by publishedtime DESC and id DESC
 --   3. Apply limit and offset
 -- 
 -- Returns:
---   Success: {success: true, title: "Pages Retrieved", pages: [...]}
---   Error: {success: false, title: "Error", pages: []}
+--   Success: {success: true, title: "Pages Retrieved", page: [...]}
+--   Error: {success: false, title: "Error", page: []}
 -- 
 -- Usage Example:
---   SELECT pelak_page_getsummaries(10, 0, 1); -- First 10 Persian pages
+--   SELECT pelak_page_getsummaries(10, 0, 1); -- First 10 Persian page
 --   SELECT pelak_page_getsummaries(20, 20, 2); -- Pages 21-40 English
 -- ----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION "public"."pelak_page_getsummaries"("p_limit" int4, "p_offset" int4, "p_lang" int2)
@@ -362,9 +362,9 @@ SECURITY DEFINER
 COST 100
 AS $BODY$
 DECLARE
-  v_pages JSONB := '[]'::jsonb;
+  v_page JSONB := '[]'::jsonb;
 BEGIN
-  -- Get pages with specified conditions
+  -- Get page with specified conditions
   SELECT COALESCE(
     jsonb_agg(
       jsonb_build_object(
@@ -378,7 +378,7 @@ BEGIN
       )
     ),
     '[]'::jsonb
-  ) INTO v_pages
+  ) INTO v_page
   FROM (
     SELECT 
       pageid,
@@ -399,15 +399,15 @@ BEGIN
     'success', true,
     'title', 'Pages Retrieved',
     'message', 'Pages retrieved successfully.',
-    'pages', v_pages
+    'page', v_page
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error retrieving pages.',
-    'pages', '[]'::json
+    'message', 'Error retrieving page.',
+    'page', '[]'::json
   );
 END;
 $BODY$;

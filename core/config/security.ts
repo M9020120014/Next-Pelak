@@ -46,7 +46,7 @@ export const COOKIE = {
 
 /* --- Token Configuration ----------------------------------------------------------------------- */
 export const TOKEN = {
-  ACCESS_TOKEN_EXPIRY: 300, // 5 minutes in seconds
+  ACCESS_TOKEN_EXPIRY: 30 * 60, // 5 minutes in seconds
   CSRF_LENGTH: 32,
   NONCE_LENGTH: 16,
   SECURE_TOKEN_DEFAULT_LENGTH: 32,
@@ -65,11 +65,11 @@ export const RATE_LIMIT = {
     windowMs: TIME.MINUTE * 1000, // 1 minute in milliseconds
   },
   LOGIN: {
-    maxRequests: 20,
+    maxRequests: 150,
     windowMs: 15 * TIME.MINUTE * 1000, // 15 minutes in milliseconds
   },
   OTP: {
-    maxRequests: 10,
+    maxRequests: 100,
     windowMs: 10 * TIME.MINUTE * 1000, // 10 minutes in milliseconds
   },
 } as const
@@ -88,7 +88,7 @@ export const INPUT_LIMITS = {
     MAX: 11,
   },
   PASSWORD: {
-    MIN: 8,
+    MIN: 6,
     MAX: 50, // Increased from 50 to allow for passphrases
   },
   OTP_CODE: {
@@ -138,11 +138,11 @@ export const NETWORK = {
 
 /* --- Password Configuration --------------------------------------------------------------------- */
 export const PASSWORD = {
-  MIN_LENGTH: 8,
+  MIN_LENGTH: 6,
   MAX_LENGTH: INPUT_LIMITS.PASSWORD.MAX, // Use consistent limit from INPUT_LIMITS
-  REQUIRE_UPPERCASE: true,
-  REQUIRE_LOWERCASE: true,
-  REQUIRE_NUMBER: true,
+  REQUIRE_UPPERCASE: false,
+  REQUIRE_LOWERCASE: false,
+  REQUIRE_NUMBER: false,
   REQUIRE_SPECIAL_CHAR: false, // Optional for better UX, but recommended
 } as const
 

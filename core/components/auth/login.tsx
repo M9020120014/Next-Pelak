@@ -110,14 +110,14 @@ export default function LoginComponent({
           setAccessToken(data.access_token);
         }
 
-        // ریدایرکت به آدرس مورد نظر یا داشبورد
-        let redirectPath = `/${lang}/dashboard`;
+        let redirectUrl = `/${lang}/dashboard`;
 
         if (redirect && redirect.startsWith('/') && !redirect.startsWith('//')) {
-          redirectPath = redirect;
+          redirectUrl = redirect
         }
 
-        router.push(redirectPath);
+        router.push(redirectUrl);
+        window.location.href = redirectUrl;
       } else {
         setError(data.message || translator.loginFailed);
       }
@@ -134,84 +134,84 @@ export default function LoginComponent({
 
   return (
     <div className="h-screen w-full flex justify-center items-center">
-        <div className="max-w-md w-full flex flex-col gap-012-3">
-          <div className="text-center">
-            <h2 className="text-H1 font-bold text-Text">{translator.title}</h2>
-            <p className="mt-008-2 text-B text-Mid">
-              {step === "mobile" ? translator.mobileDescription : translator.passwordDescription}
-            </p>
-          </div>
-
-          {error && (
-            <div className="bg-ErrorLight/10 border border-Error text-Error px-012-3 py-010-D rounded-md">
-              {error}
-            </div>
-          )}
-
-          {/* مرحله 1: ورود شماره موبایل */}
-          {step === "mobile" && (
-            <form onSubmit={handleMobileSubmit} className="space-y-024-5">
-              <div>
-                <P.Input
-                  Size="lg"
-                  type="text"
-                  value={mobile}
-                  onChange={(e) => setMobile(normalize("mobile", e.target.value))}
-                  placeholder={translator.mobilePlaceholder}
-                  required
-                  inputMode="numeric"
-                />
-              </div>
-
-              <P.Button Size="lg" type="submit" className="w-full" disabled={loading}>
-                {loading ? translator.continueButtonLoading : translator.continueButton}
-              </P.Button>
-            </form>
-          )}
-
-          {/* مرحله 2: ورود پسورد */}
-          {step === "password" && (
-            <form onSubmit={handlePasswordSubmit} className="space-y-024-5">
-              <div>
-                <P.Input
-                  Size="lg"
-                  type="text"
-                  value={mobile}
-                  disabled
-                  className="bg-Mid/10"
-                />
-              </div>
-
-              <div>
-                <P.InputSecret
-                  Size="lg"
-                  value={password}
-                  onChange={(e) => setPassword(normalize("password", e.target.value))}
-                  placeholder={translator.passwordPlaceholder}
-                  required
-                  minLength={6}
-                />
-              </div>
-
-              <P.Button Size="lg" type="submit" className="w-full" disabled={loading}>
-                {loading ? translator.loginButtonLoading : translator.loginButton}
-              </P.Button>
-
-              <div className="pt-012-3 border-t border-Mid/20">
-                <P.Button
-                  Theme="primary"
-                  ThemeProps="link"
-                  Size="lg"
-                  type="button"
-                  onClick={handleGetNewPassword}
-                  className="w-full"
-                >
-                  {translator.getNewPassword || "Get New Password"}
-                </P.Button>
-              </div>
-            </form>
-          )}
+      <div className="max-w-md w-full flex flex-col gap-012-3">
+        <div className="text-center">
+          <h2 className="text-H1 font-bold text-Text">{translator.title}</h2>
+          <p className="mt-008-2 text-B text-Mid">
+            {step === "mobile" ? translator.mobileDescription : translator.passwordDescription}
+          </p>
         </div>
+
+        {error && (
+          <div className="bg-ErrorLight/10 border border-Error text-Error px-012-3 py-010-D rounded-md">
+            {error}
+          </div>
+        )}
+
+        {/* مرحله 1: ورود شماره موبایل */}
+        {step === "mobile" && (
+          <form onSubmit={handleMobileSubmit} className="space-y-024-5">
+            <div>
+              <P.Input
+                Size="lg"
+                type="text"
+                value={mobile}
+                onChange={(e) => setMobile(normalize("mobile", e.target.value))}
+                placeholder={translator.mobilePlaceholder}
+                required
+                inputMode="numeric"
+              />
+            </div>
+
+            <P.Button Size="lg" type="submit" className="w-full" disabled={loading}>
+              {loading ? translator.continueButtonLoading : translator.continueButton}
+            </P.Button>
+          </form>
+        )}
+
+        {/* مرحله 2: ورود پسورد */}
+        {step === "password" && (
+          <form onSubmit={handlePasswordSubmit} className="space-y-024-5">
+            <div>
+              <P.Input
+                Size="lg"
+                type="text"
+                value={mobile}
+                disabled
+                className="bg-Mid/10"
+              />
+            </div>
+
+            <div>
+              <P.InputSecret
+                Size="lg"
+                value={password}
+                onChange={(e) => setPassword(normalize("password", e.target.value))}
+                placeholder={translator.passwordPlaceholder}
+                required
+                minLength={6}
+              />
+            </div>
+
+            <P.Button Size="lg" type="submit" className="w-full" disabled={loading}>
+              {loading ? translator.loginButtonLoading : translator.loginButton}
+            </P.Button>
+
+            <div className="pt-012-3 border-t border-Mid/20">
+              <P.Button
+                Theme="primary"
+                ThemeProps="link"
+                Size="lg"
+                type="button"
+                onClick={handleGetNewPassword}
+                className="w-full"
+              >
+                {translator.getNewPassword || "Get New Password"}
+              </P.Button>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 }

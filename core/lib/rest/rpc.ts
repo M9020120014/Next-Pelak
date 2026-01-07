@@ -139,7 +139,7 @@ export async function callRpc(functionName: string, params: RpcParamsObject = {}
         headers: {
           accept: "application/json",
           "Content-Type": "application/json",
-          // Authorization: "Bearer " + POSTGREST_SECRET // HACK
+          Authorization: "Bearer " + POSTGREST_SECRET
         },
         body: JSON.stringify(params),
         cache: getCacheOptions(functionName), // Use cache strategy based on function name

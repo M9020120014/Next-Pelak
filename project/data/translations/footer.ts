@@ -14,7 +14,7 @@ export const footerTranslator = {
     eitaChannel: "کانال ایتا",
     responseHours: "ساعات پاسخ‌گویی",
     responseHoursTime: "شنبه تا چهارشنبه: ۹:۰۰ تا ۱۷:۰۰",
-    copyright: "حق نشر و تمام حقوق محفوظ است – حزب تمدن نوین اسلامی – ۱۴۰۴",
+    copyright: "حق نشر و تمام حقوق محفوظ است – ۱۴۰۴",
     termsAndConditions: "شرایط و ضوابط",
     privacyPolicy: "حریم خصوصی",
   },

@@ -1,9 +1,9 @@
 /* --- Base ------------------------------------------------------------------------------------- */
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { validateAPIRequest } from "@/core/lib/security/api-middleware"
 import { verifyAccessToken } from "@/core/lib/token/jwt"
-import { checkAuthorization } from "@/core/lib/security/authorization"
+import { checkAuthorizationWithRefresh } from "@/core/lib/security/authorization"
 import { callRpc } from "@/core/lib/rest/rpc"
 import { successResponse, unauthorizedError, invalidInputError, serverError } from "@/core/lib/api/response"
 import { RATE_LIMIT } from "@/core/config/security"
@@ -12,6 +12,7 @@ import { guardWriteOperation } from "@/core/lib/security/write-operation-guard"
 import { normalizeNationalCode } from "@/core/lib/normalize"
 import { validateNationalCode, validateShortDate } from "@/core/lib/validation"
 import { logError } from "@/core/lib/log/logger-utils"
+import { setRefreshTokenInResponse } from "@/core/lib/token/auth-cookie"
 /* --- Functions -------------------------------------------------------------------------------- */
 
 /* --- GET Additional Info ---------------------------------------------------------------------- */
@@ -28,17 +29,18 @@ async function GETHandler(request: NextRequest) {
     return securityCheck.response!;
   }
 
-  // Check authentication
+  // Check authentication with refresh token validation
   const authHeader = request.headers.get("authorization");
   const accessToken = authHeader?.replace("Bearer ", "") || null;
   
-  const authCheck = checkAuthorization(accessToken, 'user');
+  const authCheck = await checkAuthorizationWithRefresh(request, accessToken, 'user');
   if (!authCheck.allowed) {
-    return unauthorizedError("برای مشاهده اطلاعات تکمیلی نیاز به ورود به حساب کاربری دارید.");
+    return unauthorizedError(authCheck.reason || "برای مشاهده اطلاعات تکمیلی نیاز به ورود به حساب کاربری دارید.");
   }
 
-  // Get user ID from token
-  const tokenPayload = verifyAccessToken(accessToken!);
+  // Get user ID from token (use new token if refreshed)
+  const tokenToUse = authCheck.newAccessToken || accessToken;
+  const tokenPayload = verifyAccessToken(tokenToUse!);
   if (!tokenPayload) {
     return unauthorizedError("توکن نامعتبر است.");
   }
@@ -64,7 +66,7 @@ async function GETHandler(request: NextRequest) {
       return serverError(result.message || "خطا در دریافت اطلاعات تکمیلی");
     }
 
-    const response = successResponse(
+    let response = successResponse(
       {
         title: "Additional Info Retrieved",
         message: "اطلاعات تکمیلی با موفقیت دریافت شد.",
@@ -74,6 +76,16 @@ async function GETHandler(request: NextRequest) {
       200,
       securityCheck.rateLimitHeaders
     );
+
+    // Add new access token to response header if refreshed
+    if (authCheck.newAccessToken) {
+      response.headers.set('X-New-Access-Token', authCheck.newAccessToken);
+    }
+
+    // Set new refresh token in cookie if rotated
+    if (authCheck.newRefreshToken) {
+      response = setRefreshTokenInResponse(response, authCheck.newRefreshToken);
+    }
 
     // Track performance (non-blocking)
     const duration = Date.now() - startTime
@@ -109,17 +121,18 @@ async function POSTHandler(request: NextRequest) {
     return securityCheck.response!;
   }
 
-  // Check authentication
+  // Check authentication with refresh token validation
   const authHeader = request.headers.get("authorization");
   const accessToken = authHeader?.replace("Bearer ", "") || null;
   
-  const authCheck = checkAuthorization(accessToken, 'user');
+  const authCheck = await checkAuthorizationWithRefresh(request, accessToken, 'user');
   if (!authCheck.allowed) {
-    return unauthorizedError("برای به‌روزرسانی اطلاعات تکمیلی نیاز به ورود به حساب کاربری دارید.");
+    return unauthorizedError(authCheck.reason || "برای به‌روزرسانی اطلاعات تکمیلی نیاز به ورود به حساب کاربری دارید.");
   }
 
-  // Get user ID from token
-  const tokenPayload = verifyAccessToken(accessToken!);
+  // Get user ID from token (use new token if refreshed)
+  const tokenToUse = authCheck.newAccessToken || accessToken;
+  const tokenPayload = verifyAccessToken(tokenToUse!);
   if (!tokenPayload) {
     return unauthorizedError("توکن نامعتبر است.");
   }
@@ -175,7 +188,18 @@ async function POSTHandler(request: NextRequest) {
 
     // Call appropriate database function based on stage
     let result;
-    const rpcParams: Record<string, any> = { p_userid: userId };
+    const rpcParams: Record<string, string | number | boolean | null> = { p_userid: userId };
+    
+    // Helper function to filter out null values and convert to RpcParamsObject
+    const filterNullParams = (params: Record<string, string | number | boolean | null>): Record<string, string | number | boolean> => {
+      const filtered: Record<string, string | number | boolean> = {}
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          filtered[key] = value
+        }
+      })
+      return filtered
+    }
 
   switch (stage) {
     case 1:
@@ -253,7 +277,7 @@ async function POSTHandler(request: NextRequest) {
       
       if (data.countryid !== undefined) rpcParams.p_countryid = data.countryid;
       if (data.cityid !== undefined) rpcParams.p_cityid = data.cityid;
-      result = await callRpc("project_user_additionala", rpcParams);
+      result = await callRpc("project_user_additionala", filterNullParams(rpcParams));
       break;
 
     case 2:
@@ -263,7 +287,7 @@ async function POSTHandler(request: NextRequest) {
       if (data.motivation !== undefined) rpcParams.p_motivation = data.motivation;
       if (data.howknown !== undefined) rpcParams.p_howknown = data.howknown;
       if (data.collaboration !== undefined) rpcParams.p_collaboration = data.collaboration;
-      result = await callRpc("project_user_additionalb", rpcParams);
+      result = await callRpc("project_user_additionalb", filterNullParams(rpcParams));
       break;
 
     case 3:
@@ -273,7 +297,7 @@ async function POSTHandler(request: NextRequest) {
       if (data.studyplacetypeid !== undefined) rpcParams.p_studyplacetypeid = data.studyplacetypeid;
       if (data.studyplaceid !== undefined) rpcParams.p_studyplaceid = data.studyplaceid;
       if (data.studyfieldsid !== undefined) rpcParams.p_studyfieldsid = data.studyfieldsid;
-      result = await callRpc("project_user_additionalc", rpcParams);
+      result = await callRpc("project_user_additionalc", filterNullParams(rpcParams));
       break;
 
     case 4:
@@ -285,7 +309,7 @@ async function POSTHandler(request: NextRequest) {
         return invalidInputError("فیلد consent باید boolean باشد.");
       }
       rpcParams.p_consent = data.consent;
-      result = await callRpc("project_user_additionald", rpcParams);
+      result = await callRpc("project_user_additionald", filterNullParams(rpcParams));
       break;
 
     default:
@@ -306,7 +330,7 @@ async function POSTHandler(request: NextRequest) {
       return serverError(result.message || "خطا در به‌روزرسانی اطلاعات تکمیلی");
     }
 
-    const response = successResponse(
+    let response = successResponse(
       {
         title: result.title || "Success",
         message: result.message || "اطلاعات با موفقیت به‌روزرسانی شد.",
@@ -316,6 +340,16 @@ async function POSTHandler(request: NextRequest) {
       200,
       securityCheck.rateLimitHeaders
     );
+
+    // Add new access token to response header if refreshed
+    if (authCheck.newAccessToken) {
+      response.headers.set('X-New-Access-Token', authCheck.newAccessToken);
+    }
+
+    // Set new refresh token in cookie if rotated
+    if (authCheck.newRefreshToken) {
+      response = setRefreshTokenInResponse(response, authCheck.newRefreshToken);
+    }
 
     // Track performance (non-blocking)
     const duration = Date.now() - startTime

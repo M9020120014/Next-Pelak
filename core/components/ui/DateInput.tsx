@@ -1,7 +1,7 @@
 "use client"
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, startTransition } from 'react'
 import { ClassName as cn } from "./Pelak"
 import { Input } from "./Input"
 import { validateShortDate } from "@/core/lib/validation"
@@ -22,7 +22,7 @@ interface DateInputProps {
 export function DateInput({
   value,
   onChange,
-  placeholder = "تاریخ تولد",
+  placeholder: _placeholder = "تاریخ تولد",
   required = false,
   className,
   disabled = false,
@@ -34,6 +34,7 @@ export function DateInput({
   const [localError, setLocalError] = useState<string>("")
 
   // Parse value when it changes (could be Persian or Gregorian)
+  // Use startTransition to prevent cascading renders
   useEffect(() => {
     if (value) {
       // Try to parse as Persian date first
@@ -42,24 +43,28 @@ export function DateInput({
       const [y, m, d] = datePart.split('-').map(Number)
       
       // Check if it's Persian (year < 2000) or Gregorian
-      if (y >= 1000 && y < 2000) {
-        // Persian date
-        setYear(y.toString())
-        setMonth(m.toString().padStart(2, '0'))
-        setDay(d.toString().padStart(2, '0'))
-      } else if (y >= 1000 && y < 3000) {
-        // Gregorian date - convert to Persian
-        const persianDate = greToPer(value)
-        const persianDatePart = persianDate.split(/[\sT]/)[0]
-        const [py, pm, pd] = persianDatePart.split('-').map(Number)
-        setYear(py.toString())
-        setMonth(pm.toString().padStart(2, '0'))
-        setDay(pd.toString().padStart(2, '0'))
-      }
+      startTransition(() => {
+        if (y >= 1000 && y < 2000) {
+          // Persian date
+          setYear(y.toString())
+          setMonth(m.toString().padStart(2, '0'))
+          setDay(d.toString().padStart(2, '0'))
+        } else if (y >= 1000 && y < 3000) {
+          // Gregorian date - convert to Persian
+          const persianDate = greToPer(value)
+          const persianDatePart = persianDate.split(/[\sT]/)[0]
+          const [py, pm, pd] = persianDatePart.split('-').map(Number)
+          setYear(py.toString())
+          setMonth(pm.toString().padStart(2, '0'))
+          setDay(pd.toString().padStart(2, '0'))
+        }
+      })
     } else {
-      setYear("")
-      setMonth("")
-      setDay("")
+      startTransition(() => {
+        setYear("")
+        setMonth("")
+        setDay("")
+      })
     }
   }, [value])
 
