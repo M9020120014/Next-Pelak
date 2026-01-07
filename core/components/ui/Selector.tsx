@@ -55,7 +55,7 @@ export function Selector({
 
   const fetchOptions = useCallback(async () => {
     if (disabled) return
-    
+
     setLoading(true)
     try {
       const params = new URLSearchParams({ type })
@@ -146,8 +146,8 @@ export function Selector({
 
   const filteredOptions = searchable && searchQuery
     ? options.filter((option) =>
-        option.title?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      option.title?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : options
 
   const handleSelect = (option: SelectorOption) => {
@@ -210,8 +210,8 @@ export function Selector({
                 Icon="back"
                 Stroke="sm"
                 className={cn(
-                  "size-4 transition-transform text-Mid",
-                  open ? "rotate-90" : "-rotate-90"
+                  "size-012-3 transition-transform text-Mid",
+                  open ? "-rotate-90" : "rotate-90"
                 )}
               />
             </Button>
@@ -220,19 +220,19 @@ export function Selector({
             <button
               type="button"
               onClick={handleClear}
-              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full p-0.5 hover:bg-gray-100 z-10"
+              className="absolute end-040-8 top-1/2 -translate-y-1/2 rounded-full p-0.5 hover:bg-gray-100 z-10"
               onMouseDown={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
               }}
             >
-              <Icon Icon="xClose" Stroke="sm" className="size-3" />
+              <Icon Icon="xClose" Stroke="sm" />
             </button>
           )}
         </div>
         <Dialog.DialogContent className="max-w-md">
           <Dialog.DialogHeader>
-            <Dialog.DialogTitle>انتخاب {type}</Dialog.DialogTitle>
+            <Dialog.DialogTitle>انتخاب</Dialog.DialogTitle>
           </Dialog.DialogHeader>
           {searchable && (
             <div className="px-1">
@@ -256,17 +256,16 @@ export function Selector({
             ) : (
               <div className="space-y-1">
                 {filteredOptions.map((option) => (
-                  <button
+                  <Button
+                    Theme="light"
+                    disabled={selectedOption?.id === option.id}
                     key={option.id}
                     type="button"
                     onClick={() => handleSelect(option)}
-                    className={cn(
-                      "w-full text-right px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors",
-                      selectedOption?.id === option.id && "bg-indigo-50 text-indigo-700"
-                    )}
+                    className='w-full'
                   >
                     {option.title}
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}

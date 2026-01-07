@@ -184,7 +184,7 @@ export default function DonationHero({ lang, iDevice, userMobile: initialUserMob
         {/* Right Column - Donation Box */}
         <div className="flex-1">
           <P.Card className="bg-White/5 border-White/30 text-White backdrop-blur-md shadow-lg">
-            <P.CardHeader className="space-y-3 text-center">
+            <P.CardHeader className="p-6 lg:p-8 pb-4 space-y-3 text-center">
               <P.CardTitle className="flex items-center justify-center gap-2 text-D font-title">
                 <span>❤️</span>
                 {donationType === 'onetime' ? t.hero.donationBox.onetime : t.hero.donationBox.monthly}
@@ -194,7 +194,7 @@ export default function DonationHero({ lang, iDevice, userMobile: initialUserMob
               </P.CardDescription>
             </P.CardHeader>
             
-            <P.CardContent className="space-y-018-4">
+            <P.CardContent className="p-6 lg:p-8 pt-0 space-y-018-4">
               {/* Tab Buttons */}
               <div className="flex gap-2 w-full bg-White/10 p-008-2 rounded-full">
                 <P.Button
@@ -364,7 +364,7 @@ export default function DonationHero({ lang, iDevice, userMobile: initialUserMob
                             setOneTimeAmount(0)
                           }
                         }}
-                        className="w-full text-center text-D py-012-3 pr-012-3 pl-040-8 border-2 border-White/30 rounded-full bg-White/10 text-White placeholder:text-White/50 focus:border-White focus:outline-none focus:bg-White/15"
+                        className="w-full text-center text-D py-012-3 ps-012-3 pl-040-8 border-2 border-White/30 rounded-full bg-White/10 text-White placeholder:text-White/50 focus:border-White focus:outline-none focus:bg-White/15"
                         placeholder={t.hero.donationBox.onetimePanel.customAmount}
                       />
                     </div>
@@ -382,7 +382,7 @@ export default function DonationHero({ lang, iDevice, userMobile: initialUserMob
               )}
             </P.CardContent>
             
-            <P.CardFooter className="pt-010-2 border-t border-White/10 text-[11px] text-White/70 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <P.CardFooter className="p-6 lg:p-8 pt-4 border-t border-White/10 text-[11px] text-White/70 flex flex-col sm:flex-row items-center justify-between gap-2">
               <span suppressHydrationWarning>{userMobile ? `${t.hero.donationBox.footerUserMobile} ${userMobile}` : t.hero.donationBox.footerNoLogin}</span>
               <span>{t.hero.donationBox.footer}</span>
             </P.CardFooter>

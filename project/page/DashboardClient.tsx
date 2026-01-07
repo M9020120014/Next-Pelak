@@ -9,9 +9,12 @@ import { getAccessToken } from '@/core/lib/auth/token-manager'
 import { decodeTokenPayload } from '@/core/lib/token/jwt-client'
 import ConnectionError from '@/core/components/auth/ConnectionError'
 import { UI as P } from '@/core/components/ui/Pelak'
+import { Icon } from '@/core/components/ui/Icon'
 
 import { dashboardTranslator } from "@/project/data/translations/dashboard";
 import { LANGUAGE_TYPE } from "@/project/config/site";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/core/components/ui/Card'
+import Link from 'next/link'
 
 interface ProfileData {
   userid: number
@@ -323,6 +326,48 @@ export default function DashboardClient({ iDevice, lang }: DashboardClientProps)
           </div>
         </P.Card>
       </P.Container>
+
+      {completionPercentage < 100 && (
+        <P.Container className="space-y-018-4 lg:space-y-024-6">
+          <Card className="relative overflow-hidden border-2 border-Primary/30 bg-linear-to-br from-PrimaryLight/10 via-PrimaryLight/5 to-Background shadow-lg">
+            <div className="absolute top-0 end-0 w-32 h-32 bg-Primary/5 rounded-full -translate-y-16 translate-x-16 blur-3xl"></div>
+            <CardHeader className="relative p-6 lg:p-8 pb-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full bg-Primary/20 flex items-center justify-center shrink-0">
+                  <Icon Icon="dashboard" Stroke="md" className="text-Primary" Size="md" />
+                </div>
+                <CardTitle className="text-xl lg:text-2xl font-bold text-Primary">اولین قدم</CardTitle>
+              </div>
+              <CardDescription className="text-sm text-Mid">
+                برای استفاده کامل از امکانات، لطفاً پروفایل خود را تکمیل کنید
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="relative p-6 lg:p-8 pt-0">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-lg bg-PrimaryLight/10 border border-PrimaryLight/30">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-base font-semibold text-Text">تکمیل پروفایل</span>
+                    <span className="text-xs font-medium text-Mid bg-Mid/10 px-2 py-1 rounded-full">
+                      {completionPercentage}% تکمیل شده
+                    </span>
+                  </div>
+                  <p className="text-sm text-Mid">
+                    با تکمیل اطلاعات پروفایل، دسترسی به تمام امکانات را دریافت خواهید کرد
+                  </p>
+                </div>
+                <P.Button
+                  Theme="primary"
+                  className="shrink-0 w-full sm:w-auto"
+                  onClick={() => router.push(`/${lang}/profile`)}
+                >
+                  شروع تکمیل پروفایل
+                </P.Button>
+              </div>
+            </CardContent>
+          </Card>
+        </P.Container>
+      )}
+
     </main>
   )
 }

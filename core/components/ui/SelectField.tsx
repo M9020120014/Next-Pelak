@@ -53,7 +53,7 @@ export function SelectField({
           FocusConfig.Items[FocusConfig.Default],
           RoundedConfig.Items[RoundedConfig.Default],
           SizeConfig.Items[SizeConfig.Default],
-          "appearance-none cursor-pointer pr-10",
+          "appearance-none cursor-pointer",
           "bg-Lightness border border-Border",
           "text-Text",
           value ? "text-Text" : "text-Mid",
@@ -72,7 +72,7 @@ export function SelectField({
           </option>
         ))}
       </select>
-      <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+      <div className="absolute end-012-3 top-1/2 -translate-y-1/2 pointer-events-none">
         <Icon 
           Icon="back" 
           Stroke="sm" 
@@ -80,7 +80,7 @@ export function SelectField({
             "size-4 text-Mid",
             disabled && "opacity-40"
           )} 
-          style={{ transform: "rotate(-90deg)" }} 
+          style={{ transform: "rotate(90deg)" }} 
         />
       </div>
     </div>

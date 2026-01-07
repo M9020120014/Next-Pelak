@@ -149,7 +149,7 @@ function Calendar({ year, month, selectedDate, onDateSelect }: CalendarProps) {
               onClick={() => day && onDateSelect(year, month, day)}
               disabled={!day}
               className={cn(
-                "relative flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors",
+                "relative flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors mx-auto",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-Primary focus-visible:ring-offset-2",
                 !day && "cursor-default opacity-0 pointer-events-none",
                 day && !isDaySelected && "text-Text hover:bg-Background hover:text-Text",
@@ -170,135 +170,99 @@ function Calendar({ year, month, selectedDate, onDateSelect }: CalendarProps) {
 interface CalendarHeaderProps {
   year: number
   month: number
-  onPreviousMonth: () => void
-  onNextMonth: () => void
-  onPreviousYear: () => void
-  onNextYear: () => void
-  onYearSelect?: (year: number) => void
+  onYearChange: (year: number) => void
+  onMonthChange: (month: number) => void
 }
 
 function CalendarHeader({
   year,
   month,
-  onPreviousMonth,
-  onNextMonth,
-  onPreviousYear,
-  onNextYear,
-  onYearSelect,
+  onYearChange,
+  onMonthChange,
 }: CalendarHeaderProps) {
-  const [showYearInput, setShowYearInput] = useState(false)
-  const [yearInput, setYearInput] = useState(year.toString())
-  const yearInputRef = useRef<HTMLInputElement>(null)
-  
-  useEffect(() => {
-    setYearInput(year.toString())
-  }, [year])
-  
-  useEffect(() => {
-    if (showYearInput && yearInputRef.current) {
-      yearInputRef.current.select()
+  // Generate year options (1300 to 1400)
+  const yearOptions = useMemo(() => {
+    const years: { value: string; label: string }[] = []
+    for (let y = 1300; y <= 1400; y++) {
+      years.push({ value: y.toString(), label: y.toString() })
     }
-  }, [showYearInput])
+    return years
+  }, [])
   
-  const handleYearSubmit = () => {
-    const newYear = parseInt(yearInput, 10)
-    if (!isNaN(newYear) && newYear >= 1300 && newYear <= 1500) {
-      onYearSelect?.(newYear)
-      setShowYearInput(false)
-    } else {
-      // Reset to current year if invalid
-      setYearInput(year.toString())
-      setShowYearInput(false)
+  // Generate month options
+  const monthOptions = useMemo(() => {
+    return PERSIAN_MONTHS.slice(1).map((monthName, index) => ({
+      value: (index + 1).toString(),
+      label: monthName
+    }))
+  }, [])
+  
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newYear = parseInt(e.target.value, 10)
+    if (!isNaN(newYear)) {
+      onYearChange(newYear)
     }
   }
   
-  const handleYearInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, '')
-    // Allow typing up to 4 digits without restriction
-    if (val === '' || val.length <= 4) {
-      setYearInput(val)
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newMonth = parseInt(e.target.value, 10)
+    if (!isNaN(newMonth)) {
+      onMonthChange(newMonth)
     }
   }
   
   return (
-    <div className="flex items-center justify-between px-3 pt-4">
-      <div className="flex items-center gap-1">
-        <Button
-          type="button"
-          onClick={onPreviousYear}
-          className="h-7 w-7 p-0"
-          Size="sm"
-          ThemeProps="ghost"
-          Theme="light"
+    <div className="flex items-center justify-center gap-2 px-3 pt-4">
+      <div className="relative">
+        <select
+          value={year.toString()}
+          onChange={handleYearChange}
+          className={cn(
+            "h-8 w-20 rounded-md border border-Border bg-White px-2 py-1 text-sm font-semibold text-Text",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-Primary focus-visible:ring-offset-2",
+            "cursor-pointer appearance-none"
+          )}
         >
-          <Icon Icon="back" Stroke="sm" className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          onClick={onPreviousMonth}
-          className="h-7 w-7 p-0"
-          Size="sm"
-          ThemeProps="ghost"
-          Theme="light"
-        >
-          <Icon Icon="back" Stroke="sm" className="h-4 w-4 rotate-90" />
-        </Button>
-      </div>
-      
-      <div className="flex items-center gap-2">
-        {showYearInput ? (
-          <input
-            ref={yearInputRef}
-            type="text"
-            value={yearInput}
-            onChange={handleYearInputChange}
-            onBlur={handleYearSubmit}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                handleYearSubmit()
-              } else if (e.key === 'Escape') {
-                setShowYearInput(false)
-                setYearInput(year.toString())
-              }
-            }}
-            className="w-20 h-7 text-center font-semibold rounded-md border border-Border bg-White px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-Primary focus-visible:ring-offset-2"
-            autoFocus
-            maxLength={4}
+          {yearOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <div className="absolute end-2 top-1/2 -translate-y-1/2 pointer-events-none">
+          <Icon 
+            Icon="back" 
+            Stroke="sm" 
+            className="size-4 text-Mid"
+            style={{ transform: "rotate(90deg)" }} 
           />
-        ) : (
-          <button
-            type="button"
-            onClick={() => setShowYearInput(true)}
-            className="px-2 py-1 text-sm font-semibold text-Text hover:bg-Background rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-Primary focus-visible:ring-offset-2"
-          >
-            {year}
-          </button>
-        )}
-        <span className="text-sm font-semibold text-Text min-w-[80px] text-center">{PERSIAN_MONTHS[month]}</span>
+        </div>
       </div>
       
-      <div className="flex items-center gap-1">
-        <Button
-          type="button"
-          onClick={onNextMonth}
-          className="h-7 w-7 p-0"
-          Size="sm"
-          ThemeProps="ghost"
-          Theme="light"
+      <div className="relative">
+        <select
+          value={month.toString()}
+          onChange={handleMonthChange}
+          className={cn(
+            "h-8 rounded-md border border-Border bg-White px-2 py-1 text-sm font-semibold text-Text",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-Primary focus-visible:ring-offset-2",
+            "cursor-pointer appearance-none min-w-[110px]"
+          )}
         >
-          <Icon Icon="back" Stroke="sm" className="h-4 w-4 -rotate-90" />
-        </Button>
-        <Button
-          type="button"
-          onClick={onNextYear}
-          className="h-7 w-7 p-0"
-          Size="sm"
-          ThemeProps="ghost"
-          Theme="light"
-        >
-          <Icon Icon="back" Stroke="sm" className="h-4 w-4 rotate-180" />
-        </Button>
+          {monthOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <div className="absolute end-2 top-1/2 -translate-y-1/2 pointer-events-none">
+          <Icon 
+            Icon="back" 
+            Stroke="sm" 
+            className="size-4 text-Mid"
+            style={{ transform: "rotate(90deg)" }} 
+          />
+        </div>
       </div>
     </div>
   )
@@ -325,16 +289,33 @@ export function DatePicker({
   const [displayYear, setDisplayYear] = useState(currentDate.year)
   const [displayMonth, setDisplayMonth] = useState(currentDate.month)
   
-  // Update display when value changes
-  // Use startTransition to prevent cascading renders
+  // Update display when dialog opens - show selected date if exists, otherwise keep current view
+  // This allows users to navigate to different months/years even when a date is selected
   useEffect(() => {
-    if (parsedDate) {
+    if (open) {
+      if (parsedDate) {
+        // When dialog opens with a selected date, navigate to that date's month/year
+        startTransition(() => {
+          setDisplayYear(parsedDate.year)
+          setDisplayMonth(parsedDate.month)
+        })
+      }
+      // If no date selected, keep the current displayYear/displayMonth (user can navigate freely)
+    }
+  }, [open]) // Only update when dialog opens/closes, not when parsedDate changes
+  
+  // Update display when value prop changes from outside (parent component changes the value)
+  const prevValueRef = useRef(value)
+  useEffect(() => {
+    if (prevValueRef.current !== value && parsedDate) {
+      // Value changed from outside, update display to show the new date
       startTransition(() => {
         setDisplayYear(parsedDate.year)
         setDisplayMonth(parsedDate.month)
       })
     }
-  }, [parsedDate])
+    prevValueRef.current = value
+  }, [value, parsedDate])
   
   // Show skeleton if isLoading is true
   if (isLoading) {
@@ -360,34 +341,12 @@ export function DatePicker({
     }
   }
   
-  const handlePreviousMonth = () => {
-    if (displayMonth === 1) {
-      setDisplayMonth(12)
-      setDisplayYear(displayYear - 1)
-    } else {
-      setDisplayMonth(displayMonth - 1)
-    }
-  }
-  
-  const handleNextMonth = () => {
-    if (displayMonth === 12) {
-      setDisplayMonth(1)
-      setDisplayYear(displayYear + 1)
-    } else {
-      setDisplayMonth(displayMonth + 1)
-    }
-  }
-  
-  const handlePreviousYear = () => {
-    setDisplayYear(displayYear - 1)
-  }
-  
-  const handleNextYear = () => {
-    setDisplayYear(displayYear + 1)
-  }
-  
-  const handleYearSelect = (year: number) => {
+  const handleYearChange = (year: number) => {
     setDisplayYear(year)
+  }
+  
+  const handleMonthChange = (month: number) => {
+    setDisplayMonth(month)
   }
   
   const handleClear = () => {
@@ -410,11 +369,8 @@ export function DatePicker({
       <CalendarHeader
         year={displayYear}
         month={displayMonth}
-        onPreviousMonth={handlePreviousMonth}
-        onNextMonth={handleNextMonth}
-        onPreviousYear={handlePreviousYear}
-        onNextYear={handleNextYear}
-        onYearSelect={handleYearSelect}
+        onYearChange={handleYearChange}
+        onMonthChange={handleMonthChange}
       />
       <Calendar
         year={displayYear}
@@ -471,17 +427,18 @@ export function DatePicker({
                 "w-full cursor-pointer",
                 required && !parsedDate && "border-Error",
                 displayError && "border-Error",
-                !disabled && "pr-10"
+                !disabled && "pe-10"
               )}
             />
             {!disabled && (
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <div className="absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none">
                 <Icon Icon="calendar" Stroke="sm" className="size-5 text-Mid" />
               </div>
             )}
           </div>
         </Dialog.DialogTrigger>
         <Dialog.DialogContent className="max-w-sm p-0">
+          <Dialog.DialogTitle className="sr-only">انتخاب تاریخ</Dialog.DialogTitle>
           <div className="rounded-lg border border-Border bg-White shadow-sm">
             {calendarContent}
           </div>

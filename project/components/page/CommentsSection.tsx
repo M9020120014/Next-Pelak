@@ -560,7 +560,7 @@ function CommentNode({ comment, depth, onReply, onLike, likesMap, isAuthenticate
 
   return (
     <div
-      className={`space-y-012-3 ${depth > 0 ? `mr-024-5 border-r-2 border-Border pr-018-4` : ''}`}
+      className={`space-y-012-3 ${depth > 0 ? `ms-024-5 border-r-2 border-Border ps-018-4` : ''}`}
     >
       <div className={`bg-White rounded-3 border border-Border shadow-sm transition-all hover:shadow-md p-018-4 ${depth > 0 ? 'bg-Background/30' : ''}`}>
         <div className="flex items-start gap-012-3">

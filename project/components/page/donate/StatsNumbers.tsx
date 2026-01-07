@@ -54,10 +54,10 @@ export default function StatsNumbers({ lang }: StatsNumbersProps) {
   }, [])
 
   return (
-    <section className="bg-Background">
+    <section className="bg-Background py-034-7">
       <div className="max-w-6xl mx-auto px-012-3 lg:px-018-4 space-y-024-5 lg:space-y-034-7">
         <P.Card className="border-Border/70 shadow-sm">
-          <P.CardHeader className="text-right space-y-2">
+          <P.CardHeader className="p-6 lg:p-8 pb-4 text-right space-y-2">
             <P.CardTitle className="text-base md:text-lg">
               {t.stats.title}
             </P.CardTitle>
@@ -65,10 +65,10 @@ export default function StatsNumbers({ lang }: StatsNumbersProps) {
               {t.stats.description}
             </P.CardDescription>
           </P.CardHeader>
-          <P.CardContent className="pt-018-4 lg:pt-024-5">
+          <P.CardContent className="p-6 lg:p-8 pt-0">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-018-4 lg:gap-024-5 w-full">
               {/* Monthly Contribution */}
-              <P.Card className="border-Border/70 bg-White/60 shadow-xs flex flex-col items-center justify-center py-024-5">
+              <P.Card className="border-Border/70 bg-White/60 shadow-xs flex flex-col items-center justify-center px-6 lg:px-8 py-024-5">
                 <div className="mb-008-2 flex items-center gap-2 text-Primary">
                   <span className="text-xl">📈</span>
                   <span className="text-xs text-Shadow">
@@ -85,7 +85,7 @@ export default function StatsNumbers({ lang }: StatsNumbersProps) {
               </P.Card>
 
               {/* Individuals */}
-              <P.Card className="border-Border/70 bg-White/60 shadow-xs flex flex-col items-center justify-center py-024-5">
+              <P.Card className="border-Border/70 bg-White/60 shadow-xs flex flex-col items-center justify-center px-6 lg:px-8 py-024-5">
                 <div className="mb-008-2 flex items-center gap-2 text-Primary">
                   <span className="text-xl">👥</span>
                   <span className="text-xs text-Shadow">
@@ -101,7 +101,7 @@ export default function StatsNumbers({ lang }: StatsNumbersProps) {
               </P.Card>
 
               {/* Corporate */}
-              <P.Card className="border-Border/70 bg-White/60 shadow-xs flex flex-col items-center justify-center py-024-5">
+              <P.Card className="border-Border/70 bg-White/60 shadow-xs flex flex-col items-center justify-center px-6 lg:px-8 py-024-5">
                 <div className="mb-008-2 flex items-center gap-2 text-Primary">
                   <span className="text-xl">🏢</span>
                   <span className="text-xs text-Shadow">

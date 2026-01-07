@@ -358,14 +358,14 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
         </div>
 
         {saveMessage && (
-          <div className={`p-4 lg:p-5 rounded-lg shadow-sm border-2 transition-all ${
+          <div className={`p-3 rounded-lg shadow-sm border transition-all ${
             saveMessage.type === 'success' 
-              ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800' 
+              ? 'bg-SuccessLight/20 text-SuccessDark border-SuccessLight/30' 
               : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800'
           }`}>
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${saveMessage.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <p className="font-medium">{saveMessage.text}</p>
+              <div className={`w-1.5 h-1.5 rounded-full ${saveMessage.type === 'success' ? 'bg-Success' : 'bg-red-500'}`}></div>
+              <p className="text-sm font-medium">{saveMessage.text}</p>
             </div>
           </div>
         )}
@@ -386,12 +386,12 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
         )}
 
         {additionalInfo?.formdone && (
-          <P.Card className="p-6 lg:p-8 bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <p className="text-green-800 dark:text-green-300 font-bold">{t.formCompleted}</p>
+          <P.Card className="p-4 bg-SuccessLight/20 border border-SuccessLight/30 shadow-sm">
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-1.5 h-1.5 bg-Success rounded-full"></div>
+              <p className="text-SuccessDark text-sm font-medium">{t.formCompleted}</p>
             </div>
-            <p className="text-green-700 dark:text-green-400 text-sm">
+            <p className="text-Text text-xs">
               {new Date(additionalInfo.formdone).toLocaleDateString('fa-IR')}
             </p>
           </P.Card>
@@ -575,16 +575,18 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
             {/* Buttons */}
             <div className="flex gap-4 pt-4 border-t border-Border/30">
               <P.Button
+                Theme='light'
                 type="button"
                 onClick={handlePrevious}
-                className="flex-1 border border-Border bg-Background hover:bg-Mid/10 transition-all"
+                className='flex-1'
               >
                 {t.previous}
               </P.Button>
               <P.Button
+                Theme='primary'
                 type="submit"
                 disabled={saving || !stagesCompleted.stage1}
-                className="flex-1 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                className='flex-1'
               >
                 {saving ? t.saving : "ثبت و بازگشت به پروفایل"}
               </P.Button>

@@ -240,14 +240,14 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
         </div>
 
         {saveMessage && (
-          <div className={`p-4 lg:p-5 rounded-lg shadow-sm border-2 transition-all ${
+          <div className={`p-3 rounded-lg shadow-sm border transition-all ${
             saveMessage.type === 'success' 
-              ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800' 
+              ? 'bg-SuccessLight/20 text-SuccessDark border-SuccessLight/30' 
               : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800'
           }`}>
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${saveMessage.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <p className="font-medium">{saveMessage.text}</p>
+              <div className={`w-1.5 h-1.5 rounded-full ${saveMessage.type === 'success' ? 'bg-Success' : 'bg-red-500'}`}></div>
+              <p className="text-sm font-medium">{saveMessage.text}</p>
             </div>
           </div>
         )}
@@ -326,16 +326,18 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
             {/* Buttons */}
             <div className="flex gap-4 pt-4 border-t border-Border/30">
               <P.Button
+                Theme='light'
                 type="button"
                 onClick={handlePrevious}
-                className="flex-1 border border-Border bg-Background hover:bg-Mid/10 transition-all"
+                className='flex-1'
               >
                 {t.previous}
               </P.Button>
               <P.Button
+                Theme='primary'
                 type="submit"
                 disabled={saving || !stage1Completed}
-                className="flex-1 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                className='flex-1'
               >
                 {saving ? t.saving : "ثبت و ادامه"}
               </P.Button>

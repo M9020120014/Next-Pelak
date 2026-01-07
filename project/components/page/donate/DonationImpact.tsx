@@ -49,16 +49,16 @@ export default function DonationImpact({ lang }: DonationImpactProps) {
   ]
 
   return (
-    <section className="w-full bg-Background">
+    <section className="w-full bg-Background pt-034-7">
       <div className="max-w-7xl mx-auto px-012-3 lg:px-018-4 space-y-024-5 lg:space-y-034-7">
         {/* آیه و ترجمه */}
         <P.Card className="border-PrimaryLight/40 bg-linear-to-br from-PrimaryLight/10 via-Background to-SecondaryLight/10">
-          <P.CardHeader>
+          <P.CardHeader className="p-6 lg:p-8 pb-4">
             <P.CardTitle className="text-E font-title text-Text">
               {t.impact.verse.arabic}
             </P.CardTitle>
           </P.CardHeader>
-          <P.CardContent className="space-y-008-2 text-G text-Mid">
+          <P.CardContent className="p-6 lg:p-8 pt-0 space-y-008-2 text-G text-Mid">
             <p>{t.impact.verse.translation}</p>
             <p className="text-F">{t.impact.verse.source}</p>
           </P.CardContent>
@@ -78,7 +78,7 @@ export default function DonationImpact({ lang }: DonationImpactProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-018-4 lg:gap-024-5">
             {spendingItems.map((item, index) => (
               <P.Card key={index} className="border-Border">
-                <P.CardHeader className="flex flex-row items-center gap-008-2">
+                <P.CardHeader className="p-6 lg:p-8 pb-4 flex flex-row items-center gap-008-2">
                   <div className="h-028-6 w-028-6 rounded-full bg-Primary/10 flex items-center justify-center text-xl">
                     {item.icon}
                   </div>
@@ -86,7 +86,7 @@ export default function DonationImpact({ lang }: DonationImpactProps) {
                     {item.title}
                   </P.CardTitle>
                 </P.CardHeader>
-                <P.CardContent className="text-G text-Mid">
+                <P.CardContent className="p-6 lg:p-8 pt-0 text-G text-Mid">
                   {item.description}
                 </P.CardContent>
               </P.Card>
@@ -97,12 +97,12 @@ export default function DonationImpact({ lang }: DonationImpactProps) {
         {/* نمونه دستاوردها */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-018-4 lg:gap-024-5">
           <P.Card className="border-PrimaryLight/40 bg-Background">
-            <P.CardHeader>
+            <P.CardHeader className="p-6 lg:p-8 pb-4">
               <P.CardTitle className="text-F font-title text-Text">
                 {t.impact.achievements.title}
               </P.CardTitle>
             </P.CardHeader>
-            <P.CardContent className="space-y-006-1.5 text-G text-Mid">
+            <P.CardContent className="p-6 lg:p-8 pt-0 space-y-006-1.5 text-G text-Mid">
               {t.impact.achievements.items.map((item: string, index: number) => (
                 <p key={index} className="leading-relaxed">
                   {item}
@@ -113,12 +113,12 @@ export default function DonationImpact({ lang }: DonationImpactProps) {
 
           {/* پروژه‌های در حال انجام */}
           <P.Card className="border-PrimaryLight/40 bg-Background">
-            <P.CardHeader>
+            <P.CardHeader className="p-6 lg:p-8 pb-4">
               <P.CardTitle className="text-F font-title text-Text">
                 {t.impact.projects.title}
               </P.CardTitle>
             </P.CardHeader>
-            <P.CardContent className="space-y-006-1.5 text-G text-Mid">
+            <P.CardContent className="p-6 lg:p-8 pt-0 space-y-006-1.5 text-G text-Mid">
               {t.impact.projects.items.map(
                 (
                   item: { title: string; description: string },

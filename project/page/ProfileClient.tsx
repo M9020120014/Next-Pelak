@@ -407,8 +407,9 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-Border/30">
                 <h2 className="text-xl lg:text-2xl font-bold text-Text">اطلاعات اصلی</h2>
                 <P.Button
+                Theme='primary'
                   onClick={() => router.push(`/${lang}/profile/edit`)}
-                  className="ml-auto transition-transform hover:scale-105"
+                  className="transition-transform hover:scale-105"
                 >
                   {t.edit || 'ویرایش'}
                 </P.Button>
@@ -461,8 +462,9 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-Border/30">
                 <h2 className="text-xl lg:text-2xl font-bold text-Text">اطلاعات تکمیلی</h2>
                 <P.Button
+                Theme='primary'
                   onClick={() => router.push(`/${lang}/profile/edit/${getEditStage()}`)}
-                  className="ml-auto transition-transform hover:scale-105"
+                  className="transition-transform hover:scale-105"
                 >
                   {t.edit || 'ویرایش'}
                 </P.Button>
@@ -607,12 +609,12 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
                     <h3 className="text-lg lg:text-xl font-bold mb-4 text-Text pb-2 border-b-2 border-Mid/30">
                       {t.stage4}
                     </h3>
-                    <div className="p-4 lg:p-6 bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-lg shadow-sm">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <p className="font-bold text-green-800 dark:text-green-300">{t.formCompleted}</p>
+                    <div className="p-4 bg-SuccessLight/20 border border-SuccessLight/30 rounded-lg shadow-sm">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <div className="w-1.5 h-1.5 bg-Success rounded-full"></div>
+                        <p className="text-sm font-medium text-SuccessDark">{t.formCompleted}</p>
                       </div>
-                      <p className="text-green-700 dark:text-green-400 text-sm">
+                      <p className="text-xs text-Text">
                         {new Date(additionalInfo.formdone).toLocaleDateString('fa-IR')}
                       </p>
                     </div>
