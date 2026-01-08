@@ -51,6 +51,8 @@ export const PROJECT_ENV = {
   ZARINPAL_CALLBACK_URL: process.env.ZARINPAL_CALLBACK_URL || '',
   SSS_OBJECT: process.env.SSS_OBJECT || '',
   SSS_URL: process.env.SSS_URL || '',
+  // Google Analytics Configuration
+  NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-JBLWQ3LWLN',
 } as const
 
 /* --- Validation ------------------------------------------------------------------------------- */

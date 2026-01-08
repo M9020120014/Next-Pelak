@@ -78,9 +78,9 @@ export function SelectField({
           Stroke="sm" 
           className={cn(
             "size-4 text-Mid",
+            "rotate-90",
             disabled && "opacity-40"
           )} 
-          style={{ transform: "rotate(90deg)" }} 
         />
       </div>
     </div>

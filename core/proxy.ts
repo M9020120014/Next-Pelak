@@ -28,7 +28,6 @@ function getEnvValues() {
     IDEVICE_STORAGE_KEY: ENV.IDEVICE_STORAGE_KEY,
     CSRF_COOKIE_NAME: ENV.CSRF_COOKIE_NAME,
     REFRESH_TOKEN_COOKIE: ENV.REFRESH_TOKEN_COOKIE,
-    NEXT_PUBLIC_POSTHOG_HOST: ENV.NEXT_PUBLIC_POSTHOG_HOST,
   }
 }
 /* --- Proxy -------------------------------------------------------- */
@@ -160,35 +159,10 @@ export default async function proxy(
   // Store nonce in response header for client-side access
   response.headers.set('X-CSP-Nonce', nonce)
   
-  // Extract PostHog host for CSP if configured
-  let posthogHostCSP = ''
-  if (envValues.NEXT_PUBLIC_POSTHOG_HOST) {
-    try {
-      const posthogUrl = new URL(envValues.NEXT_PUBLIC_POSTHOG_HOST)
-      posthogHostCSP = posthogUrl.origin
-    } catch {
-      // Invalid URL, skip CSP addition
-    }
-  }
-  
-
-  // Build connect-src directive with PostHog host and assets if available
-  // PostHog requires both the main host and assets domain for proper functionality
-  const connectSrc = posthogHostCSP 
-    ? `connect-src 'self' ${posthogHostCSP} https://eu-assets.i.posthog.com`
-    : "connect-src 'self' https://eu-assets.i.posthog.com"
-  
-  // Build script-src directive with PostHog assets domain
-  // PostHog needs to load scripts from eu-assets.i.posthog.com
-  const scriptSrc = posthogHostCSP
-    ? `script-src 'self' 'nonce-${nonce}' 'sha256-1ejjuJTafqPpU5E26Lr6F53b1OwFIGPOZWX4Afjkfrg=' ${posthogHostCSP} https://eu-assets.i.posthog.com 'strict-dynamic'`
-    : `script-src 'self' 'nonce-${nonce}' 'sha256-1ejjuJTafqPpU5E26Lr6F53b1OwFIGPOZWX4Afjkfrg=' https://eu-assets.i.posthog.com 'strict-dynamic'`
-  
-  // Build style-src directive with PostHog assets domain
-  // PostHog needs to load styles from eu-assets.i.posthog.com
-  const styleSrc = posthogHostCSP
-    ? `style-src 'self' 'nonce-${nonce}' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=' ${posthogHostCSP} https://eu-assets.i.posthog.com 'unsafe-hashes'`
-    : `style-src 'self' 'nonce-${nonce}' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=' https://eu-assets.i.posthog.com 'unsafe-hashes'`
+  // Build CSP directives
+  const connectSrc = "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com"
+  const scriptSrc = `script-src 'self' 'nonce-${nonce}' 'sha256-1ejjuJTafqPpU5E26Lr6F53b1OwFIGPOZWX4Afjkfrg=' https://www.googletagmanager.com 'strict-dynamic'`
+  const styleSrc = `style-src 'self' 'nonce-${nonce}' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=' 'sha256-lGP/R5jOMXytzwBHVEM5Nv4XbT9fuH6V2dET/0dje2s=' 'unsafe-hashes'`
     
   // CSP configuration for Next.js
   // Using 'strict-dynamic' with nonce provides better security than 'unsafe-inline'
@@ -211,7 +185,6 @@ export default async function proxy(
     "frame-ancestors 'none'",
     "upgrade-insecure-requests",
     // Additional CSP directives for enhanced security
-    "worker-src 'self' blob:", // Added blob: for PostHog workers
     "manifest-src 'self'"
   ].join('; ')
 

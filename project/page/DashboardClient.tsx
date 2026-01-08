@@ -1,7 +1,7 @@
 // /components/page/DashboardClient.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/core/lib/auth/use-auth'
@@ -198,6 +198,14 @@ export default function DashboardClient({ iDevice, lang }: DashboardClientProps)
 
   const completionPercentage = calculateCompletionPercentage()
   const isLoading = loadingProfile || loadingAdditionalInfo
+  const progressBarRef = useRef<HTMLDivElement>(null)
+
+  // Update CSS custom property for progress bar width
+  useEffect(() => {
+    if (progressBarRef.current) {
+      progressBarRef.current.style.setProperty('--progress-width', `${completionPercentage}%`)
+    }
+  }, [completionPercentage])
 
   // Skeleton component for dashboard
   const DashboardSkeleton = () => (
@@ -297,8 +305,8 @@ export default function DashboardClient({ iDevice, lang }: DashboardClientProps)
                 <div className="flex-1 min-w-0">
                   <div className="w-full bg-Mid/20 rounded-full h-3 overflow-hidden">
                     <div
-                      className="h-full bg-Mid rounded-full transition-all duration-500 ease-out"
-                      style={{ width: `${completionPercentage}%` }}
+                      ref={progressBarRef}
+                      className="h-full bg-Mid rounded-full progress-bar-fill"
                     />
                   </div>
                 </div>

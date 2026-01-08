@@ -3,8 +3,9 @@ import "@/app/globals.css";
 import type { Metadata, Viewport } from "next";
 import { Font } from "@/core/lib/fonts";
 import { headers } from "next/headers";
+import Script from "next/script";
 /* --- Config ----------------------------------------------------------------------------------- */
-import { IS_PRODUCTION, validateEnv } from "@/core/config/env";
+import { IS_PRODUCTION, validateEnv, ENV } from "@/core/config/env";
 import { LANGUAGE_DATA, extractLangFromHeaders } from "@/project/config/site";
 import { projectCoreConfig } from "@/core/config/project-override";
 import { setCoreConfig } from "@/core/config/config";
@@ -64,6 +65,7 @@ export default async function RootLayout({
   const lang = await extractLangFromHeaders(headersList);
   const direction = LANGUAGE_DATA.direction[lang];
   const fonts = Font[direction];
+  const gaId = ENV.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
 
   return (
     <Security>
@@ -75,6 +77,28 @@ export default async function RootLayout({
         {...(nonce && { nonce })}
       >
         <body className="antialiased">
+          {gaId && nonce && (
+            <>
+              <Script
+                src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+                strategy="afterInteractive"
+                nonce={nonce}
+              />
+              <Script
+                id="google-analytics"
+                strategy="afterInteractive"
+                nonce={nonce}
+                dangerouslySetInnerHTML={{
+                  __html: `
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', '${gaId}');
+                  `,
+                }}
+              />
+            </>
+          )}
           <Providers>
             <ProjectProvider lang={lang}>
               <Navbar />

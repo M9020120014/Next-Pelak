@@ -73,10 +73,6 @@ export const CORE_ENV = {
   // Logging Service Configuration
   LOGGING_SERVICE_URL: process.env.LOGGING_SERVICE_URL || '',
   LOGGING_API_KEY: process.env.LOGGING_API_KEY || '',
-
-  // PostHog Analytics Configuration
-  NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY || '',
-  NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST || '',
 } as const
 
 /* --- Validation ------------------------------------------------------------------------------- */
@@ -129,10 +125,6 @@ export function validateCoreEnv(): string[] {
 
   if (CORE_ENV.LOGGING_SERVICE_URL && !CORE_ENV.LOGGING_SERVICE_URL.startsWith('http')) {
     errors.push('LOGGING_SERVICE_URL must be a valid URL starting with http:// or https://')
-  }
-
-  if (CORE_ENV.NEXT_PUBLIC_POSTHOG_HOST && !CORE_ENV.NEXT_PUBLIC_POSTHOG_HOST.startsWith('http')) {
-    errors.push('NEXT_PUBLIC_POSTHOG_HOST must be a valid URL starting with http:// or https://')
   }
 
   return errors

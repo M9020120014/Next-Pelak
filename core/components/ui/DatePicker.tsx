@@ -233,8 +233,7 @@ function CalendarHeader({
           <Icon 
             Icon="back" 
             Stroke="sm" 
-            className="size-4 text-Mid"
-            style={{ transform: "rotate(90deg)" }} 
+            className={cn("size-4 text-Mid", "rotate-90")}
           />
         </div>
       </div>
@@ -259,8 +258,7 @@ function CalendarHeader({
           <Icon 
             Icon="back" 
             Stroke="sm" 
-            className="size-4 text-Mid"
-            style={{ transform: "rotate(90deg)" }} 
+            className={cn("size-4 text-Mid", "rotate-90")}
           />
         </div>
       </div>
