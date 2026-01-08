@@ -383,6 +383,7 @@ export default function VerificationComponent({
         setTimeout(() => {
           if (isMountedRef.current) {
             router.push("/" + lang + "/dashboard");
+            window.location.href = "/" + lang + "/dashboard";
           }
         }, 1500);
       } else {

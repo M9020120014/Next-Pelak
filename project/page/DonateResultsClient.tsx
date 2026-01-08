@@ -38,7 +38,7 @@ export default function DonateResultsClient({ lang, status }: DonateResultsClien
         iconColor: "text-Error",
         title: t.results.error.title,
         description: t.results.error.description,
-        titleColor: "text-Error",
+        titleColor: "text-ErrorDark",
       }
     }
     return {
@@ -53,24 +53,25 @@ export default function DonateResultsClient({ lang, status }: DonateResultsClien
   const config = getStatusConfig()
 
   return (
-    <main className="min-h-screen bg-Primary flex items-center justify-center px-018-4 py-034-7">
-      <div className="max-w-lg w-full">
-        <Card className="bg-White/95 border-none shadow-xl">
-          <CardHeader className="flex flex-col items-center text-center space-y-012-3">
+    <main className="min-h-screen bg-linear-to-br from-Primary via-PrimaryLight/50 to-Primary/80 flex items-center justify-center px-018-4 py-034-7 lg:py-040-8">
+      <div className="max-w-lg w-full transition-opacity duration-500">
+        <Card className="bg-White/98 dark:bg-Panel/98 border border-Border/50 shadow-2xl backdrop-blur-md transition-all duration-300 hover:shadow-3xl">
+          <CardHeader className="flex flex-col items-center text-center px-028-6 pt-034-7 pb-024-6 space-y-024-6">
             <div
               className={cn(
-                "w-024-5 h-024-5 rounded-full flex items-center justify-center mb-004-1",
-                "bg-linear-to-br",
+                "w-040-8 h-040-8 lg:w-048-10 lg:h-048-10 rounded-full flex items-center justify-center",
+                "bg-linear-to-br shadow-xl transition-all duration-500",
+                "hover:scale-105 hover:shadow-2xl",
                 config.iconBg
               )}
             >
-              <div className={cn("w-014-Z h-014-Z rounded-full", config.iconColor)}>
+              <div className={cn("w-024-5 h-024-5 lg:w-028-6 lg:h-028-6 transition-transform duration-300", config.iconColor)}>
                 {isSuccess && (
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="w-full h-full"
@@ -84,7 +85,7 @@ export default function DonateResultsClient({ lang, status }: DonateResultsClien
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="w-full h-full"
@@ -99,7 +100,7 @@ export default function DonateResultsClient({ lang, status }: DonateResultsClien
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="w-full h-full"
@@ -112,43 +113,42 @@ export default function DonateResultsClient({ lang, status }: DonateResultsClien
               </div>
             </div>
 
-            <CardTitle className={cn("font-title text-C", config.titleColor)}>
-              {config.title}
-            </CardTitle>
-            <CardDescription className="text-B leading-relaxed text-Text">
-              {config.description}
-            </CardDescription>
+            <div className="space-y-012-3 w-full">
+              <CardTitle className={cn("font-title text-E lg:text-F font-bold", config.titleColor)}>
+                {config.title}
+              </CardTitle>
+              <CardDescription className="text-C lg:text-D leading-relaxed text-Text/90 max-w-md mx-auto">
+                {config.description}
+              </CardDescription>
+            </div>
           </CardHeader>
 
           <CardContent>
-            <div className="flex flex-col sm:flex-row gap-012-3 mt-012-3 w-full">
+            <div className="w-full flex flex-col justify-center items-stretch my-012-3">
               {isError && (
-                <Link href={`/${lang}/donate`} className="w-full sm:w-auto">
                   <P.Button
-                    className="w-full sm:w-auto"
-                    ThemeProps="default"
                     Theme="primary"
+                    className="m-auto"
                   >
+                <Link href={`/${lang}/donate`} className="transition-transform hover:scale-105">
                     {t.results.retry}
+                    </Link>
                   </P.Button>
-                </Link>
               )}
-              <Link href={lang === 'fa' ? '/' : `/${lang}`} className="w-full sm:w-auto">
                 <P.Button
-                  className="w-full sm:w-auto flex items-center gap-008-2"
                   ThemeProps={isError ? "outline" : "default"}
                   Theme="primary"
+                    className="m-auto"
                 >
+              <Link href={lang === 'fa' ? '/' : `/${lang}`} className="transition-transform hover:scale-105">
                   {t.results.returnHome}
-                  <P.Icon Icon="back" Size="sm" />
+                  </Link>
                 </P.Button>
-              </Link>
             </div>
           </CardContent>
 
-          <CardFooter className="text-A text-Mid flex items-center justify-between flex-wrap gap-008-2">
-            <span>{t.results.footer.transaction}</span>
-            <span>{t.results.footer.gateway}</span>
+          <CardFooter className="text-Mid flex items-center justify-center py-018-4">
+            <span className="text-center">{t.results.footer.transaction}</span>
           </CardFooter>
         </Card>
       </div>

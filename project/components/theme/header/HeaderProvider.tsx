@@ -4,8 +4,8 @@
 import { createContext, useContext, useMemo, useState, useCallback } from "react"
 import { ClassName as cn } from "@/core/components/ui/Pelak"
 import BackButton from "@/core/components/navigation/BackButton"
-import { SvgLogoType } from "@/project/components/media/svg"
 import { LANGUAGE_DATA, LANGUAGE_TYPE } from "@/project/config/site"
+import HeaderLogo from "./HeaderLogo"
 
 /* --- Types ------------------------------------------------------------------------------------ */
 export interface HeaderItemProps {
@@ -31,7 +31,7 @@ export function HeaderProvider({ children, lang }: { children: React.ReactNode, 
 
   const DEFAULT_HEADER: HeaderItemProps = useMemo(
     () => ({
-      pCenter: <SvgLogoType className="text-Primary max-h-10" />,
+      pCenter: <HeaderLogo lang={lang} />,
       pRight: <BackButton pDirection={direction === "rtl" ? "right" : "left"} lang={lang} />,
       pLeft: "",
     }),

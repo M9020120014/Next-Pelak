@@ -25,6 +25,21 @@ ALTER TABLE "project"."selectortype"
   OWNER TO "htni_admin";
 
 -- ----------------------------------------------------------------------------
+-- Indexes for project.selectortype table
+-- Description: Optimize queries for selector type lookups
+-- ----------------------------------------------------------------------------
+
+-- Index for filtering by code (used in all selector functions)
+-- Used in: project_selector_gettree, project_selector_get, project_selector_getselector
+CREATE INDEX IF NOT EXISTS "idx_selectortype_code" 
+ON "project"."selectortype" USING btree ("code" ASC NULLS LAST);
+
+-- Index for filtering by title (used in all selector functions)
+-- Used in: project_selector_gettree, project_selector_get, project_selector_getselector
+CREATE INDEX IF NOT EXISTS "idx_selectortype_title" 
+ON "project"."selectortype" USING btree ("title" ASC NULLS LAST);
+
+-- ----------------------------------------------------------------------------
 -- Table: selector (Project)
 -- Description: Hierarchical selectors specific to the project
 -- Each selector can have a parent (selectorid) for tree structure
@@ -62,6 +77,47 @@ CREATE TABLE IF NOT EXISTS "project"."selector" (
 
 ALTER TABLE "project"."selector" 
   OWNER TO "htni_admin";
+
+-- ----------------------------------------------------------------------------
+-- Indexes for project.selector table
+-- Description: Optimize queries for hierarchical selector lookups
+-- ----------------------------------------------------------------------------
+
+-- Index for filtering by type (most common query pattern)
+-- Used in: project_selector_get, project_selector_gettree, project_selector_getselector
+CREATE INDEX IF NOT EXISTS "idx_selector_type" 
+ON "project"."selector" USING btree ("type" ASC NULLS LAST);
+
+-- Index for filtering by parent selector (hierarchical queries)
+-- Used in: project_selector_tree, project_selector_getselector
+-- Also optimizes foreign key checks from useradditionalinfo
+CREATE INDEX IF NOT EXISTS "idx_selector_parentselectorid" 
+ON "project"."selector" USING btree ("parentselectorid" ASC NULLS LAST);
+
+-- Composite index for filtering by type AND parentselectorid
+-- Used in: project_selector_getselector (WHERE type = ... AND parentselectorid = ...)
+-- This index covers both conditions efficiently
+CREATE INDEX IF NOT EXISTS "idx_selector_type_parentselectorid" 
+ON "project"."selector" USING btree ("type" ASC NULLS LAST, "parentselectorid" ASC NULLS LAST);
+
+-- Composite index for filtering by type with ordering
+-- Used in: project_selector_get, project_selector_gettree (WHERE type = ... ORDER BY order, title)
+-- This covering index includes order and title to avoid table lookups
+CREATE INDEX IF NOT EXISTS "idx_selector_type_order_title" 
+ON "project"."selector" USING btree ("type" ASC NULLS LAST, "order" ASC NULLS LAST, "title" ASC NULLS LAST);
+
+-- Composite index for filtering by parentselectorid with ordering
+-- Used in: project_selector_tree (WHERE parentselectorid = ... ORDER BY order, title)
+-- This covering index includes order and title to avoid table lookups
+CREATE INDEX IF NOT EXISTS "idx_selector_parentselectorid_order_title" 
+ON "project"."selector" USING btree ("parentselectorid" ASC NULLS LAST, "order" ASC NULLS LAST, "title" ASC NULLS LAST);
+
+-- Partial index for filtering by type where parentselectorid IS NULL (root selectors)
+-- Used in: project_selector_gettree (WHERE type = ... AND parentselectorid IS NULL)
+-- Partial index is more efficient for NULL checks and smaller index size
+CREATE INDEX IF NOT EXISTS "idx_selector_type_root" 
+ON "project"."selector" USING btree ("type" ASC NULLS LAST, "order" ASC NULLS LAST, "title" ASC NULLS LAST)
+WHERE "parentselectorid" IS NULL;
 
 -- ----------------------------------------------------------------------------
 -- Table: useradditionalinfo
@@ -178,6 +234,11 @@ CREATE INDEX "idx_useradditionalinfo_provinceid" ON "project"."useradditionalinf
 CREATE INDEX "idx_useradditionalinfo_cityid" ON "project"."useradditionalinfo" USING btree (
   "cityid" "pg_catalog"."int4_ops" ASC NULLS LAST
 );
+
+-- Index for checking duplicate national code
+-- Used in: project_user_additionala (WHERE nationalcode = ... AND userid != ...)
+CREATE INDEX IF NOT EXISTS "idx_useradditionalinfo_nationalcode" 
+ON "project"."useradditionalinfo" USING btree ("nationalcode" ASC NULLS LAST);
 
 -- ============================================================================
 -- ✅ All project tables have been created!
