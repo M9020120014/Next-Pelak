@@ -49,6 +49,9 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
   const [howknown, setHowknown] = useState<string>("")
   const [collaboration, setCollaboration] = useState<string>("")
   
+  // Validation errors
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  
   const t = profileTranslator[lang]
 
   const handleRetry = async () => {
@@ -112,11 +115,48 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
     fetchAdditionalInfo()
   }, [authState, t])
 
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {}
+
+    // Validate job (required)
+    if (!job || job.trim() === "") {
+      newErrors.job = t.jobRequired || "شغل اجباری است"
+    }
+
+    // Validate political (required)
+    if (!political || political.trim() === "") {
+      newErrors.political = t.politicalRequired || "گرایش سیاسی اجباری است"
+    }
+
+    // Validate motivation (required)
+    if (!motivation || motivation.trim() === "") {
+      newErrors.motivation = t.motivationRequired || "انگیزه اجباری است"
+    }
+
+    // Validate howknown (required)
+    if (!howknown || howknown.trim() === "") {
+      newErrors.howknown = t.howKnownRequired || "نحوه آشنایی اجباری است"
+    }
+
+    // Validate collaboration (required)
+    if (!collaboration || collaboration.trim() === "") {
+      newErrors.collaboration = t.collaborationRequired || "نوع همکاری اجباری است"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!stage1Completed) {
       setSaveMessage({ type: 'error', text: t.stage1NotCompleted || "لطفاً ابتدا مرحله 1 را تکمیل کنید" })
+      return
+    }
+
+    if (!validateForm()) {
+      setSaveMessage({ type: 'error', text: t.validationError || "لطفاً فیلدهای اجباری را پر کنید" })
       return
     }
 
@@ -140,11 +180,11 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
         body: JSON.stringify({
           stage: 2,
           data: {
-            job: job.trim() || null,
-            political: political.trim() || null,
-            motivation: motivation.trim() || null,
-            howknown: howknown.trim() || null,
-            collaboration: collaboration.trim() || null,
+            job: job.trim(),
+            political: political.trim(),
+            motivation: motivation.trim(),
+            howknown: howknown.trim(),
+            collaboration: collaboration.trim(),
           },
         }),
       })
@@ -243,10 +283,10 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
           <div className={`p-3 rounded-lg shadow-sm border transition-all ${
             saveMessage.type === 'success' 
               ? 'bg-SuccessLight/20 text-SuccessDark border-SuccessLight/30' 
-              : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800'
+              : 'bg-ErrorLight/20 text-ErrorDark border-ErrorLight/30'
           }`}>
             <div className="flex items-center gap-2">
-              <div className={`w-1.5 h-1.5 rounded-full ${saveMessage.type === 'success' ? 'bg-Success' : 'bg-red-500'}`}></div>
+              <div className={`w-1.5 h-1.5 rounded-full ${saveMessage.type === 'success' ? 'bg-Success' : 'bg-Error'}`}></div>
               <p className="text-sm font-medium">{saveMessage.text}</p>
             </div>
           </div>
@@ -270,56 +310,124 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
         <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
           <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
             {/* Job */}
-            <FormField label={t.job}>
+            <FormField
+              label={t.job}
+              required={true}
+              error={errors.job}
+            >
               <P.Input
                 type="text"
                 value={job}
-                onChange={(e) => setJob(e.target.value)}
-                className="w-full focus:border-Mid focus:ring-Mid/20 transition-all"
-                placeholder={t.optional}
+                onChange={(e) => {
+                  setJob(e.target.value)
+                  if (errors.job) {
+                    const newErrors = { ...errors }
+                    delete newErrors.job
+                    setErrors(newErrors)
+                  }
+                }}
+                className={`w-full transition-all ${
+                  errors.job 
+                    ? 'border-red-500 focus:border-red-600 focus:ring-red-500' 
+                    : 'focus:border-Mid focus:ring-Mid/20'
+                }`}
               />
             </FormField>
 
             {/* Political */}
-            <FormField label={t.political}>
+            <FormField
+              label={t.political}
+              required={true}
+              error={errors.political}
+            >
               <P.Input
                 type="text"
                 value={political}
-                onChange={(e) => setPolitical(e.target.value)}
-                className="w-full focus:border-Mid focus:ring-Mid/20 transition-all"
-                placeholder={t.optional}
+                onChange={(e) => {
+                  setPolitical(e.target.value)
+                  if (errors.political) {
+                    const newErrors = { ...errors }
+                    delete newErrors.political
+                    setErrors(newErrors)
+                  }
+                }}
+                className={`w-full transition-all ${
+                  errors.political 
+                    ? 'border-red-500 focus:border-red-600 focus:ring-red-500' 
+                    : 'focus:border-Mid focus:ring-Mid/20'
+                }`}
               />
             </FormField>
 
             {/* Motivation */}
-            <FormField label={t.motivation}>
+            <FormField
+              label={t.motivation}
+              required={true}
+              error={errors.motivation}
+            >
               <TextareaField
                 value={motivation}
-                onChange={setMotivation}
-                placeholder={t.optional}
+                onChange={(value) => {
+                  setMotivation(value)
+                  if (errors.motivation) {
+                    const newErrors = { ...errors }
+                    delete newErrors.motivation
+                    setErrors(newErrors)
+                  }
+                }}
                 rows={5}
+                required={true}
+                error={errors.motivation}
               />
             </FormField>
 
             {/* How Known */}
-            <FormField label={t.howKnown}>
+            <FormField
+              label={t.howKnown}
+              required={true}
+              error={errors.howknown}
+            >
               <P.Input
                 type="text"
                 value={howknown}
-                onChange={(e) => setHowknown(e.target.value)}
-                className="w-full focus:border-Mid focus:ring-Mid/20 transition-all"
-                placeholder={t.optional}
+                onChange={(e) => {
+                  setHowknown(e.target.value)
+                  if (errors.howknown) {
+                    const newErrors = { ...errors }
+                    delete newErrors.howknown
+                    setErrors(newErrors)
+                  }
+                }}
+                className={`w-full transition-all ${
+                  errors.howknown 
+                    ? 'border-red-500 focus:border-red-600 focus:ring-red-500' 
+                    : 'focus:border-Mid focus:ring-Mid/20'
+                }`}
               />
             </FormField>
 
             {/* Collaboration */}
-            <FormField label={t.collaboration}>
+            <FormField
+              label={t.collaboration}
+              required={true}
+              error={errors.collaboration}
+            >
               <P.Input
                 type="text"
                 value={collaboration}
-                onChange={(e) => setCollaboration(e.target.value)}
-                className="w-full focus:border-Mid focus:ring-Mid/20 transition-all"
-                placeholder={t.optional}
+                onChange={(e) => {
+                  setCollaboration(e.target.value)
+                  if (errors.collaboration) {
+                    const newErrors = { ...errors }
+                    delete newErrors.collaboration
+                    setErrors(newErrors)
+                  }
+                }}
+                className={`w-full transition-all ${
+                  errors.collaboration 
+                    ? 'border-red-500 focus:border-red-600 focus:ring-red-500' 
+                    : 'focus:border-Mid focus:ring-Mid/20'
+                }`}
               />
             </FormField>
 

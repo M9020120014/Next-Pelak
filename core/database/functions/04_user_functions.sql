@@ -132,6 +132,19 @@ BEGIN
     );
   END IF;
 
+  -- Check if national code already exists for another user
+  IF p_nationalcode IS NOT NULL AND EXISTS (
+    SELECT 1 FROM project.useradditionalinfo 
+    WHERE nationalcode = p_nationalcode 
+    AND userid != p_userid
+  ) THEN
+    RETURN json_build_object(
+      'success', false,
+      'title', 'Duplicate National Code',
+      'message', 'این کد ملی قبلاً ثبت شده است.'
+    );
+  END IF;
+
   -- Check if selectors exist if needed
   IF p_countryid IS NOT NULL AND NOT EXISTS (SELECT 1 FROM project.selector WHERE selectorid = p_countryid) THEN
     RETURN json_build_object(

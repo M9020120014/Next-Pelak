@@ -50,6 +50,9 @@ export default function EditStage3Client({ iDevice, lang }: EditStage3ClientProp
   const [studyplaceid, setStudyplaceid] = useState<number | null>(null)
   const [studyfieldsid, setStudyfieldsid] = useState<number | null>(null)
   
+  // Validation errors
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  
   const t = profileTranslator[lang]
 
   const handleRetry = async () => {
@@ -113,11 +116,48 @@ export default function EditStage3Client({ iDevice, lang }: EditStage3ClientProp
     fetchAdditionalInfo()
   }, [authState, t])
 
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {}
+
+    // Validate skills (required)
+    if (!skills || skills.trim() === "") {
+      newErrors.skills = t.skillsRequired || "مهارت‌ها اجباری است"
+    }
+
+    // Validate degreeid (required)
+    if (!degreeid) {
+      newErrors.degreeid = t.degreeRequired || "مدرک تحصیلی اجباری است"
+    }
+
+    // Validate studyplacetypeid (required)
+    if (!studyplacetypeid) {
+      newErrors.studyplacetypeid = t.studyPlaceTypeRequired || "نوع محل تحصیل اجباری است"
+    }
+
+    // Validate studyplaceid (required)
+    if (!studyplaceid) {
+      newErrors.studyplaceid = t.studyPlaceRequired || "محل تحصیل اجباری است"
+    }
+
+    // Validate studyfieldsid (required)
+    if (!studyfieldsid) {
+      newErrors.studyfieldsid = t.studyFieldRequired || "رشته تحصیلی اجباری است"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!stage1Completed) {
       setSaveMessage({ type: 'error', text: t.stage1NotCompleted || "لطفاً ابتدا مرحله 1 را تکمیل کنید" })
+      return
+    }
+
+    if (!validateForm()) {
+      setSaveMessage({ type: 'error', text: t.validationError || "لطفاً فیلدهای اجباری را پر کنید" })
       return
     }
 
@@ -141,11 +181,11 @@ export default function EditStage3Client({ iDevice, lang }: EditStage3ClientProp
         body: JSON.stringify({
           stage: 3,
           data: {
-            skills: skills.trim() || null,
-            degreeid: degreeid || null,
-            studyplacetypeid: studyplacetypeid || null,
-            studyplaceid: studyplaceid || null,
-            studyfieldsid: studyfieldsid || null,
+            skills: skills.trim(),
+            degreeid: degreeid,
+            studyplacetypeid: studyplacetypeid,
+            studyplaceid: studyplaceid,
+            studyfieldsid: studyfieldsid,
           },
         }),
       })
@@ -248,10 +288,10 @@ export default function EditStage3Client({ iDevice, lang }: EditStage3ClientProp
           <div className={`p-3 rounded-lg shadow-sm border transition-all ${
             saveMessage.type === 'success' 
               ? 'bg-SuccessLight/20 text-SuccessDark border-SuccessLight/30' 
-              : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800'
+              : 'bg-ErrorLight/20 text-ErrorDark border-ErrorLight/30'
           }`}>
             <div className="flex items-center gap-2">
-              <div className={`w-1.5 h-1.5 rounded-full ${saveMessage.type === 'success' ? 'bg-Success' : 'bg-red-500'}`}></div>
+              <div className={`w-1.5 h-1.5 rounded-full ${saveMessage.type === 'success' ? 'bg-Success' : 'bg-Error'}`}></div>
               <p className="text-sm font-medium">{saveMessage.text}</p>
             </div>
           </div>
@@ -275,55 +315,115 @@ export default function EditStage3Client({ iDevice, lang }: EditStage3ClientProp
         <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
           <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
             {/* Skills */}
-            <FormField label={t.skills}>
+            <FormField
+              label={t.skills}
+              required={true}
+              error={errors.skills}
+            >
               <TextareaField
                 value={skills}
-                onChange={setSkills}
-                placeholder={t.optional}
+                onChange={(value) => {
+                  setSkills(value)
+                  if (errors.skills) {
+                    const newErrors = { ...errors }
+                    delete newErrors.skills
+                    setErrors(newErrors)
+                  }
+                }}
                 rows={5}
+                required={true}
+                error={errors.skills}
               />
             </FormField>
 
             {/* Degree */}
-            <FormField label={t.degree}>
+            <FormField
+              label={t.degree}
+              required={true}
+              error={errors.degreeid}
+            >
               <Selector
                 type="degree"
                 value={degreeid || undefined}
-                onChange={(id) => setDegreeid(id)}
+                onChange={(id) => {
+                  setDegreeid(id)
+                  if (errors.degreeid) {
+                    const newErrors = { ...errors }
+                    delete newErrors.degreeid
+                    setErrors(newErrors)
+                  }
+                }}
                 placeholder={t.selectDegree || "انتخاب مدرک تحصیلی"}
+                required={true}
                 isLoading={loading || additionalInfo === null}
               />
             </FormField>
 
             {/* Study Place Type */}
-            <FormField label={t.studyPlaceType}>
+            <FormField
+              label={t.studyPlaceType}
+              required={true}
+              error={errors.studyplacetypeid}
+            >
               <Selector
                 type="studyplacetype"
                 value={studyplacetypeid || undefined}
-                onChange={(id) => setStudyplacetypeid(id)}
+                onChange={(id) => {
+                  setStudyplacetypeid(id)
+                  if (errors.studyplacetypeid) {
+                    const newErrors = { ...errors }
+                    delete newErrors.studyplacetypeid
+                    setErrors(newErrors)
+                  }
+                }}
                 placeholder={t.selectStudyPlaceType || "انتخاب نوع محل تحصیل"}
+                required={true}
                 isLoading={loading || additionalInfo === null}
               />
             </FormField>
 
             {/* Study Place */}
-            <FormField label={t.studyPlace}>
+            <FormField
+              label={t.studyPlace}
+              required={true}
+              error={errors.studyplaceid}
+            >
               <Selector
                 type="studyplace"
                 value={studyplaceid || undefined}
-                onChange={(id) => setStudyplaceid(id)}
+                onChange={(id) => {
+                  setStudyplaceid(id)
+                  if (errors.studyplaceid) {
+                    const newErrors = { ...errors }
+                    delete newErrors.studyplaceid
+                    setErrors(newErrors)
+                  }
+                }}
                 placeholder={t.selectStudyPlace || "انتخاب محل تحصیل"}
+                required={true}
                 isLoading={loading || additionalInfo === null}
               />
             </FormField>
 
             {/* Study Field */}
-            <FormField label={t.studyField}>
+            <FormField
+              label={t.studyField}
+              required={true}
+              error={errors.studyfieldsid}
+            >
               <Selector
                 type="studyfield"
                 value={studyfieldsid || undefined}
-                onChange={(id) => setStudyfieldsid(id)}
+                onChange={(id) => {
+                  setStudyfieldsid(id)
+                  if (errors.studyfieldsid) {
+                    const newErrors = { ...errors }
+                    delete newErrors.studyfieldsid
+                    setErrors(newErrors)
+                  }
+                }}
                 placeholder={t.selectStudyField || "انتخاب رشته تحصیلی"}
+                required={true}
                 isLoading={loading || additionalInfo === null}
               />
             </FormField>

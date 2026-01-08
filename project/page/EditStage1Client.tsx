@@ -304,10 +304,10 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
           <div className={`p-3 rounded-lg shadow-sm border transition-all ${
             saveMessage.type === 'success' 
               ? 'bg-SuccessLight/20 text-SuccessDark border-SuccessLight/30' 
-              : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800'
+              : 'bg-ErrorLight/20 text-ErrorDark border-ErrorLight/30'
           }`}>
             <div className="flex items-center gap-2">
-              <div className={`w-1.5 h-1.5 rounded-full ${saveMessage.type === 'success' ? 'bg-Success' : 'bg-red-500'}`}></div>
+              <div className={`w-1.5 h-1.5 rounded-full ${saveMessage.type === 'success' ? 'bg-Success' : 'bg-Error'}`}></div>
               <p className="text-sm font-medium">{saveMessage.text}</p>
             </div>
           </div>

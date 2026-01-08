@@ -174,9 +174,29 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
             data.data.provinceid
           )
           
-          // Stage 2 and 3 are optional, but we check if they have any data
-          const stage2Completed = true // All fields are optional
-          const stage3Completed = true // All fields are optional
+          // Check if stage 2 is completed (all fields required)
+          const stage2Completed = !!(
+            data.data.job &&
+            data.data.job.trim() !== "" &&
+            data.data.political &&
+            data.data.political.trim() !== "" &&
+            data.data.motivation &&
+            data.data.motivation.trim() !== "" &&
+            data.data.howknown &&
+            data.data.howknown.trim() !== "" &&
+            data.data.collaboration &&
+            data.data.collaboration.trim() !== ""
+          )
+          
+          // Check if stage 3 is completed (all fields required)
+          const stage3Completed = !!(
+            data.data.skills &&
+            data.data.skills.trim() !== "" &&
+            data.data.degreeid !== null &&
+            data.data.studyplacetypeid !== null &&
+            data.data.studyplaceid !== null &&
+            data.data.studyfieldsid !== null
+          )
           
           setStagesCompleted({
             stage1: stage1Completed,
@@ -186,6 +206,10 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
           
           if (!stage1Completed) {
             setSaveMessage({ type: 'error', text: t.stage1NotCompleted || "لطفاً ابتدا مرحله 1 را تکمیل کنید" })
+          } else if (!stage2Completed) {
+            setSaveMessage({ type: 'error', text: t.stage2NotCompleted || "لطفاً ابتدا مرحله 2 را تکمیل کنید" })
+          } else if (!stage3Completed) {
+            setSaveMessage({ type: 'error', text: t.stage3NotCompleted || "لطفاً ابتدا مرحله 3 را تکمیل کنید" })
           }
         }
       } catch (err) {
@@ -203,6 +227,16 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
     
     if (!stagesCompleted.stage1) {
       setSaveMessage({ type: 'error', text: t.stage1NotCompleted || "لطفاً ابتدا مرحله 1 را تکمیل کنید" })
+      return
+    }
+
+    if (!stagesCompleted.stage2) {
+      setSaveMessage({ type: 'error', text: t.stage2NotCompleted || "لطفاً ابتدا مرحله 2 را تکمیل کنید" })
+      return
+    }
+
+    if (!stagesCompleted.stage3) {
+      setSaveMessage({ type: 'error', text: t.stage3NotCompleted || "لطفاً ابتدا مرحله 3 را تکمیل کنید" })
       return
     }
 
@@ -361,10 +395,10 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
           <div className={`p-3 rounded-lg shadow-sm border transition-all ${
             saveMessage.type === 'success' 
               ? 'bg-SuccessLight/20 text-SuccessDark border-SuccessLight/30' 
-              : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800'
+              : 'bg-ErrorLight/20 text-ErrorDark border-ErrorLight/30'
           }`}>
             <div className="flex items-center gap-2">
-              <div className={`w-1.5 h-1.5 rounded-full ${saveMessage.type === 'success' ? 'bg-Success' : 'bg-red-500'}`}></div>
+              <div className={`w-1.5 h-1.5 rounded-full ${saveMessage.type === 'success' ? 'bg-Success' : 'bg-Error'}`}></div>
               <p className="text-sm font-medium">{saveMessage.text}</p>
             </div>
           </div>
@@ -385,6 +419,36 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
           </P.Card>
         )}
 
+        {stagesCompleted.stage1 && !stagesCompleted.stage2 && (
+          <P.Card className="p-6 lg:p-8 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+              <p className="text-yellow-800 dark:text-yellow-300 font-medium">{t.stage2NotCompleted || "لطفاً ابتدا مرحله 2 را تکمیل کنید"}</p>
+            </div>
+            <P.Button
+              onClick={() => router.push(`/${lang}/profile/edit/2`)}
+              className="mt-4 transition-transform hover:scale-105"
+            >
+              {t.goToStage2 || "رفتن به مرحله 2"}
+            </P.Button>
+          </P.Card>
+        )}
+
+        {stagesCompleted.stage1 && stagesCompleted.stage2 && !stagesCompleted.stage3 && (
+          <P.Card className="p-6 lg:p-8 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+              <p className="text-yellow-800 dark:text-yellow-300 font-medium">{t.stage3NotCompleted || "لطفاً ابتدا مرحله 3 را تکمیل کنید"}</p>
+            </div>
+            <P.Button
+              onClick={() => router.push(`/${lang}/profile/edit/3`)}
+              className="mt-4 transition-transform hover:scale-105"
+            >
+              {t.goToStage3 || "رفتن به مرحله 3"}
+            </P.Button>
+          </P.Card>
+        )}
+
         {additionalInfo?.formdone && (
           <P.Card className="p-4 bg-SuccessLight/20 border border-SuccessLight/30 shadow-sm">
             <div className="flex items-center gap-2 mb-1.5">
@@ -398,7 +462,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
         )}
 
         {/* Display All Information */}
-        {additionalInfo && stagesCompleted.stage1 && (
+        {additionalInfo && stagesCompleted.stage1 && stagesCompleted.stage2 && stagesCompleted.stage3 && (
           <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
             <h2 className="text-xl lg:text-2xl font-bold text-Text mb-6 pb-4 border-b border-Border/30">بررسی اطلاعات وارد شده</h2>
             <div className="space-y-8">
@@ -585,7 +649,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
               <P.Button
                 Theme='primary'
                 type="submit"
-                disabled={saving || !stagesCompleted.stage1}
+                disabled={saving || !stagesCompleted.stage1 || !stagesCompleted.stage2 || !stagesCompleted.stage3}
                 className='flex-1'
               >
                 {saving ? t.saving : "ثبت و بازگشت به پروفایل"}
