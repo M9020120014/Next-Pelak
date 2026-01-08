@@ -14,7 +14,6 @@ export default function VerificationComponent({
   iDevice,
   lang,
   initialMobile,
-  mode = "register",
   translator = {
     registerTitle: "Register",
     forgotTitle: "Forgot Password",
@@ -118,10 +117,10 @@ export default function VerificationComponent({
           body: JSON.stringify({ mobile: initialMobile, iDevice }),
           signal: abortController.signal,
         });
-        
+
         // Check if request was aborted
         if (abortController.signal.aborted || !isMountedRef.current) return;
-        
+
         // Check for rate limit error (429) before parsing JSON
         if (res.status === 429) {
           const data = await res.json();
@@ -133,7 +132,7 @@ export default function VerificationComponent({
           autoSendInProgressRef.current = false;
           return;
         }
-        
+
         const data = await res.json();
         if (!isMountedRef.current) return;
 
@@ -166,7 +165,7 @@ export default function VerificationComponent({
         }
       }
     };
-    
+
     sendOTPAuto();
 
     // Cleanup function to cancel request if effect re-runs or component unmounts
@@ -207,10 +206,10 @@ export default function VerificationComponent({
         body: JSON.stringify({ mobile, iDevice }),
         signal: abortController.signal,
       });
-      
+
       // Check if request was aborted
       if (abortController.signal.aborted || !isMountedRef.current) return;
-      
+
       // Check for rate limit error (429) before parsing JSON
       if (res.status === 429) {
         const data = await res.json();
@@ -220,7 +219,7 @@ export default function VerificationComponent({
         setLoading(false);
         return;
       }
-      
+
       const data = await res.json();
       if (!isMountedRef.current) return;
 
@@ -277,10 +276,10 @@ export default function VerificationComponent({
         body: JSON.stringify({ mobile, iDevice, otpCode }),
         signal: abortController.signal,
       });
-      
+
       // Check if request was aborted
       if (abortController.signal.aborted || !isMountedRef.current) return;
-      
+
       const data = await res.json();
       if (!isMountedRef.current) return;
 
@@ -347,18 +346,18 @@ export default function VerificationComponent({
           "Content-Type": "application/json",
           "x-csrf-token": csrfToken
         },
-        body: JSON.stringify({ 
-          mobile, 
-          iDevice, 
-          password, 
-          confirmPassword 
+        body: JSON.stringify({
+          mobile,
+          iDevice,
+          password,
+          confirmPassword
         }),
         signal: abortController.signal,
       });
-      
+
       // Check if request was aborted
       if (abortController.signal.aborted || !isMountedRef.current) return;
-      
+
       // Check for rate limit error (429) before parsing JSON
       if (res.status === 429) {
         const errorData = await res.json().catch(() => ({ message: "درخواست‌های زیادی ارسال شده است" }));
@@ -368,7 +367,7 @@ export default function VerificationComponent({
         setLoading(false);
         return;
       }
-      
+
       const data = await res.json();
       if (!isMountedRef.current) return;
 
@@ -377,7 +376,7 @@ export default function VerificationComponent({
         if (data.access_token) {
           setAccessToken(data.access_token);
         }
-        
+
         setStep("success");
         setMessage(translator.passwordSetSuccess);
         setTimeout(() => {
@@ -412,13 +411,13 @@ export default function VerificationComponent({
       <div className="max-w-md w-full flex flex-col gap-012-3">
         <div className="text-center">
           <h2 className="text-H1 font-bold text-Text">
-            {mode === "forgot" ? translator.forgotTitle : translator.registerTitle}
-          </h2>
-          <p className="mt-008-2 text-B text-Mid">
             {step === "mobile" && translator.mobileDescription}
             {step === "otp" && translator.otpDescription}
             {step === "password" && translator.passwordDescription}
-          </p>
+          </h2>
+          {step === "password" && (<p className="mt-008-2 text-B text-Mid">
+            {translator.passwordDescriptionHelp}
+          </p>)}
         </div>
 
         {error && (

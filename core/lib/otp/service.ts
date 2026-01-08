@@ -26,7 +26,7 @@ export async function sendOTP(mobile: string): Promise<OTPResponse> {
         return {
           success: false,
           title: 'Configuration Error',
-          message: 'OTP service URL is not configured correctly',
+          message: 'تنظیمات سرویس OTP نادرست است',
         }
       }
     }
@@ -58,7 +58,7 @@ export async function sendOTP(mobile: string): Promise<OTPResponse> {
       return {
         success: false,
         title: 'Error sending verification code',
-        message: 'خطا در ارسال کد تایید',
+        message: 'خطا در ارسال پیامک کد تایید',
       }
     }
 
@@ -72,14 +72,14 @@ export async function sendOTP(mobile: string): Promise<OTPResponse> {
       return {
         success: false,
         title: data.title || 'Error reading information',
-        message: data.message || 'خطا در خواندن اطلاعات',
+        message: 'خطا در خواندن اطلاعات',
       }
     }
 
       return {
         success: true,
         title: data.title || 'OTP sent',
-        message: data.message || 'کد تایید ارسال شد',
+        message: 'پیامک کد تایید ارسال شد',
       }
     } catch (error) {
       clearTimeout(timeoutId)
@@ -125,7 +125,7 @@ export async function verifyOTP(mobile: string, code: string): Promise<OTPRespon
         return {
           success: false,
           title: 'Configuration Error',
-          message: 'OTP service URL is not configured correctly',
+          message: 'تنظیمات سرویس OTP نادرست است',
         }
       }
     }
@@ -166,14 +166,14 @@ export async function verifyOTP(mobile: string, code: string): Promise<OTPRespon
       return {
         success: false,
         title: data.title || 'Error reading information',
-        message: data.message || 'خطا در تایید کد تایید',
+        message: 'خطا در تایید کد تایید',
       }
     }
 
       return {
         success: true,
         title: data.title || 'Verification successful',
-        message: data.message || 'تایید با موفقیت انجام شد',
+        message: 'تایید کد با موفقیت انجام شد',
       }
     } catch (error) {
       clearTimeout(timeoutId)

@@ -14,7 +14,6 @@ import { Icon } from '@/core/components/ui/Icon'
 import { dashboardTranslator } from "@/project/data/translations/dashboard";
 import { LANGUAGE_TYPE } from "@/project/config/site";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/core/components/ui/Card'
-import Link from 'next/link'
 
 interface ProfileData {
   userid: number

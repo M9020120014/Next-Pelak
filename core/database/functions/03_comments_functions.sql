@@ -213,7 +213,7 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Comments Retrieved',
-    'message', 'Comments retrieved successfully.',
+    'message', 'نظرات با موفقیت خوانده شدند',
     'comments', v_comments
   );
 
@@ -221,7 +221,7 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error retrieving comments.',
+    'message', 'خطا در خواندن نظرات. بعدا تلاش کنید',
     'comments', '[]'::json
   );
 END;
@@ -275,7 +275,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Page Not Found',
-      'message', 'Page not found.'
+      'message', 'صفحه ای با این شناسه پیدا نشد'
     );
   END IF;
 
@@ -284,7 +284,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'User not found or inactive.'
+      'message', 'کاربری با این شناسه پیدا نشد'
     );
   END IF;
 
@@ -300,7 +300,7 @@ BEGIN
       RETURN json_build_object(
         'success', false,
         'title', 'Parent Comment Not Found',
-        'message', 'Parent comment not found.'
+        'message', 'نظر والدی با این شناسه پیدا نشد'
       );
     END IF;
   END IF;
@@ -310,7 +310,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Invalid Content',
-      'message', 'Content cannot be empty.'
+      'message', 'محتوای نظر نمی تواند خالی باشد'
     );
   END IF;
 
@@ -338,7 +338,7 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Comment Created',
-    'message', 'Comment created successfully and pending approval.',
+    'message', 'نظر با موفقیت ساخته شد و منتظر تایید ادمین است',
     'comment_id', v_comment_id
   );
 
@@ -346,7 +346,7 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error creating comment.'
+    'message', 'خطا در ساختن نظر. بعدا تلاش کنید'
   );
 END;
 $BODY$;
@@ -397,7 +397,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Comment Not Found',
-      'message', 'Comment not found.'
+      'message', 'نظری با این شناسه پیدا نشد'
     );
   END IF;
 
@@ -406,7 +406,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Permission Denied',
-      'message', 'You do not have permission to edit this comment.'
+      'message', 'شما اجازه ویرایش این نظر را ندارید'
     );
   END IF;
 
@@ -415,7 +415,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Invalid Content',
-      'message', 'Content cannot be empty.'
+      'message', 'محتوای نظر نمی تواند خالی باشد'
     );
   END IF;
 
@@ -428,14 +428,14 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Comment Updated',
-    'message', 'Comment updated successfully.'
+    'message', 'نظر با موفقیت ویرایش شد'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error updating comment.'
+    'message', 'خطا در ویرایش نظر. بعدا تلاش کنید'
   );
 END;
 $BODY$;
@@ -483,7 +483,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Comment Not Found',
-      'message', 'Comment not found.'
+      'message', 'نظری با این شناسه پیدا نشد'
     );
   END IF;
 
@@ -492,7 +492,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Permission Denied',
-      'message', 'You do not have permission to delete this comment.'
+      'message', 'شما اجازه حذف این نظر را ندارید'
     );
   END IF;
 
@@ -505,14 +505,14 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Comment Deleted',
-    'message', 'Comment deleted successfully.'
+    'message', 'نظر با موفقیت حذف شد'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error deleting comment.'
+    'message', 'خطا در حذف نظر. بعدا تلاش کنید'
   );
 END;
 $BODY$;
@@ -571,7 +571,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Comment Not Found',
-      'message', 'Comment not found or not approved.'
+      'message', 'نظری با این شناسه پیدا نشد'
     );
   END IF;
 
@@ -586,7 +586,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'User not found or inactive.'
+      'message', 'کاربری با این شناسه پیدا نشد'
     );
   END IF;
 
@@ -620,7 +620,7 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', CASE WHEN v_liked THEN 'Comment Liked' ELSE 'Comment Unliked' END,
-    'message', CASE WHEN v_liked THEN 'Comment liked.' ELSE 'Comment like removed.' END,
+    'message', CASE WHEN v_liked THEN 'نظر با موفقیت لایک شد' ELSE 'نظر با موفقیت لایک از شد' END,
     'liked', v_liked,
     'likes_count', v_likes_count
   );
@@ -629,7 +629,7 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error toggling comment like.'
+    'message', 'خطا در تغییر لایک نظر. بعدا تلاش کنید'
   );
 END;
 $BODY$;

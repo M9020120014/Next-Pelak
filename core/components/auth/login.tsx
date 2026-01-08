@@ -136,10 +136,12 @@ export default function LoginComponent({
     <div className="h-screen w-full flex justify-center items-center">
       <div className="max-w-md w-full flex flex-col gap-012-3">
         <div className="text-center">
-          <h2 className="text-H1 font-bold text-Text">{translator.title}</h2>
-          <p className="mt-008-2 text-B text-Mid">
+          <h2 className="text-H1 font-bold text-Text">
             {step === "mobile" ? translator.mobileDescription : translator.passwordDescription}
-          </p>
+          </h2>
+          {/* <p className="mt-008-2 text-B text-Mid">
+            xxx
+          </p> */}
         </div>
 
         {error && (

@@ -8,7 +8,7 @@
 .light {
   /* --- Background ----------------- */
   --Lightness: oklch(0.999 0.001 80);
-  --Background: oklch(0.95 0.018 80);
+  --Background: oklch(0.97 0.008 80);
   --Panel: oklch(0.9 0.014 80);
   --Border: oklch(0.8 0.008 80);
   --Mid: oklch(0.56 0 0);
@@ -40,7 +40,7 @@
   --Mid: oklch(0.5762 0 0);
   --Shadow: oklch(0.8 0.008 80);
   --Text: oklch(0.9 0.014 80);
-  --Foreground: oklch(0.95 0.018 80);
+  --Foreground: oklch(0.97 0.008 80);
   --Darkness: oklch(0.999 0.001 80);
   /* --- Colors --------------------- */
   --Primary: oklch(0.72 0.14 205);

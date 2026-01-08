@@ -398,7 +398,7 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Pages Retrieved',
-    'message', 'Pages retrieved successfully.',
+    'message', 'صفحات با موفقیت خوانده شدند',
     'page', v_page
   );
 
@@ -406,7 +406,7 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error retrieving page.',
+    'message', 'خطا در خواندن صفحه. بعدا تلاش کنید',
     'page', '[]'::json
   );
 END;
@@ -469,7 +469,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Page Not Found',
-      'message', 'Page with this URL not found.',
+      'message', 'صفحه ای با این آدرس پیدا نشد',
       'page', NULL::json
     );
   END IF;
@@ -477,7 +477,7 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Page Retrieved',
-    'message', 'Page retrieved successfully.',
+    'message', 'صفحه با موفقیت خوانده شد',
     'page', v_page
   );
 
@@ -485,7 +485,7 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error retrieving page.',
+    'message', 'خطا در خواندن صفحه. بعدا تلاش کنید',
     'page', NULL::json
   );
 END;
@@ -548,7 +548,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Page Not Found',
-      'message', 'Page with this ID not found.',
+      'message', 'صفحه ای با این شناسه پیدا نشد',
       'page', NULL::json
     );
   END IF;
@@ -556,7 +556,7 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Page Retrieved',
-    'message', 'Page retrieved successfully.',
+    'message', 'صفحه با موفقیت خوانده شد',
     'page', v_page
   );
 
@@ -564,7 +564,7 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error retrieving page.',
+    'message', 'خطا در خواندن صفحه. بعدا تلاش کنید',
     'page', NULL::json
   );
 END;

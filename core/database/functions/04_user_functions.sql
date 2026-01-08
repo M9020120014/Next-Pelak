@@ -128,7 +128,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'User not found or inactive.'
+      'message', 'کاربری با این شناسه پیدا نشد'
     );
   END IF;
 
@@ -150,7 +150,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'Selected country not found.'
+      'message', 'کشور انتخاب شده پیدا نشد'
     );
   END IF;
 
@@ -158,7 +158,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'Selected province not found.'
+      'message', 'استان انتخاب شده پیدا نشد'
     );
   END IF;
 
@@ -166,7 +166,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'Selected city not found.'
+      'message', 'شهر انتخاب شده پیدا نشد'
     );
   END IF;
 
@@ -205,14 +205,14 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Stage 1 Completed',
-    'message', 'Stage 1 additional information completed successfully.'
+    'message', 'مرحله 1 با موفقیت تکمیل شد'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error completing stage 1 additional information.'
+    'message', 'خطا در تکمیل مرحله 1. بعدا تلاش کنید'
   );
 END;
 $BODY$;
@@ -262,7 +262,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'User not found or inactive.'
+      'message', 'کاربری با این شناسه پیدا نشد'
     );
   END IF;
 
@@ -271,7 +271,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Stage 1 Not Completed',
-      'message', 'Please complete stage 1 first.'
+      'message', 'لطفا مرحله 1 را ابتدا تکمیل کنید'
     );
   END IF;
 
@@ -288,14 +288,14 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Stage 2 Completed',
-    'message', 'Stage 2 additional information completed successfully.'
+    'message', 'مرحله 2 با موفقیت تکمیل شد'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error completing stage 2 additional information.'
+    'message', 'خطا در تکمیل مرحله 2. بعدا تلاش کنید'
   );
 END;
 $BODY$;
@@ -346,7 +346,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'User not found or inactive.'
+      'message', 'کاربری با این شناسه پیدا نشد'
     );
   END IF;
 
@@ -355,7 +355,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Stage 1 Not Completed',
-      'message', 'Please complete stage 1 first.'
+      'message', 'لطفا مرحله 1 را ابتدا تکمیل کنید'
     );
   END IF;
 
@@ -364,7 +364,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'Selected education degree not found.'
+      'message', 'درجه تحصیل انتخاب شده پیدا نشد'
     );
   END IF;
 
@@ -372,7 +372,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'Selected study place type not found.'
+      'message', 'نوع محل تحصیل انتخاب شده پیدا نشد'
     );
   END IF;
 
@@ -380,7 +380,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'Selected study place not found.'
+      'message', 'محل تحصیل انتخاب شده پیدا نشد'
     );
   END IF;
 
@@ -388,7 +388,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Selector Not Found',
-      'message', 'Selected field of study not found.'
+      'message', 'رشته تحصیلی انتخاب شده پیدا نشد'
     );
   END IF;
 
@@ -405,14 +405,14 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Stage 3 Completed',
-    'message', 'Stage 3 additional information completed successfully.'
+    'message', 'مرحله 3 با موفقیت تکمیل شد'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error completing stage 3 additional information.'
+    'message', 'خطا در تکمیل مرحله 3. بعدا تلاش کنید'
   );
 END;
 $BODY$;
@@ -456,7 +456,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'User not found or inactive.'
+      'message', 'کاربری با این شناسه پیدا نشد'
     );
   END IF;
 
@@ -465,7 +465,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Stage 1 Not Completed',
-      'message', 'Please complete stage 1 first.'
+      'message', 'لطفا مرحله 1 را ابتدا تکمیل کنید'
     );
   END IF;
 
@@ -479,7 +479,7 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Stage 4 Completed',
-    'message', CASE WHEN p_consent = true THEN 'Form completed successfully.' ELSE 'Consent recorded.' END,
+    'message', CASE WHEN p_consent = true THEN 'فرم با موفقیت تکمیل شد' ELSE 'تایید با موفقیت ثبت شد' END,
     'form_completed', p_consent
   );
 
@@ -487,7 +487,7 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error completing stage 4 additional information.'
+    'message', 'خطا در تکمیل مرحله 4. بعدا تلاش کنید'
   );
 END;
 $BODY$;
@@ -525,7 +525,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'User not found or inactive.'
+      'message', 'کاربری با این شناسه پیدا نشد'
     );
   END IF;
 
@@ -575,7 +575,7 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error retrieving additional information.'
+    'message', 'خطا در خواندن اطلاعات اضافی. بعدا تلاش کنید'
   );
 END;
 $BODY$;

@@ -42,7 +42,7 @@ BEGIN
     RETURN json_build_object(
       'success', true,
       'title', 'User Exists',
-      'message', 'User already registered.'
+      'message', 'شماره موبایل تایید شد'
     );
   END IF;
 
@@ -75,7 +75,7 @@ BEGIN
     RETURN json_build_object(
       'success', true,
       'title', 'User Created',
-      'message', 'User created successfully.',
+      'message', 'شماره موبایل تایید شد',
       'userid', v_userid
     );
 
@@ -85,7 +85,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Registration Failed',
-      'message', 'Error registering user: ' || v_error_message,
+      'message', 'خطا در ثبت کاربر : ' || v_error_message,
       'error_code', SQLSTATE
     );
   END;
@@ -125,7 +125,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'User with this mobile number not found.'
+      'message', 'کاربری با این شماره موبایل پیدا نشد'
     );
   END IF;
 
@@ -141,14 +141,14 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Password Updated',
-    'message', 'Password changed successfully.'
+    'message', 'رمز عبور تغییر کرد'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Password Update Failed',
-    'message', 'Error changing password.'
+    'message', 'خطا در تغییر رمز عبور'
   );
 END;
 $BODY$
@@ -205,7 +205,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Account Locked',
-      'message', 'Your account is temporarily locked. Please try again later.'
+      'message', 'حساب شما موقتاً قفل شده است. بعداً تلاش کنید'
     );
   END IF;
 
@@ -232,7 +232,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Login Failed',
-      'message', 'Mobile number or password is incorrect.'
+      'message', 'شماره موبایل یا رمز عبور اشتباه است'
     );
   END IF;
 
@@ -308,7 +308,7 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Login Error',
-    'message', 'Server error during login.'
+    'message', 'خطا در ورود به سیستم بعدا تلاش کنید'
   );
 END;
 $BODY$;
@@ -377,7 +377,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Invalid Token',
-      'message', 'Token is invalid or expired. Please login again.',
+      'message', 'توکن معتبر نیست یا منقضی شده است. لطفا دوباره وارد شوید',
       'valid', false
     );
   END IF;
@@ -510,7 +510,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'Token Not Found',
-      'message', 'No active token found for this device.'
+      'message', 'توکن فعالی برای این دستگاه پیدا نشد'
     );
   END IF;
 
@@ -545,14 +545,14 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Token Revoked',
-    'message', 'Token revoked successfully.'
+    'message', 'توکن لغو شد'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Revoke Failed',
-    'message', 'Error revoking token. Please try again.'
+    'message', 'خطا در لغو توکن. بعدا تلاش کنید'
   );
 END;
 $BODY$;
@@ -591,7 +591,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'User with this mobile number not found.'
+      'message', 'کاربری با این شماره موبایل پیدا نشد'
     );
   END IF;
 
@@ -601,14 +601,14 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Logged Out Everywhere',
-    'message', 'Logged out from all devices successfully.'
+    'message', 'از تمام دستگاه‌ها با موفقیت خارج شدید'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Revoke Failed',
-    'message', 'Error logging out from devices. Please try again.'
+    'message', 'خطا در خروج از دستگاه‌ها. بعدا تلاش کنید'
   );
 END;
 $BODY$
@@ -654,14 +654,14 @@ BEGIN
       'success', true,
       'valid', true,
       'title', 'Token Valid',
-      'message', 'Token is valid.'
+      'message', 'توکن معتبر است'
     );
   ELSE
     RETURN json_build_object(
       'success', false,
       'valid', false,
       'title', 'Token Not Found',
-      'message', 'No valid token found for this device.'
+      'message', 'توکن معتبری برای این دستگاه پیدا نشد'
     );
   END IF;
 
@@ -670,7 +670,7 @@ EXCEPTION WHEN OTHERS THEN
     'success', false,
     'valid', false,
     'title', 'Error',
-    'message', 'Error checking token.'
+    'message', 'خطا در بررسی توکن. بعدا تلاش کنید'
   );
 END;
 $BODY$
@@ -712,7 +712,7 @@ BEGIN
       'success', false,
       'valid', false,
       'title', 'User Not Found',
-      'message', 'User with this mobile number not found.'
+      'message', 'کاربری با این شماره موبایل پیدا نشد'
     );
   END IF;
 
@@ -730,14 +730,14 @@ BEGIN
       'success', true,
       'valid', true,
       'title', 'Token Valid',
-      'message', 'Valid token found for this user.'
+      'message', 'توکن معتبری برای این کاربر پیدا شد'
     );
   ELSE
     RETURN json_build_object(
       'success', false,
       'valid', false,
       'title', 'Token Not Found',
-      'message', 'No valid token found for this user.'
+      'message', 'توکن معتبری برای این کاربر پیدا نشد'
     );
   END IF;
 
@@ -746,7 +746,7 @@ EXCEPTION WHEN OTHERS THEN
     'success', false,
     'valid', false,
     'title', 'Error',
-    'message', 'Error checking token.'
+    'message', 'خطا در بررسی توکن. بعدا تلاش کنید'
   );
 END;
 $BODY$
@@ -792,7 +792,7 @@ BEGIN
       'success', false,
       'valid', false,
       'title', 'User Not Found',
-      'message', 'User with this mobile number not found.'
+      'message', 'کاربری با این شماره موبایل پیدا نشد'
     );
   END IF;
 
@@ -811,14 +811,14 @@ BEGIN
       'success', true,
       'valid', true,
       'title', 'Token Valid',
-      'message', 'Valid token found for this user and device.'
+      'message', 'توکن معتبری برای این کاربر و دستگاه پیدا شد'
     );
   ELSE
     RETURN json_build_object(
       'success', false,
       'valid', false,
       'title', 'Token Not Found',
-      'message', 'No valid token found for this user and device.'
+      'message', 'توکن معتبری برای این کاربر و دستگاه پیدا نشد'
     );
   END IF;
 
@@ -827,7 +827,7 @@ EXCEPTION WHEN OTHERS THEN
     'success', false,
     'valid', false,
     'title', 'Error',
-    'message', 'Error checking token.'
+    'message', 'خطا در بررسی توکن. بعدا تلاش کنید'
   );
 END;
 $BODY$
@@ -872,7 +872,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'User not found or inactive.'
+      'message', 'کاربری با این شماره موبایل پیدا نشد'
     );
   END IF;
 
@@ -886,14 +886,14 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Name Updated',
-    'message', 'First name and last name updated successfully.'
+    'message', 'نام و نام خانوادگی با موفقیت تغییر کرد'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error updating first name and last name.'
+    'message', 'خطا در تغییر نام و نام خانوادگی. بعدا تلاش کنید'
   );
 END;
 $BODY$;
@@ -941,7 +941,7 @@ BEGIN
     RETURN json_build_object(
       'success', false,
       'title', 'User Not Found',
-      'message', 'User not found or inactive.'
+      'message', 'کاربری با این شماره موبایل پیدا نشد'
     );
   END IF;
 
@@ -951,7 +951,7 @@ BEGIN
       RETURN json_build_object(
         'success', false,
         'title', 'Profile Image Not Found',
-        'message', 'Selected profile image not found or inactive.'
+        'message', 'تصویر پروفایل انتخاب شده پیدا نشد'
       );
     END IF;
   END IF;
@@ -977,14 +977,14 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Profile Image Updated',
-    'message', 'Profile image updated successfully.'
+    'message', 'تصویر پروفایل با موفقیت تغییر کرد'
   );
 
 EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error updating profile image.'
+    'message', 'خطا در تغییر تصویر پروفایل. بعدا تلاش کنید'
   );
 END;
 $BODY$;
@@ -1035,7 +1035,7 @@ BEGIN
     RETURN json_build_object(
       'success', true,
     'title', 'Error',
-    'message', 'Error checking user existence.',
+    'message', 'خطا در بررسی وجود کاربر. بعدا تلاش کنید',
       'exists', true,
       'has_password', v_has_password
     );
@@ -1043,7 +1043,7 @@ BEGIN
     RETURN json_build_object(
       'success', true,
     'title', 'Error',
-    'message', 'Error checking user existence.',
+    'message', 'خطا در بررسی وجود کاربر. بعدا تلاش کنید',
       'exists', false,
       'has_password', false
     );
@@ -1053,7 +1053,7 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error checking user existence.',
+    'message', 'خطا در بررسی وجود کاربر. بعدا تلاش کنید',
     'exists', false,
     'has_password', false
   );
@@ -1128,7 +1128,7 @@ BEGIN
   RETURN json_build_object(
     'success', true,
     'title', 'Tokens Archived',
-    'message', 'Inactive tokens moved to history successfully.',
+    'message', 'توکن‌های غیرفعال به تاریخچه منتقل شد',
     'archived_count', v_archived_count
   );
 
@@ -1136,7 +1136,7 @@ EXCEPTION WHEN OTHERS THEN
   RETURN json_build_object(
     'success', false,
     'title', 'Error',
-    'message', 'Error archiving inactive tokens: ' || SQLERRM
+    'message', 'خطا در حذف توکن‌های غیرفعال: ' || SQLERRM
   );
 END;
 $BODY$
