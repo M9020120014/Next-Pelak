@@ -24,7 +24,7 @@ export const General = {
       </>
     ),
   },
-  categories: {
+  category: {
     active: (
       <>
         <circle cx="15" cy="15" r="7" />

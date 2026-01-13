@@ -49,13 +49,13 @@ export const CORE_ENV = {
   NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3131',
 
   // Cookie Names
-  IDEVICE_STORAGE_KEY: process.env.IDEVICE_STORAGE_KEY || 'idevice-token',
-  CSRF_COOKIE_NAME: process.env.CSRF_COOKIE_NAME || 'csrf-token',
+  IDEVICE_TOKEN_NAME: process.env.IDEVICE_TOKEN_NAME || 'idevice-token',
+  CSRF_TOKEN_NAME: process.env.CSRF_TOKEN_NAME || 'csrf-token',
   REFRESH_TOKEN_COOKIE: process.env.REFRESH_TOKEN_COOKIE || 'refreshtoken',
-  OTP_SECRET_SESSION_COOKIE: process.env.OTP_SECRET_SESSION_COOKIE || 'otp-secret-session',
+  OTP_TOKEN_NAME: process.env.OTP_TOKEN_NAME || 'otp-secret-session',
 
   // JWT Configuration
-  JWT_SECRET: process.env.JWT_SECRET || '',
+  TOKEN_SECRET: process.env.TOKEN_SECRET || '',
 
   // OTP Service Configuration
   OTP_SERVER_URL: process.env.OTP_SERVER_URL || '',
@@ -106,8 +106,8 @@ export const CORE_ENV = {
 export function validateCoreEnv(): string[] {
   const errors: string[] = []
 
-  if (CORE_ENV.JWT_SECRET.length < 32) {
-    errors.push('JWT_SECRET must be at least 32 characters long')
+  if (CORE_ENV.TOKEN_SECRET.length < 32) {
+    errors.push('TOKEN_SECRET must be at least 32 characters long')
   }
 
   // Validate URL formats

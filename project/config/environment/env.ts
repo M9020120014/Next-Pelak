@@ -8,7 +8,7 @@
  * @module project/config/env-project
  * 
  * @remarks
- * - Add project-specific environment variables to the `PROJECT_ENV` object
+ * - Add project-specific environment variables to the `ENV` object
  * - Add corresponding validation logic in `validateProjectEnv()` function
  * - Variables defined here take precedence over core variables if there's a naming conflict
  * - All values are readonly (as const) to prevent accidental modifications
@@ -37,14 +37,14 @@
  * 
  * @example
  * ```typescript
- * import { PROJECT_ENV } from '@/project/config/env-project'
+ * import { ENV } from '@/project/config/env-project'
  * 
  * // Access project-specific variables directly (not recommended)
  * // Prefer using the merged ENV from core/config/env.ts instead
- * const value = PROJECT_ENV.SOME_VARIABLE
+ * const value = ENV.SOME_VARIABLE
  * ```
  */
-export const PROJECT_ENV = {
+export const ENV = {
   // Zarinpal Payment Gateway Configuration
   ZARINPAL_API_URL: process.env.ZARINPAL_API_URL || '',
   ZARINPAL_MERCHANT_ID: process.env.ZARINPAL_MERCHANT_ID || '',
@@ -84,36 +84,36 @@ export const PROJECT_ENV = {
  * }
  * ```
  */
-export function validateProjectEnv(): string[] {
+export function validateEnv(): string[] {
   const errors: string[] = []
 
   // Validate URL formats
-  if (PROJECT_ENV.ZARINPAL_API_URL && !PROJECT_ENV.ZARINPAL_API_URL.startsWith('http')) {
+  if (ENV.ZARINPAL_API_URL && !ENV.ZARINPAL_API_URL.startsWith('http')) {
     errors.push('ZARINPAL_API_URL must be a valid URL starting with http:// or https://')
   }
 
-  if (PROJECT_ENV.ZARINPAL_CALLBACK_URL && !PROJECT_ENV.ZARINPAL_CALLBACK_URL.startsWith('http')) {
+  if (ENV.ZARINPAL_CALLBACK_URL && !ENV.ZARINPAL_CALLBACK_URL.startsWith('http')) {
     errors.push('ZARINPAL_CALLBACK_URL must be a valid URL starting with http:// or https://')
   }
 
   // Validate Merchant ID format (UUID format)
-  if (PROJECT_ENV.ZARINPAL_MERCHANT_ID) {
+  if (ENV.ZARINPAL_MERCHANT_ID) {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    if (!uuidRegex.test(PROJECT_ENV.ZARINPAL_MERCHANT_ID)) {
+    if (!uuidRegex.test(ENV.ZARINPAL_MERCHANT_ID)) {
       errors.push('ZARINPAL_MERCHANT_ID must be a valid UUID format')
     }
   }
 
-  if (PROJECT_ENV.SSS_OBJECT && !PROJECT_ENV.SSS_OBJECT.startsWith('http')) {
+  if (ENV.SSS_OBJECT && !ENV.SSS_OBJECT.startsWith('http')) {
     errors.push('SSS_OBJECT must be a valid URL starting with http:// or https://')
   }
 
-  if (PROJECT_ENV.SSS_URL && !PROJECT_ENV.SSS_URL.startsWith('http')) {
+  if (ENV.SSS_URL && !ENV.SSS_URL.startsWith('http')) {
     errors.push('SSS_URL must be a valid URL starting with http:// or https://')
   }
 
   // Validate PostHog Host URL format
-  if (PROJECT_ENV.NEXT_PUBLIC_POSTHOG_HOST && !PROJECT_ENV.NEXT_PUBLIC_POSTHOG_HOST.startsWith('http')) {
+  if (ENV.NEXT_PUBLIC_POSTHOG_HOST && !ENV.NEXT_PUBLIC_POSTHOG_HOST.startsWith('http')) {
     errors.push('NEXT_PUBLIC_POSTHOG_HOST must be a valid URL starting with http:// or https://')
   }
 

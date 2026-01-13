@@ -8,7 +8,7 @@ import { COOKIE, TOKEN } from '@/core/config/security'
 import { ENV } from '@/core/config/env'
 import { runAsync } from '@/core/lib/utils/async'
 /* --- Constants -------------------------------------------------------------------------------- */
-const IDEVICE_STORAGE_KEY = ENV.IDEVICE_STORAGE_KEY
+const IDEVICE_TOKEN_NAME = ENV.IDEVICE_TOKEN_NAME
 /* --- Functions -------------------------------------------------------------------------------- */
 
 export async function getOrCreateIDeviceToken(userAgent?: string): Promise<string> {
@@ -16,7 +16,7 @@ export async function getOrCreateIDeviceToken(userAgent?: string): Promise<strin
   const existingIDevice = await getIDeviceToken()
   if (!existingIDevice || existingIDevice === "unknown" || existingIDevice.length !== TOKEN.DEVICE_ID_LENGTH) {
     const idevice = generateIDeviceToken(userAgent || "server-generated");
-    cookieStore.set(IDEVICE_STORAGE_KEY, idevice, {
+    cookieStore.set(IDEVICE_TOKEN_NAME, idevice, {
       ...COOKIE.IDEVICE,
     })
     return idevice;
@@ -27,7 +27,7 @@ export async function getOrCreateIDeviceToken(userAgent?: string): Promise<strin
 /* --- Get iDevice -------------------------------------------------- */
 export async function getIDeviceToken(): Promise<string> {
   const cookieStore = await cookies();
-  const idevice = cookieStore.get(IDEVICE_STORAGE_KEY)?.value;
+  const idevice = cookieStore.get(IDEVICE_TOKEN_NAME)?.value;
   return idevice || 'unknown';
 }
 /* --- Call iDevice ------------------------------------------------- */

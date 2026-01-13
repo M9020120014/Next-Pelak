@@ -233,7 +233,7 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
     const normalized = birthday.trim().replace(/\//g, '-')
     const datePart = normalized.split(/[\sT]/)[0]
     const [y] = datePart.split('-').map(Number)
-    
+
     if (y >= 1000 && y < 2000) {
       // Already Persian
       return birthday.split(/[\sT]/)[0]
@@ -256,7 +256,7 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
 
   if (authState === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-[calc(100svh-var(--spacing-144-D))] flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           <p className="mt-4 text-gray-600">{t.loading}</p>
@@ -277,7 +277,7 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
 
   if (authState === 'unauthenticated') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-[calc(100svh-var(--spacing-144-D))] flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-gray-600">{t.pleaseLoginAgain}</p>
         </div>
@@ -388,12 +388,8 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
   )
 
   return (
-    <main className="bg-Background pt-008-2 lg:pt-040-8 min-h-screen">
+    <main className="bg-Background lg:pt-034-7 min-h-[calc(100svh-var(--spacing-144-D))]">
       <P.Container className="space-y-018-4 lg:space-y-024-6">
-        <div className="mb-6">
-          <h1 className="text-3xl lg:text-4xl font-bold text-Text mb-2">{t.profile}</h1>
-          <div className="h-1 w-20 bg-Mid/30 rounded-full"></div>
-        </div>
 
         {isLoading ? (
           <div className="space-y-018-4 lg:space-y-024-6">
@@ -407,51 +403,43 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-Border/30">
                 <h2 className="text-xl lg:text-2xl font-bold text-Text">اطلاعات اصلی</h2>
                 <P.Button
-                Theme='primary'
+                  Theme='primary'
                   onClick={() => router.push(`/${lang}/profile/edit`)}
                   className="transition-transform hover:scale-105"
                 >
                   {t.edit || 'ویرایش'}
                 </P.Button>
               </div>
-              <div className="space-y-6">
-                <div className="flex flex-col md:flex-row items-center md:items-start gap-6 lg:gap-8">
-                  <div className="relative w-32 h-32 lg:w-40 lg:h-40 rounded-full overflow-hidden border-4 border-Border shadow-lg shrink-0 ring-2 ring-Mid/20">
-                    <Image
-                      src={getProfileImageUrl()}
-                      alt={t.profileImage}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 128px, 160px"
-                    />
-                  </div>
-                  <div className="flex-1 w-full space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-                      <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
-                        <span className="block text-sm font-semibold text-Mid mb-1">{t.firstName}</span>
-                        <span className="text-base text-Text font-medium">
-                          {displayValue(profileData?.firstname || userInfo?.firstname)}
-                        </span>
-                      </div>
-                      <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
-                        <span className="block text-sm font-semibold text-Mid mb-1">{t.lastName}</span>
-                        <span className="text-base text-Text font-medium">
-                          {displayValue(profileData?.lastname || userInfo?.lastname)}
-                        </span>
-                      </div>
-                      <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
-                        <span className="block text-sm font-semibold text-Mid mb-1">{t.mobileNumber}</span>
-                        <span className="text-base text-Text font-medium">
-                          {displayValue(profileData?.mobile || userInfo?.mobile)}
-                        </span>
-                      </div>
-                      <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
+              <div className="flex flex-row items-center md:items-start gap-008-2">
+                <div className="relative w-32 h-32 lg:w-40 lg:h-40 rounded-full overflow-hidden border-4 border-Border shadow-lg shrink-0 ring-2 ring-Mid/20">
+                  <Image
+                    src={getProfileImageUrl()}
+                    alt={t.profileImage}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 128px, 160px"
+                  />
+                </div>
+                <div className="flex-1 w-full space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+                    <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
+                      <span className="block text-sm font-semibold text-Mid mb-1">{t.firstName}</span>
+                      <span className="text-base text-Text font-medium">
+                        {displayValue(profileData?.firstname || userInfo?.firstname) + ' ' + displayValue(profileData?.lastname || userInfo?.lastname)}
+                      </span>
+                    </div>
+                    <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
+                      <span className="block text-sm font-semibold text-Mid mb-1">{t.mobileNumber}</span>
+                      <span className="text-base text-Text font-medium">
+                        {displayValue(profileData?.mobile || userInfo?.mobile)}
+                      </span>
+                    </div>
+                    {/* <div className="p-3 rounded-lg bg-Mid/5 border border-Border/30">
                         <span className="block text-sm font-semibold text-Mid mb-1">{t.email}</span>
                         <span className="text-base text-Text font-medium break-all">
                           {displayValue(profileData?.email || userInfo?.email)}
                         </span>
-                      </div>
-                    </div>
+                      </div> */}
                   </div>
                 </div>
               </div>
@@ -462,7 +450,7 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-Border/30">
                 <h2 className="text-xl lg:text-2xl font-bold text-Text">اطلاعات تکمیلی</h2>
                 <P.Button
-                Theme='primary'
+                  Theme='primary'
                   onClick={() => router.push(`/${lang}/profile/edit/${getEditStage()}`)}
                   className="transition-transform hover:scale-105"
                 >

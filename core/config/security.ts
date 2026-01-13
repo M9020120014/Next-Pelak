@@ -1,6 +1,6 @@
 /* --- Security Configuration -------------------------------------------------------------------- */
 
-import { IS_PRODUCTION } from './env'
+import { IS_PRODUCTION } from './core'
 
 /* --- Time Constants (in seconds) ---------------------------------------------------------------- */
 export const TIME = {

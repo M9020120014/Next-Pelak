@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import { SECURITY_HEADERS } from "./core/config/security";
-import { IS_PRODUCTION } from "./core/config/env";
+import { IS_PRODUCTION } from "./core/config/core";
+import { ENV } from "./core/config/env";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -88,7 +89,7 @@ const nextConfig: NextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     // S3 Storage Configuration
     remotePatterns: (() => {
-      const sssObject = process.env.SSS_OBJECT;
+      const sssObject = ENV.SSS_OBJECT;
       const patterns: Array<{ protocol: 'http' | 'https'; hostname: string; pathname: string }> = [];
       
       if (sssObject && sssObject.startsWith('http')) {

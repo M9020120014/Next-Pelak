@@ -407,7 +407,7 @@ export default function VerificationComponent({
   };
 
   return (
-    <div className="h-screen w-full flex justify-center items-center">
+    <div className="min-h-[calc(100svh-var(--spacing-144-D))] w-full flex justify-center items-center">
       <div className="max-w-md w-full flex flex-col gap-012-3">
         <div className="text-center">
           <h2 className="text-H1 font-bold text-Text">

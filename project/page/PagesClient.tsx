@@ -139,13 +139,13 @@ export default function PagesClient({ lang }: PagesClientProps) {
   return (
     <>
       {/* --- Main Content --------- */}
-      <main className=" bg-Background pt-008-2 lg:pt-040-8">
+      <main className=" bg-Background lg:pt-034-7">
         <P.Container className='space-y-018-4'>
         {/* Header */}
         <div className="bg-linear-to-br from-PrimaryLight/20 via-Primary/10 to-SecondaryLight/20 rounded-lg p-028-6 border border-PrimaryLight/30">
           <div className="flex items-center gap-008-2 mb-012-3">
             <div className="w-040-8 h-040-8 rounded-2 bg-Primary/20 flex items-center justify-center text-Primary">
-              <Icon Icon="categories" Size="lg" />
+              <Icon Icon="category" Size="lg" />
             </div>
             <div>
               <h1 className="text-C font-title mb-004-1 text-Text">{t.title}</h1>
@@ -197,7 +197,7 @@ export default function PagesClient({ lang }: PagesClientProps) {
                     />
                   ) : (
                     <div className="flex flex-col items-center justify-center w-full h-full bg-linear-to-br from-PrimaryLight/10 to-Primary/5">
-                      <Icon Icon="categories" Size="xl" className="text-Mid/40" />
+                      <Icon Icon="category" Size="xl" className="text-Mid/40" />
                       <p className="text-G text-Background">{t.noImage}</p>
                     </div>
                   )}
@@ -255,7 +255,7 @@ export default function PagesClient({ lang }: PagesClientProps) {
             <div className="bg-White rounded-lg border border-Border shadow-sm p-028-6 rounded-lg">
               <div className="flex flex-col items-center gap-012-3 text-center">
                 <div className="w-048-N h-048-N rounded-md bg-Background flex items-center justify-center">
-                  <Icon Icon="categories" Size="xl" className="text-Mid/60" />
+                  <Icon Icon="category" Size="xl" className="text-Mid/60" />
                 </div>
                 <p className="font-title text-Text">{t.emptyTitle}</p>
                 <p className="text-Mid max-w-md">{t.emptyDescription}</p>

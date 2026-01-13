@@ -53,7 +53,7 @@ export default function DonateResultsClient({ lang, status }: DonateResultsClien
   const config = getStatusConfig()
 
   return (
-    <main className="min-h-screen bg-linear-to-br from-Primary via-PrimaryLight/50 to-Primary/80 flex items-center justify-center px-018-4 py-034-7 lg:py-040-8">
+    <main className="min-h-[calc(100svh-var(--spacing-144-D))] bg-linear-to-br from-Primary via-PrimaryLight/50 to-Primary/80 flex items-center justify-center px-018-4 py-034-7 lg:py-040-8">
       <div className="max-w-lg w-full transition-opacity duration-500">
         <Card className="bg-White/98 dark:bg-Panel/98 border border-Border/50 shadow-2xl backdrop-blur-md transition-all duration-300 hover:shadow-3xl">
           <CardHeader className="flex flex-col items-center text-center px-028-6 pt-034-7 pb-024-6 space-y-024-6">

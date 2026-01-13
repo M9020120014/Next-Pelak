@@ -2,7 +2,7 @@ import { LANGUAGE_TYPE } from "@/project/config/site";
 
 export const navbarTranslator = {
   fa: {
-    categories: "دسته‌بندی‌ها",
+    category: "دسته‌بندی‌ها",
     articles: "مقالات",
     articlesDescription: "مقالات و مطالب منتشر شده",
     financialSupport: "حمایت مالی",
@@ -16,7 +16,7 @@ export const navbarTranslator = {
     comingSoon: "بزودی",
   },
   en: {
-    categories: "Categories",
+    category: "Categories",
     articles: "Articles",
     articlesDescription: "Articles and published content",
     financialSupport: "Financial Support",

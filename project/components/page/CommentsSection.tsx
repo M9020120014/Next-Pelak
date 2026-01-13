@@ -436,7 +436,7 @@ export default function CommentsSection({
 
         {!loading && !comments.length && (
           <div className="flex flex-col items-center justify-center py-048-N text-center">
-            <P.Icon Icon="categories" Size="xl" className="text-Mid/50 mb-012-3" />
+            <P.Icon Icon="category" Size="xl" className="text-Mid/50 mb-012-3" />
             <p className="text-Mid">{t.noComments}</p>
             <p className="text-Mid mt-004-1">{t.firstComment}</p>
           </div>
@@ -447,7 +447,7 @@ export default function CommentsSection({
       <div ref={commentFormRef} className="bg-White rounded-3 border border-Border shadow-sm overflow-hidden">
         <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
           <div className="flex items-center gap-008-2">
-            <P.Icon Icon="categories" Size="md" className="text-Primary" />
+            <P.Icon Icon="category" Size="md" className="text-Primary" />
             <h3 className="font-title text-Text">{t.addComment}</h3>
           </div>
         </div>

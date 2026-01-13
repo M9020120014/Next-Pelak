@@ -61,7 +61,7 @@ export default function PrivacyClient({ lang }: PrivacyClientProps) {
   }, [setHeader, resetHeader, lang])
 
   return (
-    <main className="bg-Background pt-008-2 lg:pt-040-8">
+    <main className="bg-Background lg:pt-034-7">
       <P.Container className="space-y-018-4">
         {/* Header */}
         <div className="bg-linear-to-br from-PrimaryLight/20 via-Primary/10 to-SecondaryLight/20 rounded-lg p-028-6 border border-PrimaryLight/30">

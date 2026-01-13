@@ -222,7 +222,7 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
 
   // Skeleton component for edit form
   const EditFormSkeleton = () => (
-    <main className="bg-Background pt-008-2 lg:pt-040-8 min-h-screen">
+    <main className="bg-Background lg:pt-034-7 min-h-[calc(100svh-var(--spacing-144-D))]">
       <P.Container className="space-y-018-4 lg:space-y-024-6">
         <div className="mb-6">
           <P.Skeleton className="h-9 w-48 mb-2" />
@@ -258,7 +258,7 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
 
   if (authState === 'unauthenticated') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-[calc(100svh-var(--spacing-144-D))] flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-gray-600">{t.pleaseLoginAgain}</p>
         </div>
@@ -272,7 +272,7 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
   }
 
   return (
-    <main className="bg-Background pt-008-2 lg:pt-040-8 min-h-screen">
+    <main className="bg-Background lg:pt-034-7 min-h-[calc(100svh-var(--spacing-144-D))]">
       <P.Container className="space-y-018-4 lg:space-y-024-6">
         <div className="mb-6">
           <h1 className="text-3xl lg:text-4xl font-bold text-Text mb-2">{t.stage2}</h1>

@@ -7,10 +7,10 @@ import { ENV } from "@/core/config/env";
  * Get JWT secret with runtime validation
  */
 function getJWTSecret(): string {
-  if (!ENV.JWT_SECRET || ENV.JWT_SECRET.length < TOKEN.JWT_MIN_SECRET_LENGTH) {
-    throw new Error(`JWT_SECRET environment variable must be set and at least ${TOKEN.JWT_MIN_SECRET_LENGTH} characters long`);
+  if (!ENV.TOKEN_SECRET || ENV.TOKEN_SECRET.length < TOKEN.JWT_MIN_SECRET_LENGTH) {
+    throw new Error(`TOKEN_SECRET environment variable must be set and at least ${TOKEN.JWT_MIN_SECRET_LENGTH} characters long`);
   }
-  return ENV.JWT_SECRET;
+  return ENV.TOKEN_SECRET;
 }
 
 // هدر JWT (HS256)

@@ -35,7 +35,7 @@ export default function DonateClient({ lang, iDevice }: DonateClientProps) {
 
 
   return (
-    <main className="bg-Background min-h-screen">
+    <main className="bg-Background min-h-[calc(100svh-var(--spacing-144-D))]">
       {/* Hero Section */}
       <DonationHero lang={lang} iDevice={iDevice} />
 

@@ -3,7 +3,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { isRedisAvailable } from '@/core/lib/security/rate-limit-redis'
-import { ENV, NODE_ENV } from '@/core/config/env'
+import { ENV } from '@/core/config/env'
+import { NODE_ENV } from '@/core/config/core'
 import { withErrorHandlingAndTracking } from '@/core/lib/performance/monitoring'
 
 async function GETHandler(_request: NextRequest) {

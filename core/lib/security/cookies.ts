@@ -7,8 +7,8 @@ export const SECURE_COOKIE_OPTIONS = {
   ...COOKIE.CSRF,
 }
 
-const CSRF_COOKIE_NAME = ENV.CSRF_COOKIE_NAME
-const OTP_SECRET_SESSION_COOKIE = ENV.OTP_SECRET_SESSION_COOKIE
+const CSRF_TOKEN_NAME = ENV.CSRF_TOKEN_NAME
+const OTP_TOKEN_NAME = ENV.OTP_TOKEN_NAME
 
 export function generateSecureToken(length: number = TOKEN.SECURE_TOKEN_DEFAULT_LENGTH): string {
   return crypto.randomBytes(length).toString('hex')
@@ -37,7 +37,7 @@ export async function getSecureCookie(name: string): Promise<string | null> {
 // This function only reads the token (cannot set in Server Components)
 export async function getCSRFToken(): Promise<string | null> {
   const cookieStore = await cookies()
-  return cookieStore.get(CSRF_COOKIE_NAME)?.value || null
+  return cookieStore.get(CSRF_TOKEN_NAME)?.value || null
 }
 
 // Alias for backward compatibility
@@ -54,7 +54,7 @@ export async function validateCSRFToken(token: string | null | undefined): Promi
   }
   
   const cookieStore = await cookies()
-  const cookieToken = cookieStore.get(CSRF_COOKIE_NAME)?.value
+  const cookieToken = cookieStore.get(CSRF_TOKEN_NAME)?.value
   
   if (!cookieToken) {
     return false
@@ -75,19 +75,19 @@ export async function validateCSRFToken(token: string | null | undefined): Promi
 // Stores OTP secret temporarily in secure cookie during registration flow
 export async function setOtpSecretSession(otpSecret: string) {
   const cookieStore = await cookies()
-  cookieStore.set(OTP_SECRET_SESSION_COOKIE, otpSecret, {
+  cookieStore.set(OTP_TOKEN_NAME, otpSecret, {
     ...COOKIE.OTP_SECRET_SESSION,
   })
 }
 
 export async function getOtpSecretSession(): Promise<string | null> {
   const cookieStore = await cookies()
-  return cookieStore.get(OTP_SECRET_SESSION_COOKIE)?.value || null
+  return cookieStore.get(OTP_TOKEN_NAME)?.value || null
 }
 
 export async function clearOtpSecretSession() {
   const cookieStore = await cookies()
-  cookieStore.delete(OTP_SECRET_SESSION_COOKIE)
+  cookieStore.delete(OTP_TOKEN_NAME)
 }
 
 export async function validateAndClearOtpSecretSession(expectedSecret: string | null | undefined): Promise<boolean> {
@@ -96,7 +96,7 @@ export async function validateAndClearOtpSecretSession(expectedSecret: string | 
   }
   
   const cookieStore = await cookies()
-  const storedSecret = cookieStore.get(OTP_SECRET_SESSION_COOKIE)?.value
+  const storedSecret = cookieStore.get(OTP_TOKEN_NAME)?.value
   
   if (!storedSecret) {
     return false
@@ -114,7 +114,7 @@ export async function validateAndClearOtpSecretSession(expectedSecret: string | 
   
   // Clear session after validation (one-time use)
   if (isValid) {
-    cookieStore.delete(OTP_SECRET_SESSION_COOKIE)
+    cookieStore.delete(OTP_TOKEN_NAME)
   }
   
   return isValid
@@ -123,7 +123,7 @@ export async function validateAndClearOtpSecretSession(expectedSecret: string | 
 // Helper function to get and validate OTP secret in one call
 export async function getAndValidateOtpSecretSession(): Promise<string | null> {
   const cookieStore = await cookies()
-  const storedSecret = cookieStore.get(OTP_SECRET_SESSION_COOKIE)?.value
+  const storedSecret = cookieStore.get(OTP_TOKEN_NAME)?.value
   
   if (!storedSecret) {
     return null

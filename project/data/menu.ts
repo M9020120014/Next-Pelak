@@ -44,12 +44,12 @@ export const MobileMenu: MenuItem[] = [
     icon: 'donate',
   },
   {
-    href: '/categories',
+    href: '/category',
     label: {
       fa: 'دسته‌بندی',
       en: 'Categories',
     },
-    icon: 'categories',
+    icon: 'category',
   },
 ];
 

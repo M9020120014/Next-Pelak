@@ -1,62 +1,7 @@
-/**
- * Merged Environment Variables Configuration
- * 
- * This file provides a unified interface for accessing environment variables by merging
- * core and project-specific configurations. It serves as the single source of truth for
- * environment variables throughout the application.
- * 
- * @module core/config/env
- * 
- * @example
- * ```typescript
- * import { ENV, validateEnv, IS_PRODUCTION } from '@/core/config/env'
- * 
- * // Validate environment variables at startup
- * validateEnv()
- * 
- * // Access environment variables
- * const apiUrl = ENV.SOME_API_URL
- * 
- * // Check environment mode
- * if (IS_PRODUCTION) {
- *   // Production-specific code
- * }
- * ```
- */
 
 /* --- Base Imports ----------------------------------------------------------------------------- */
-import { CORE_ENV, validateCoreEnv } from './env-core'
-import { PROJECT_ENV, validateProjectEnv } from '../../project/config/env-project'
-
-/* --- Node Environment ------------------------------------------------------------------------- */
-/**
- * Current Node.js environment mode
- * @private
- */
-export const NODE_ENV = process.env.NODE_ENV || 'development'
-
-/**
- * Indicates if the application is running in production mode
- * @example
- * ```typescript
- * if (IS_PRODUCTION) {
- *   // Enable production features
- * }
- * ```
- */
-export const IS_PRODUCTION = NODE_ENV === 'production'
-
-/**
- * Indicates if the application is running in development mode
- * @example
- * ```typescript
- * if (IS_DEVELOPMENT) {
- *   // Enable development features
- * }
- * ```
- */
-export const IS_DEVELOPMENT = NODE_ENV === 'development'
-
+import { ENV as CORE_ENV, validateEnv as validateCoreEnv } from './environment/env'
+import { ENV as PROJECT_ENV, validateEnv as validateProjectEnv } from '../../project/config/environment/env'
 /* --- Merged Environment Variables ------------------------------------------------------------- */
 /**
  * Unified environment variables object combining core and project-specific configurations.

@@ -85,7 +85,7 @@ CREATE INDEX "idx_userprofile_active" ON "pelak"."userprofile" USING btree (
 
 -- ----------------------------------------------------------------------------
 -- Table: pagesection
--- Description: Page sections of the site (page categories)
+-- Description: Page sections of the site (page category)
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS "pelak"."pagesection" (
   -- Unique section identifier (Primary Key, Auto Increment)

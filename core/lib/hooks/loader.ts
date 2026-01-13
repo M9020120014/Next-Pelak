@@ -4,7 +4,7 @@
 /* --- Config ----------------------------------------------------------------------------------- */
 import { getCoreConfig } from '@/core/config/config';
 import { mergeHookPaths } from '@/core/config/hooks';
-import { IS_DEVELOPMENT } from '@/core/config/env';
+import { IS_DEVELOPMENT } from '@/core/config/core';
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { logInfo, logError } from '@/core/lib/log/logger-utils';
 

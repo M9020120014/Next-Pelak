@@ -34,7 +34,7 @@ SELECT setval('"pelak".userprofile_profileid_seq', COALESCE((SELECT MAX("profile
 
 -- ----------------------------------------------------------------------------
 -- Mock Data: pagesection
--- Description: Page sections of the site (page categories)
+-- Description: Page sections of the site (page category)
 -- ----------------------------------------------------------------------------
 INSERT INTO "pelak"."pagesection" ("sectionid", "title", "description", "order", "active", "created", "updated")
 VALUES

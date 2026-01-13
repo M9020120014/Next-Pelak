@@ -5,7 +5,8 @@ import { Font } from "@/core/lib/fonts";
 import { headers } from "next/headers";
 import Script from "next/script";
 /* --- Config ----------------------------------------------------------------------------------- */
-import { IS_PRODUCTION, validateEnv, ENV } from "@/core/config/env";
+import { validateEnv, ENV } from "@/core/config/env";
+import { IS_PRODUCTION } from "@/core/config/core";
 import { LANGUAGE_DATA, extractLangFromHeaders } from "@/project/config/site";
 import { projectCoreConfig } from "@/core/config/project-override";
 import { setCoreConfig } from "@/core/config/config";
@@ -25,6 +26,8 @@ import { ROBOTS_OFF } from "@/core/config/metadata";
 // Set project-specific core configuration before rendering
 // This must be called before CoreLayout is used
 setCoreConfig(projectCoreConfig);
+
+console.log("------------------------------- :",ENV.NEXT_PUBLIC_BASE_URL)
 
 loadProjectHooksSync();
 /* --- Constants -------------------------------------------------------------------------------- */

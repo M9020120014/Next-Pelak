@@ -3,7 +3,8 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 /* --- Config ----------------------------------------------------------------------------------- */
-import { ENV, IS_DEVELOPMENT } from '@/core/config/env'
+import { ENV } from '@/core/config/env'
+import { IS_DEVELOPMENT } from '@/core/config/core'
 import { COOKIE, ROUTES } from '@/core/config/security'
 import { getCoreConfig } from '@/core/config/config'
 import { getMessages } from '@/core/config/messages'
@@ -25,8 +26,8 @@ import { runAsync } from '@/core/lib/utils/async'
  */
 function getEnvValues() {
   return {
-    IDEVICE_STORAGE_KEY: ENV.IDEVICE_STORAGE_KEY,
-    CSRF_COOKIE_NAME: ENV.CSRF_COOKIE_NAME,
+    IDEVICE_TOKEN_NAME: ENV.IDEVICE_TOKEN_NAME,
+    CSRF_TOKEN_NAME: ENV.CSRF_TOKEN_NAME,
     REFRESH_TOKEN_COOKIE: ENV.REFRESH_TOKEN_COOKIE,
   }
 }
@@ -136,20 +137,20 @@ export default async function proxy(
   const envValues = getEnvValues()
 
   // CSRF token management
-  const existingToken = request.cookies.get(envValues.CSRF_COOKIE_NAME)?.value
+  const existingToken = request.cookies.get(envValues.CSRF_TOKEN_NAME)?.value
 
   if (!existingToken) {
     const newToken = generateCSRFToken()
-    response.cookies.set(envValues.CSRF_COOKIE_NAME, newToken, {
+    response.cookies.set(envValues.CSRF_TOKEN_NAME, newToken, {
       ...COOKIE.CSRF,
     })
   }
 
   // iDevice token management
-  const existingIDevice = request.cookies.get(envValues.IDEVICE_STORAGE_KEY)?.value
+  const existingIDevice = request.cookies.get(envValues.IDEVICE_TOKEN_NAME)?.value
   const iDdevice: string = existingIDevice || generateIDeviceToken(userAgent)
   if (!existingIDevice || existingIDevice.length !== 40) {
-    response.cookies.set(envValues.IDEVICE_STORAGE_KEY, iDdevice, {
+    response.cookies.set(envValues.IDEVICE_TOKEN_NAME, iDdevice, {
       ...COOKIE.IDEVICE,
     })
   }
@@ -160,8 +161,13 @@ export default async function proxy(
   response.headers.set('X-CSP-Nonce', nonce)
   
   // Build CSP directives
-  const connectSrc = "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com"
-  const scriptSrc = `script-src 'self' 'nonce-${nonce}' 'sha256-1ejjuJTafqPpU5E26Lr6F53b1OwFIGPOZWX4Afjkfrg=' https://www.googletagmanager.com 'strict-dynamic'`
+  // PostHog uses regional endpoints: US (app.posthog.com, us.i.posthog.com) and EU (eu.i.posthog.com)
+  // Also includes assets endpoints (eu-assets.i.posthog.com, us-assets.i.posthog.com)
+  // Note: CSP doesn't support wildcards in the middle of domains, so we list all known PostHog domains
+  const connectSrc = "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://app.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://us-assets.i.posthog.com https://eu-assets.i.posthog.com"
+  // PostHog scripts can be loaded from assets endpoints (us-assets.i.posthog.com, eu-assets.i.posthog.com)
+  // Note: CSP doesn't support wildcards in the middle (*.i.posthog.com), so we list specific domains
+  const scriptSrc = `script-src 'self' 'nonce-${nonce}' 'sha256-1ejjuJTafqPpU5E26Lr6F53b1OwFIGPOZWX4Afjkfrg=' https://www.googletagmanager.com https://app.posthog.com https://us-assets.i.posthog.com https://eu-assets.i.posthog.com 'strict-dynamic'`
   const styleSrc = `style-src 'self' 'nonce-${nonce}' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=' 'sha256-lGP/R5jOMXytzwBHVEM5Nv4XbT9fuH6V2dET/0dje2s=' 'unsafe-hashes'`
     
   // CSP configuration for Next.js

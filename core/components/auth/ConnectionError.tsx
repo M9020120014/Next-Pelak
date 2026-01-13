@@ -15,7 +15,7 @@ export default function ConnectionError({
   retrying = false,
 }: ConnectionErrorProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-Background px-012-3">
+    <div className="min-h-[calc(100svh-var(--spacing-144-D))] flex items-center justify-center bg-Background px-012-3">
       <div className="max-w-md w-full text-center">
         <div className="bg-White rounded-lg shadow-lg p-034-7">
           {/* Error Icon */}

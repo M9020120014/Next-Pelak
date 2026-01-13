@@ -88,7 +88,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
 
   return (
     <>
-      <main className=" bg-Background pt-008-2 lg:pt-040-8">
+      <main className=" bg-Background lg:pt-034-7">
         <P.Container className='space-y-018-4'>
           {/* --- Main Image --------- */}
           <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
@@ -107,7 +107,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
               ) : (
                 <div className="flex flex-col items-center justify-center space-y-2 w-full h-full bg-linear-to-br from-PrimaryLight/10 to-Primary/5">
                   <div className="w-16 h-16 text-Mid/50">
-                    <P.Icon Icon="categories" Size="xl" />
+                    <P.Icon Icon="category" Size="xl" />
                   </div>
                   <p className="text-G text-Mid">{t.noImage}</p>
                 </div>
@@ -247,7 +247,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
             <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
               <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
                 <div className="flex items-center gap-008-2">
-                  <P.Icon Icon="categories" Size="md" className="text-Primary" />
+                  <P.Icon Icon="category" Size="md" className="text-Primary" />
                   <h2 className="text-E font-title text-Text">{t.relatedCategories}</h2>
                 </div>
               </div>
@@ -272,7 +272,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
             <div className="bg-White rounded-lg border border-Border shadow-sm p-028-6">
               <div className="flex flex-col items-center gap-012-3 text-center">
                 <div className="w-048-N h-048-N rounded-3 bg-Background flex items-center justify-center">
-                  <P.Icon Icon="categories" Size="xl" className="text-Mid/60" />
+                  <P.Icon Icon="category" Size="xl" className="text-Mid/60" />
                 </div>
                 <p className="text-F font-title text-Text">{t.noContent}</p>
               </div>
@@ -284,7 +284,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
             <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
               <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
                 <div className="flex items-center gap-008-2">
-                  <P.Icon Icon="categories" Size="md" className="text-Primary" />
+                  <P.Icon Icon="category" Size="md" className="text-Primary" />
                   <h2 className="text-E font-title text-Text">{t.comments}</h2>
                 </div>
               </div>

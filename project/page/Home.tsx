@@ -225,7 +225,7 @@ export default function HomeClient({ lang }: HomeProps) {
   return (
     <main>
 
-      <P.Container SectionClassName="bg-Primary" id="hero" className="flex flex-col items-center pt-008-2 lg:pt-040-8">
+      <P.Container SectionClassName="bg-Primary" id="hero" className="flex flex-col items-center lg:pt-034-7">
 
         <div className='bg-Background max-w-340-H mx-auto p-024-5 rounded-3xl'>
           <SvgHtniLogo className='w-full text-White' />

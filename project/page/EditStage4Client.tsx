@@ -11,6 +11,7 @@ import { UI as P } from '@/core/components/ui/Pelak'
 import { profileTranslator } from '@/project/data/translations/profile'
 import { LANGUAGE_TYPE } from '@/project/config/site'
 import { greToPer } from '@/core/lib/date'
+import Link from 'next/link'
 
 interface EditStage4ClientProps {
   iDevice: string
@@ -51,10 +52,10 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
   const [additionalInfo, setAdditionalInfo] = useState<AdditionalInfoData | null>(null)
   const [stagesCompleted, setStagesCompleted] = useState({ stage1: false, stage2: false, stage3: false })
   const [selectorTitles, setSelectorTitles] = useState<Record<string, string>>({})
-  
+
   // Form state
   const [consent, setConsent] = useState<boolean>(false)
-  
+
   const t = profileTranslator[lang]
 
   const handleRetry = async () => {
@@ -164,7 +165,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
         if (data.success && data.data) {
           setAdditionalInfo(data.data)
           setConsent(data.data.consent === true)
-          
+
           // Check if stages are completed
           const stage1Completed = !!(
             data.data.nationalcode &&
@@ -173,7 +174,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
             data.data.married !== null &&
             data.data.provinceid
           )
-          
+
           // Check if stage 2 is completed (all fields required)
           const stage2Completed = !!(
             data.data.job &&
@@ -187,7 +188,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
             data.data.collaboration &&
             data.data.collaboration.trim() !== ""
           )
-          
+
           // Check if stage 3 is completed (all fields required)
           const stage3Completed = !!(
             data.data.skills &&
@@ -197,13 +198,13 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
             data.data.studyplaceid !== null &&
             data.data.studyfieldsid !== null
           )
-          
+
           setStagesCompleted({
             stage1: stage1Completed,
             stage2: stage2Completed,
             stage3: stage3Completed,
           })
-          
+
           if (!stage1Completed) {
             setSaveMessage({ type: 'error', text: t.stage1NotCompleted || "لطفاً ابتدا مرحله 1 را تکمیل کنید" })
           } else if (!stage2Completed) {
@@ -224,7 +225,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!stagesCompleted.stage1) {
       setSaveMessage({ type: 'error', text: t.stage1NotCompleted || "لطفاً ابتدا مرحله 1 را تکمیل کنید" })
       return
@@ -324,7 +325,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
     const normalized = birthday.trim().replace(/\//g, '-')
     const datePart = normalized.split(/[\sT]/)[0]
     const [y] = datePart.split('-').map(Number)
-    
+
     if (y >= 1000 && y < 2000) {
       return birthday.split(/[\sT]/)[0]
     } else if (y >= 1000 && y < 3000) {
@@ -335,7 +336,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
 
   // Skeleton component for edit form
   const EditFormSkeleton = () => (
-    <main className="bg-Background pt-008-2 lg:pt-040-8 min-h-screen">
+    <main className="bg-Background lg:pt-034-7 min-h-[calc(100svh-var(--spacing-144-D))]">
       <P.Container className="space-y-018-4 lg:space-y-024-6">
         <div className="mb-6">
           <P.Skeleton className="h-9 w-48 mb-2" />
@@ -370,7 +371,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
 
   if (authState === 'unauthenticated') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-[calc(100svh-var(--spacing-144-D))] flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-gray-600">{t.pleaseLoginAgain}</p>
         </div>
@@ -384,7 +385,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
   }
 
   return (
-    <main className="bg-Background pt-008-2 lg:pt-040-8 min-h-screen">
+    <main className="bg-Background lg:pt-034-7 min-h-[calc(100svh-var(--spacing-144-D))]">
       <P.Container className="space-y-018-4 lg:space-y-024-6">
         <div className="mb-6">
           <h1 className="text-3xl lg:text-4xl font-bold text-Text mb-2">{t.stage4}</h1>
@@ -392,11 +393,10 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
         </div>
 
         {saveMessage && (
-          <div className={`p-3 rounded-lg shadow-sm border transition-all ${
-            saveMessage.type === 'success' 
-              ? 'bg-SuccessLight/20 text-SuccessDark border-SuccessLight/30' 
-              : 'bg-ErrorLight/20 text-ErrorDark border-ErrorLight/30'
-          }`}>
+          <div className={`p-3 rounded-lg shadow-sm border transition-all ${saveMessage.type === 'success'
+            ? 'bg-SuccessLight/20 text-SuccessDark border-SuccessLight/30'
+            : 'bg-ErrorLight/20 text-ErrorDark border-ErrorLight/30'
+            }`}>
             <div className="flex items-center gap-2">
               <div className={`w-1.5 h-1.5 rounded-full ${saveMessage.type === 'success' ? 'bg-Success' : 'bg-Error'}`}></div>
               <p className="text-sm font-medium">{saveMessage.text}</p>
@@ -630,9 +630,21 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
               <label htmlFor="consent" className="text-Text cursor-pointer flex-1">
                 <span className="font-bold block mb-1">تایید اطلاعات و پذیرش قوانین:</span>
                 <span className="block text-sm text-Mid leading-relaxed">
-                  من تایید می‌کنم که اطلاعات وارد شده صحیح است و قوانین و مقررات را می‌پذیرم.
+                  من تایید می‌کنم که اطلاعات وارد شده صحیح است و
+                  <P.Button ThemeProps="link" Theme="primary" >
+                    <Link href={`/${lang}/terms`}>
+                      شرایط و ضوابط
+                    </Link>
+                  </P.Button>
+                  و
+                  <P.Button ThemeProps="link" Theme="primary" >
+                  <Link href={`/${lang}/privacy`}>
+                    حریم خصوصی
+                  </Link>
+                  </P.Button>
+                  را می‌پذیرم.<span className="text-red-500 ml-1">*</span>
                 </span>
-                <span className="text-red-500 ml-1">*</span>
+                
               </label>
             </div>
 
