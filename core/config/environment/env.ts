@@ -1,4 +1,4 @@
-import { IS_PRODUCTION } from "../core"
+import { IS_PRODUCTION } from "../base"
 
 export const ENV = {
   // Base URL
@@ -12,10 +12,6 @@ export const ENV = {
 
   // JWT Configuration
   TOKEN_SECRET: process.env.TOKEN_SECRET || '',
-
-  // OTP Service Configuration
-  OTP_SERVER_URL: process.env.OTP_SERVER_URL || '',
-  OTP_API_KEY: process.env.OTP_API_KEY || '',
 
   // PostgREST Configuration
   POSTGREST_URL: process.env.POSTGREST_URL || '',
@@ -31,7 +27,7 @@ export const ENV = {
   LOGGING_API_KEY: process.env.LOGGING_API_KEY || '',
 } as const
 
-export function validateEnv(): string[] {
+export function ENV_VALIDATE(): string[] {
   const errors: string[] = []
 
   if (ENV.TOKEN_SECRET.length < 32) {
@@ -41,10 +37,6 @@ export function validateEnv(): string[] {
   // Validate URL formats
   if (ENV.NEXT_PUBLIC_BASE_URL && !ENV.NEXT_PUBLIC_BASE_URL.startsWith('http')) {
     errors.push('NEXT_PUBLIC_BASE_URL must be a valid URL starting with http:// or https://')
-  }
-
-  if (ENV.OTP_SERVER_URL && !ENV.OTP_SERVER_URL.startsWith('http')) {
-    errors.push('OTP_SERVER_URL must be a valid URL starting with http:// or https://')
   }
 
   if (ENV.POSTGREST_URL && !ENV.POSTGREST_URL.startsWith('http')) {

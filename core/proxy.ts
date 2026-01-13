@@ -4,10 +4,9 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 /* --- Config ----------------------------------------------------------------------------------- */
 import { ENV } from '@/core/config/env'
-import { IS_DEVELOPMENT } from '@/core/config/core'
-import { COOKIE, ROUTES } from '@/core/config/security'
-import { getCoreConfig } from '@/core/config/config'
-import { getMessages } from '@/core/config/messages'
+import { IS_DEVELOPMENT } from '@/core/config/base'
+import { COOKIE } from '@/core/config/security'
+import { ROUTES } from "@/core/config/config"
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { generateCSRFToken, generateNonce } from '@/core/lib/security/cookies'
 import { detectSuspiciousActivity } from '@/core/lib/security/monitoring'
@@ -19,50 +18,31 @@ import { validateRefreshTokenFormat } from '@/core/lib/token/auth-cookie'
 import { verifyAccessToken } from '@/core/lib/token/jwt'
 import { SubmitLogServer } from '@/core/lib/log/logger'
 import { runAsync } from '@/core/lib/utils/async'
-/* --- Functions -------------------------------------------------------------------------------- */
-/**
- * Get environment variable values
- * Uses lazy evaluation to ensure ENV is initialized before access
- */
-function getEnvValues() {
-  return {
-    IDEVICE_TOKEN_NAME: ENV.IDEVICE_TOKEN_NAME,
-    CSRF_TOKEN_NAME: ENV.CSRF_TOKEN_NAME,
-    REFRESH_TOKEN_COOKIE: ENV.REFRESH_TOKEN_COOKIE,
-  }
-}
+import { LANGUAGE_DEFAULT } from './config/lang'
+import { PROXY_CHECK_PATHNAME } from './config/proxt'
 /* --- Proxy -------------------------------------------------------- */
 export default async function proxy(
   request: NextRequest
 ): Promise<NextResponse> {
   const pathname = request.nextUrl.pathname
 
-  // Path traversal protection: validate pathname
-  if (pathname.includes('..') || pathname.includes('%2e%2e') || pathname.includes('%2f')) {
-    const messages = getMessages(getCoreConfig().messages)
+  if (!PROXY_CHECK_PATHNAME(pathname)) {
     return NextResponse.json(
       { 
         success: false, 
-        title: messages.invalidPath.title, 
-        message: messages.invalidPath.message 
+        message: 'The requested path is invalid',
       },
       { status: 400 }
     )
   }
 
-  // Note: Request size validation, rate limiting, and IP filtering for API routes 
-  // are handled in api-middleware.ts via validateAPIRequest() function
-  // IP filtering removed from here to avoid duplication
-
-  // Check if route is admin protected (dashboard, profile, etc.)
   const isAdminRoute = ROUTES.ADMIN_ROUTE_PATTERN.test(pathname)
   
   if (isAdminRoute) {
     // Check authentication - validate both access token (from header) and refresh token (from cookie)
-    const envValues = getEnvValues()
     const authHeader = request.headers.get('authorization')
     const accessToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
-    const refreshToken = request.cookies.get(envValues.REFRESH_TOKEN_COOKIE)?.value
+    const refreshToken = request.cookies.get(ENV.REFRESH_TOKEN_COOKIE)?.value
     
     // Try to validate access token first (if provided)
     let isAuthenticated = false
@@ -100,7 +80,7 @@ export default async function proxy(
         // 3. Prevents race conditions and unnecessary cookie deletion
         // Extract language from pathname
         const langMatch = pathname.match(/^\/([^\/]+)/)
-        const lang = langMatch ? langMatch[1] : ROUTES.DEFAULT_LANG
+        const lang = langMatch ? langMatch[1] : LANGUAGE_DEFAULT
         
         // Redirect to login page with redirect parameter
         const loginUrl = new URL(`/${lang}/login`, request.url)
@@ -133,24 +113,21 @@ export default async function proxy(
   // Security check
   const { check, ip, userAgent, referer, url } = detectSuspiciousActivity(request)
 
-  // Get environment values
-  const envValues = getEnvValues()
-
   // CSRF token management
-  const existingToken = request.cookies.get(envValues.CSRF_TOKEN_NAME)?.value
+  const existingToken = request.cookies.get(ENV.CSRF_TOKEN_NAME)?.value
 
   if (!existingToken) {
     const newToken = generateCSRFToken()
-    response.cookies.set(envValues.CSRF_TOKEN_NAME, newToken, {
+    response.cookies.set(ENV.CSRF_TOKEN_NAME, newToken, {
       ...COOKIE.CSRF,
     })
   }
 
   // iDevice token management
-  const existingIDevice = request.cookies.get(envValues.IDEVICE_TOKEN_NAME)?.value
+  const existingIDevice = request.cookies.get(ENV.IDEVICE_TOKEN_NAME)?.value
   const iDdevice: string = existingIDevice || generateIDeviceToken(userAgent)
   if (!existingIDevice || existingIDevice.length !== 40) {
-    response.cookies.set(envValues.IDEVICE_TOKEN_NAME, iDdevice, {
+    response.cookies.set(ENV.IDEVICE_TOKEN_NAME, iDdevice, {
       ...COOKIE.IDEVICE,
     })
   }

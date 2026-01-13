@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 import { SECURITY_HEADERS } from "./core/config/security";
-import { IS_PRODUCTION } from "./core/config/core";
+import { IS_PRODUCTION } from "./core/config/base";
 import { ENV } from "./core/config/env";
 
 const nextConfig: NextConfig = {

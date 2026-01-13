@@ -1,28 +1,28 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { Metadata } from "next"
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANG_PARAMS, LANG } from "@/project/config/site"
-import { ROBOTS_ON } from "@/core/config/metadata"
+import { LANG_TYPE, LANG_FUNCTION } from "@/core/config/lang"
+import { META_ROBOT_ON } from "@/core/config/meta"
 /* --- Components ------------------------------------------------------------------------------ */
-import DonateResultsClient from "@/project/page/DonateResultsClient"
+import DonateResultsClient from "@/site/page/DonateResultsClient"
 /* --- Functions -------------------------------------------------------------------------------- */
 
 /* --- Results Page Metadata --------------------------------------------- */
-export async function generateMetadata({ params }: LANG_PARAMS): Promise<Metadata> {
-  const { lang } = await LANG(params)
+export async function generateMetadata({ params }: LANG_TYPE): Promise<Metadata> {
+  const { lang } = await LANG_FUNCTION(params)
   return {
-    ...ROBOTS_ON,
+    ...META_ROBOT_ON,
     title: lang === 'fa' ? 'نتیجه پرداخت' : 'Payment Result',
   }
 }
 
 /* --- Results Page ------------------------------------------------------ */
-interface ResultsPageProps extends LANG_PARAMS {
+interface ResultsPageProps extends LANG_TYPE {
   searchParams: Promise<{ Status?: string }>
 }
 
 export default async function ResultsPage({ params, searchParams }: ResultsPageProps) {
-  const { lang } = await LANG(params)
+  const { lang } = await LANG_FUNCTION(params)
   const params_data = await searchParams
   const status = params_data.Status
 

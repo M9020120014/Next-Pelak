@@ -6,7 +6,7 @@ import { serverError } from './response'
 import { ERROR_MESSAGES } from './error-messages'
 import { SubmitLogServer } from '@/core/lib/log/logger'
 import { runAsync } from '@/core/lib/utils/async'
-import { IS_PRODUCTION } from '@/core/config/core'
+import { IS_PRODUCTION } from '@/core/config/base'
 
 /**
  * Handle errors in API routes

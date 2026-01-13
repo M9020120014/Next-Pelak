@@ -3,16 +3,16 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import { usePathname } from 'next/navigation';
 /* --- Components ------------------------------------------------------------------------------- */
-import CategoryMenu from '@/project/components/theme/navbar/CategoryMenu';
+import CategoryMenu from '@/project/theme/navbar/CategoryMenu';
 import { ClassName as cn } from '@/core/components/ui/Pelak';
 /* --- Data ------------------------------------------------------------------------------------- */
-import { extractLangFromPathname } from '@/project/config/site';
+import { LANG_PATHNAME } from '@/core/config/lang';
 
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Category Page (Mobile) ----------------------------------------------- */
 export default function CategoryPage() {
   const pathname = usePathname();
-  const lang = extractLangFromPathname(pathname);
+  const lang = LANG_PATHNAME(pathname);
 
   return (
     <main className="min-h-screen bg-Background pt-056-M pb-056-M px-012-3">

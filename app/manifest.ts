@@ -2,16 +2,15 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { MetadataRoute } from "next";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { SITE, SITE_LANG, LANGUAGE } from "@/project/config/site";
-/* --- Constants -------------------------------------------------------------------------------- */
-const defaultLang = LANGUAGE.default
+import { SITE_DATA_URL,SITE_DATA_BASE, SITE_DATA_LANG } from "@/core/config/site";
+import { LANGUAGE_DEFAULT } from "@/core/config/lang";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Manifest ----------------------------------------------------- */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    short_name: SITE_LANG[defaultLang].Data.shortName,
-    name: SITE_LANG[defaultLang].Data.name,
-    description: SITE_LANG[defaultLang].Data.description,
+    short_name: SITE_DATA_LANG[LANGUAGE_DEFAULT].Data.shortName,
+    name: SITE_DATA_LANG[LANGUAGE_DEFAULT].Data.name,
+    description: SITE_DATA_LANG[LANGUAGE_DEFAULT].Data.description,
     icons: [
       {
         src: "/favicon.svg",
@@ -32,17 +31,17 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "maskable",
       },
     ],
-    start_url: SITE.Data.url || "/",
+    start_url: SITE_DATA_URL || "/",
     display: "standalone",
-    background_color: SITE.Theme.light,
-    theme_color: SITE.Theme.dark,
+    background_color: SITE_DATA_BASE.Theme.light,
+    theme_color: SITE_DATA_BASE.Theme.dark,
     orientation: "portrait-primary",
     scope: "/",
     screenshots: [
       {
         src: "/image.webp",
         type: "image/webp",
-        sizes: (SITE.Number.imageWidth).toString() + "x" + (SITE.Number.imageHeight).toString(),
+        sizes: (SITE_DATA_BASE.Number.imageWidth).toString() + "x" + (SITE_DATA_BASE.Number.imageHeight).toString(),
         form_factor: "wide",
       },
     ],

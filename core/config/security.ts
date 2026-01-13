@@ -1,6 +1,6 @@
 /* --- Security Configuration -------------------------------------------------------------------- */
 
-import { IS_PRODUCTION } from './core'
+import { IS_PRODUCTION } from './base'
 
 /* --- Time Constants (in seconds) ---------------------------------------------------------------- */
 export const TIME = {
@@ -188,16 +188,6 @@ export const BRUTE_FORCE = {
   
   // Base delay in milliseconds for progressive delay
   BASE_DELAY_MS: 1000, // 1 second
-} as const
-
-/* --- Route Configuration ----------------------------------------------------------------------- */
-export const ROUTES = {
-  // Admin protected routes pattern
-  // Matches: /{lang}/dashboard or /{lang}/profile
-  ADMIN_ROUTE_PATTERN: /^\/[^\/]+\/(dashboard|profile)(\/.*)?$/,
-  
-  // Default language for redirects
-  DEFAULT_LANG: 'fa',
 } as const
 
 /* --- Redis Configuration ----------------------------------------------------------------------- */

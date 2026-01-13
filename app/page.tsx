@@ -1,20 +1,17 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import { Metadata } from 'next';
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANGUAGE, LANGUAGE_LIST } from "@/project/config/site";
-import { LANGUAGE_DATA } from "@/project/config/site";
-import { HOME_SEO_LANG } from "@/project/config/metadata";
-import { ROBOTS_ON } from "@/core/config/metadata";
-import Home from "@/project/page/Home";
+import { META_LANG_HOME } from "@/core/config/meta";
+import { META_ROBOT_ON } from "@/core/config/meta";
+import Home from "@/site/page/Home";
+import { LANGUAGE_DEFAULT, LANG_OTHER } from "@/core/config/lang";
 /* --- Constants -------------------------------------------------------------------------------- */
-export const metadata: Metadata = { ...HOME_SEO_LANG(LANGUAGE.default), ...ROBOTS_ON };
+export const metadata: Metadata = { ...META_LANG_HOME(LANGUAGE_DEFAULT), ...META_ROBOT_ON };
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Base Page ---------------------------------------------------- */
 export default async function BasePage() {
-  const otherLanguages = LANGUAGE_LIST.filter((l) => l !== LANGUAGE.default);
-  
   return (
-    <Home lang={LANGUAGE_DATA.lang[LANGUAGE.default]} otherLanguages={otherLanguages} />
+    <Home lang={LANGUAGE_DEFAULT} otherLanguages={LANG_OTHER(LANGUAGE_DEFAULT)} />
   );
 }
 

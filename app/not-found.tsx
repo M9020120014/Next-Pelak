@@ -2,11 +2,11 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { LANGUAGE_DEFAULT,LANG_PATHNAME } from "@/core/config/lang";
 /* --- Components ------------------------------------------------------------------------------- */
 import { UI as P } from "@/core/components/ui/Pelak";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANGUAGE, extractLangFromPathname } from "@/project/config/site";
-import { commonTranslator } from "@/project/data/translations/common";
+import { commonTranslator } from "@/site/translations/common";
 /* --- Functions -------------------------------------------------------------------------------- */
 /* --- Root NotFound ------------------------------------------------ */
 export default function NotFound() {
@@ -14,10 +14,10 @@ export default function NotFound() {
 
   // Extract lang from pathname (works in client-side)
   const pathname = usePathname();
-  const lang = extractLangFromPathname(pathname);
+  const lang = LANG_PATHNAME(pathname);
   
   const t = commonTranslator[lang];
-  const homeHref = lang === LANGUAGE.default ? "/" : `/${lang}`;
+  const homeHref = lang === LANGUAGE_DEFAULT ? "/" : `/${lang}`;
 
   return (
     <main className="min-h-[calc(100svh-var(--spacing-144-D))] flex items-center justify-center bg-Background lg:pt-034-7">

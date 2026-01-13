@@ -1,7 +1,7 @@
 
 /* --- Base Imports ----------------------------------------------------------------------------- */
-import { ENV as CORE_ENV, validateEnv as validateCoreEnv } from './environment/env'
-import { ENV as PROJECT_ENV, validateEnv as validateProjectEnv } from '../../project/config/environment/env'
+import { ENV as CORE_ENV, ENV_VALIDATE as CORE_ENV_VALIDATE } from './environment/env'
+import { ENV as PROJECT_ENV, ENV_VALIDATE as PROJECT_ENV_VALIDATE } from '../../project/config/environment/env'
 /* --- Merged Environment Variables ------------------------------------------------------------- */
 /**
  * Unified environment variables object combining core and project-specific configurations.
@@ -49,11 +49,11 @@ export const ENV = {
  * 
  * @example
  * ```typescript
- * import { validateEnv } from '@/core/config/env'
+ * import { ENV_VALIDATE } from '@/core/config/env'
  * 
  * // In app/layout.tsx or similar startup file
  * try {
- *   const result = validateEnv()
+ *   const result = ENV_VALIDATE()
  *   if (!result.valid) {
  *     console.error('Environment validation failed:', result.errors)
  *   }
@@ -63,7 +63,7 @@ export const ENV = {
  * }
  * ```
  */
-export function validateEnv(): {
+export function ENV_VALIDATE(): {
   valid: boolean
   missing: string[]
   errors: string[]
@@ -77,7 +77,7 @@ export function validateEnv(): {
   })
 
   // Combine results
-  const errors = [...validateCoreEnv(), ...validateProjectEnv()]
+  const errors = [...CORE_ENV_VALIDATE(), ...PROJECT_ENV_VALIDATE()]
 
   const valid = missing.length === 0 && errors.length === 0
 

@@ -1,6 +1,6 @@
 
 import { ENV } from '@/core/config/env'
-import { IS_DEVELOPMENT, IS_PRODUCTION } from '@/core/config/core'
+import { IS_DEVELOPMENT, IS_PRODUCTION } from '@/core/config/base'
 
 const BASE_URL = ENV.NEXT_PUBLIC_BASE_URL
 

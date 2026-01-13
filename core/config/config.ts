@@ -1,9 +1,16 @@
+export { ROUTES } from "@/project/config/config"
+
+
+
+
+
+
 /* --- Core Configuration Interface ------------------------------------------------------------- */
 /* This file provides the main configuration interface for the core module */
 /* Projects can override these configurations via core/config/project-override.ts */
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { defaultMetadataConfig , type MetadataConfig } from './metadata';
+import { defaultMetadataConfig , type MetadataConfig } from './meta';
 import { defaultHooksConfig , type HooksConfig } from './hooks';
 import { defaultMessagesConfig , type MessagesConfig } from './messages';
 

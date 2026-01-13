@@ -1,5 +1,5 @@
 import React from "react";
-import { LANG_PARAMS, LANG } from "@/project/config/site";
+import { LANG_TYPE, LANG_FUNCTION } from "@/core/config/lang";
 import { getIDeviceToken } from "@/core/lib/token/idevice";
 import LoginComponent from "@/core/components/auth/login";
 
@@ -49,8 +49,8 @@ const translator = {
 export default async function LoginPage({ 
   params,
   searchParams 
-}: LANG_PARAMS & { searchParams: Promise<{ redirect?: string }> }) {
-  const { lang } = await LANG(params);
+}: LANG_TYPE & { searchParams: Promise<{ redirect?: string }> }) {
+  const { lang } = await LANG_FUNCTION(params);
   const iDevice = await getIDeviceToken();
   const { redirect } = await searchParams;
   return <LoginComponent iDevice={iDevice} lang={lang} redirect={redirect} translator={translator[lang as keyof typeof translator]} />;

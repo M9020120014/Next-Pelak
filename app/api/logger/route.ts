@@ -1,5 +1,5 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 /* Re-export API route from core */
 /* Next.js requires API routes to be in app/api/, so we re-export from core/app/api */
-export { POST } from '@/core/app/api/logger/route'
+export { POST } from '@/core/api/logger/route'
 

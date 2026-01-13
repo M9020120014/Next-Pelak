@@ -1,13 +1,13 @@
 // /app/[lang]/(admin)/profile/edit/[stage]/page.tsx
-import { LANG_PARAMS, LANG } from '@/project/config/site'
+import { LANG_TYPE, LANG_FUNCTION } from '@/core/config/lang'
 import { getIDeviceToken } from '@/core/lib/token/idevice'
-import EditStage1Client from '@/project/page/EditStage1Client'
-import EditStage2Client from '@/project/page/EditStage2Client'
-import EditStage3Client from '@/project/page/EditStage3Client'
-import EditStage4Client from '@/project/page/EditStage4Client'
+import EditStage1Client from '@/site/page/EditStage1Client'
+import EditStage2Client from '@/site/page/EditStage2Client'
+import EditStage3Client from '@/site/page/EditStage3Client'
+import EditStage4Client from '@/site/page/EditStage4Client'
 import { notFound } from 'next/navigation'
 
-interface EditStagePageProps extends LANG_PARAMS {
+interface EditStagePageProps extends LANG_TYPE {
   params: Promise<{
     lang: string
     stage: string
@@ -15,7 +15,7 @@ interface EditStagePageProps extends LANG_PARAMS {
 }
 
 export default async function EditStagePage({ params }: EditStagePageProps) {
-  const { lang } = await LANG(params)
+  const { lang } = await LANG_FUNCTION(params)
   const iDevice = await getIDeviceToken()
   const { stage } = await params
   

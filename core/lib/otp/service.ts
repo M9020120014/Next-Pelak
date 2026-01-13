@@ -5,7 +5,7 @@ import { REQUEST } from '@/core/config/security'
 import { validateURL } from '@/core/lib/security/ssrf-protection'
 
 const OTP_SERVICE_URL = ENV.OTP_SERVER_URL
-const OTP_API_KEY = ENV.OTP_API_KEY
+const OTP_SERVER_KEY = ENV.OTP_SERVER_KEY
 const REQUEST_TIMEOUT = REQUEST.TIMEOUT_MS
 
 export type OTPResponse = {
@@ -40,10 +40,10 @@ export async function sendOTP(mobile: string): Promise<OTPResponse> {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': OTP_API_KEY,
+          'X-API-Key': OTP_SERVER_KEY,
         },
         body: JSON.stringify({
-          api_key: OTP_API_KEY,
+          api_key: OTP_SERVER_KEY,
           mobile,
         }),
         cache: 'no-store',
@@ -139,10 +139,10 @@ export async function verifyOTP(mobile: string, code: string): Promise<OTPRespon
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': OTP_API_KEY,
+          'X-API-Key': OTP_SERVER_KEY,
         },
         body: JSON.stringify({
-          api_key: OTP_API_KEY,
+          api_key: OTP_SERVER_KEY,
           code,
           mobile,
         }),

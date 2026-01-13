@@ -6,7 +6,7 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import posthog from 'posthog-js'
 /* --- Config ----------------------------------------------------------------------------------- */
 import { ENV } from '@/core/config/env'
-import { NODE_ENV } from '@/core/config/core'
+import { IS_DEVELOPMENT } from '@/core/config/base'
 
 /* --- Types ------------------------------------------------------------------------------------ */
 interface PostHogExtended {
@@ -23,7 +23,7 @@ interface PostHogExtended {
  * It should be wrapped around the application in the root layout or provider component.
  * 
  * @remarks
- * - Only initializes PostHog if NEXT_PUBLIC_POSTHOG_KEY is provided
+ * - Only initializes PostHog if POSTHOG_KEY is provided
  * - Automatically tracks pageviews on route changes
  * - Cleans up PostHog instance on unmount
  * 
@@ -44,8 +44,8 @@ export default function PostHogProvider({
 
   // Initialize PostHog once on mount
   useEffect(() => {
-    const posthogKey = ENV.NEXT_PUBLIC_POSTHOG_KEY
-    const posthogHost = ENV.NEXT_PUBLIC_POSTHOG_HOST
+    const posthogKey = ENV.POSTHOG_KEY
+    const posthogHost = ENV.POSTHOG_HOST
 
     if (!posthogKey || typeof window === 'undefined') {
       return
@@ -57,7 +57,7 @@ export default function PostHogProvider({
       posthog.init(posthogKey, {
         api_host: posthogHost,
         loaded: () => {
-          if (NODE_ENV === 'development') {
+          if (IS_DEVELOPMENT) {
             console.log('PostHog initialized')
           }
         },

@@ -4,29 +4,33 @@
 
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { CoreConfig } from '@/core/config/config';
-import type { MetadataConfig } from '@/core/config/metadata';
+import type { MetadataConfig } from '@/core/config/meta';
 import type { HooksConfig } from '@/core/config/hooks';
 import type { MessagesConfig } from '@/core/config/messages';
 /* --- Data ------------------------------------------------------------------------------------- */
-import { SITE, SITE_LANG, LANGUAGE, LANGUAGE_TYPE } from '../../project/config/site';
+import { SITE_DATA_URL,SITE_DATA_BASE, SITE_DATA_LANG } from './site';
+import { LANGUAGE_TYPE } from "./lang"
 
 /* --- Project Metadata Configuration ----------------------------------------------------------- */
 const projectMetadataConfig: MetadataConfig<LANGUAGE_TYPE> = {
   site: {
     Data: {
-      url: SITE.Data.url,
-      appName: SITE.Data.appName,
-      logo: SITE.Data.logo,
-      googleVerification: SITE.Data.googleVerification,
-      twitter: SITE.Data.twitter,
+      url: SITE_DATA_URL,
+      appName: SITE_DATA_BASE.Data.appName,
+      logo: SITE_DATA_BASE.Data.logo,
+      googleVerification: SITE_DATA_BASE.Data.googleVerification,
+      twitter: SITE_DATA_BASE.Data.twitter,
     },
-    Theme: SITE.Theme,
-    Number: SITE.Number,
+    Theme: SITE_DATA_BASE.Theme,
+    Number: SITE_DATA_BASE.Number,
   },
-  siteLang: SITE_LANG,
-  language: LANGUAGE,
+  siteLang: SITE_DATA_LANG,
+  language: {
+    default: 'fa',
+    list: { fa: 'فارسی', en: 'English' },
+  },
   robotsEnabled: false, // Set to true to enable robots indexing
-  themeColor: SITE.Theme.light,
+  themeColor: SITE_DATA_BASE.Theme.light,
 };
 
 /* --- Project Hooks Configuration -------------------------------------------------------------- */

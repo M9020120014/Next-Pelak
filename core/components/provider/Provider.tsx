@@ -12,7 +12,7 @@ export default function Providers({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const posthogKey = ENV.NEXT_PUBLIC_POSTHOG_KEY;
+  const posthogKey = ENV.POSTHOG_KEY;
 
   return (
     <>

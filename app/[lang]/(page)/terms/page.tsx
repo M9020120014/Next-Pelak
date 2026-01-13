@@ -1,17 +1,17 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import type { Metadata } from "next"
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANG_PARAMS, LANG } from "@/project/config/site"
-import { ROBOTS_ON } from "@/core/config/metadata"
+import { LANG_TYPE, LANG_FUNCTION } from "@/core/config/lang"
+import { META_ROBOT_ON } from "@/core/config/meta"
 /* --- Components ------------------------------------------------------------------------------ */
-import TermsClient from "@/project/page/TermsClient"
+import TermsClient from "@/site/page/TermsClient"
 /* --- Functions -------------------------------------------------------------------------------- */
 
 /* --- Terms Page Metadata --------------------------------------------- */
-export async function generateMetadata({ params }: LANG_PARAMS): Promise<Metadata> {
-  const { lang } = await LANG(params)
+export async function generateMetadata({ params }: LANG_TYPE): Promise<Metadata> {
+  const { lang } = await LANG_FUNCTION(params)
   return {
-    ...ROBOTS_ON,
+    ...META_ROBOT_ON,
     title: lang === 'fa' ? 'قوانین و شرایط عضویت' : 'Terms and Conditions',
     description: lang === 'fa' 
       ? 'شرایط عضویت در حزب تمدن نوین اسلامی، حقوق و وظایف اعضا و قوانین کلی حزب'
@@ -20,8 +20,8 @@ export async function generateMetadata({ params }: LANG_PARAMS): Promise<Metadat
 }
 
 /* --- Terms Page ------------------------------------------------------ */
-export default async function TermsPage({ params }: LANG_PARAMS) {
-  const { lang } = await LANG(params)
+export default async function TermsPage({ params }: LANG_TYPE) {
+  const { lang } = await LANG_FUNCTION(params)
   
   return <TermsClient lang={lang} />
 }

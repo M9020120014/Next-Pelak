@@ -2,30 +2,30 @@
 import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { LANG, SITE, SITE_LANG, LANGUAGE_DATA } from "@/project/config/site";
-import { BACE_SEO_LANG } from "@/project/config/metadata";
-import { ROBOTS_OFF, ROBOTS_ON } from "@/core/config/metadata";
+import { SITE_DATA_URL,SITE_DATA_BASE, SITE_DATA_LANG } from "@/core/config/site";
+import { LANGUAGE_DATA, LANG_FUNCTION } from "@/core/config/lang";
+import { META_LANG_BASE,META_ROBOT_OFF, META_ROBOT_ON } from "@/core/config/meta";
 import { ENV } from "@/core/config/env";
 import { getIDeviceToken } from "@/core/lib/token/idevice";
 /* --- Components ------------------------------------------------------------------------------ */
-import PageDetailClient from "@/project/page/PageDetailClient";
+import PageDetailClient from "@/site/page/PageDetailClient";
 /* --- Functions -------------------------------------------------------------------------------- */
 
 /* --- Get Image URL Helper ------- */
 const getImageUrl = (media: string | null | undefined): string => {
-  if (!media) return SITE.Data.logo;
-  
+  if (!media) return SITE_DATA_BASE.Data.logo;
+
   // If media is already a full URL, return it as is
   if (media.startsWith('http://') || media.startsWith('https://')) {
     return media;
   }
-  
+
   // If SSS_OBJECT is configured, prepend it to the media path
   if (ENV.SSS_OBJECT) {
     const baseUrl = ENV.SSS_OBJECT.endsWith('/') ? ENV.SSS_OBJECT : `${ENV.SSS_OBJECT}/`;
     return `${baseUrl}${media}`;
   }
-  
+
   // Fallback: return media as is (might be a relative path)
   return media;
 };
@@ -61,8 +61,8 @@ interface PageResponse {
 /* --- Fetch Page Data ------------- */
 async function fetchPageData(slug: string): Promise<PageType | null> {
   try {
-    const baseUrl = SITE.Data.url;
-    
+    const baseUrl = SITE_DATA_URL;
+
     const response = await fetch(`${baseUrl}/api/page/${encodeURIComponent(slug)}`, {
       cache: 'no-store',
       headers: {
@@ -75,7 +75,7 @@ async function fetchPageData(slug: string): Promise<PageType | null> {
     }
 
     const data: PageResponse = await response.json();
-    
+
     if (!data.success || !data.page) {
       return null;
     }
@@ -87,48 +87,48 @@ async function fetchPageData(slug: string): Promise<PageType | null> {
 }
 
 /* --- Generate Metadata ----------- */
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: Promise<{ lang: string; slug: string }> 
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ lang: string; slug: string }>
 }): Promise<Metadata> {
   const { lang, slug } = await params;
-  const { lang: validatedLang } = await LANG(Promise.resolve({ lang }));
+  const { lang: validatedLang } = await LANG_FUNCTION(Promise.resolve({ lang }));
 
   try {
     const page = await fetchPageData(slug);
-    
+
     if (!page) {
       return {
-        ...ROBOTS_OFF,
+        ...META_ROBOT_OFF,
       };
     }
 
-    const pageUrl = `${SITE.Data.url}/${validatedLang}/page/${page.url}`;
+    const pageUrl = `${SITE_DATA_URL}/${validatedLang}/page/${page.url}`;
     const pageImage = getImageUrl(page.media);
-    const tags = page.tags 
+    const tags = page.tags
       ? page.tags.split(',').map((tag) => tag.trim()).filter((tag) => tag !== '')
       : [];
-    
+
     // Robots ON if status is 1, otherwise OFF
-    const robotsConfig = page.status === 1 ? ROBOTS_ON : ROBOTS_OFF;
+    const robotsConfig = page.status === 1 ? META_ROBOT_ON : META_ROBOT_OFF;
 
     return {
       ...robotsConfig,
-      title: page.title || SITE_LANG[validatedLang].Data.title,
-      description: page.description || SITE_LANG[validatedLang].Data.description,
+      title: page.title || SITE_DATA_LANG[validatedLang].Data.title,
+      description: page.description || SITE_DATA_LANG[validatedLang].Data.description,
       keywords: page.keywords || undefined,
       openGraph: {
         type: 'article',
-        title: page.title || SITE_LANG[validatedLang].Data.title,
-        description: page.description || SITE_LANG[validatedLang].Data.description,
+        title: page.title || SITE_DATA_LANG[validatedLang].Data.title,
+        description: page.description || SITE_DATA_LANG[validatedLang].Data.description,
         url: pageUrl,
         images: [
           {
             url: pageImage,
-            width: SITE.Number.imageWidth,
-            height: SITE.Number.imageHeight,
-            alt: page.title || SITE_LANG[validatedLang].Data.alt,
+            width: SITE_DATA_BASE.Number.imageWidth,
+            height: SITE_DATA_BASE.Number.imageHeight,
+            alt: page.title || SITE_DATA_LANG[validatedLang].Data.alt,
           },
         ],
         publishedTime: page.publishedtime || undefined,
@@ -138,8 +138,8 @@ export async function generateMetadata({
         tags: tags.length > 0 ? tags : undefined,
       },
       twitter: {
-        title: page.title || SITE_LANG[validatedLang].Data.title,
-        description: page.description || SITE_LANG[validatedLang].Data.description,
+        title: page.title || SITE_DATA_LANG[validatedLang].Data.title,
+        description: page.description || SITE_DATA_LANG[validatedLang].Data.description,
         images: [pageImage],
       },
       alternates: {
@@ -149,20 +149,20 @@ export async function generateMetadata({
   } catch {
     // Return default metadata on error
     return {
-      ...BACE_SEO_LANG(validatedLang),
-      ...ROBOTS_OFF,
+      ...META_LANG_BASE(validatedLang),
+      ...META_ROBOT_OFF,
     };
   }
 }
 
 /* --- Page Detail Page ------------ */
-export default async function PageDetailPage({ 
-  params 
-}: { 
-  params: Promise<{ lang: string; slug: string }> 
+export default async function PageDetailPage({
+  params
+}: {
+  params: Promise<{ lang: string; slug: string }>
 }) {
   const { lang, slug } = await params;
-  const { lang: validatedLang } = await LANG(Promise.resolve({ lang }));
+  const { lang: validatedLang } = await LANG_FUNCTION(Promise.resolve({ lang }));
 
   const page = await fetchPageData(slug);
 
@@ -173,14 +173,14 @@ export default async function PageDetailPage({
   // Check if page language matches requested language
   const pageLangId = page.lang;
   const requestedLangId = LANGUAGE_DATA.langId[validatedLang];
-  
+
   if (pageLangId && pageLangId.toString() !== requestedLangId) {
     // Redirect to page list if language doesn't match
     redirect(`/${validatedLang}/page`);
   }
 
   const iDevice = await getIDeviceToken();
-  
+
   // Compute image URL on server to avoid hydration mismatch
   // ENV.SSS_OBJECT is only available on server, not client
   const imageUrl = getImageUrl(page.media);

@@ -1,4 +1,4 @@
-import { LANG_PARAMS, LANG } from "@/project/config/site";
+import { LANG_TYPE, LANG_FUNCTION } from "@/core/config/lang";
 import { getIDeviceToken } from "@/core/lib/token/idevice";
 import VerificationComponent from "@/core/components/auth/verification";
 
@@ -68,8 +68,8 @@ const translator = {
 export default async function VerificationPage({ 
   params,
   searchParams 
-}: LANG_PARAMS & { searchParams: Promise<{ mobile?: string; mode?: string }> }) {
-  const { lang } = await LANG(params);
+}: LANG_TYPE & { searchParams: Promise<{ mobile?: string; mode?: string }> }) {
+  const { lang } = await LANG_FUNCTION(params);
   const iDevice = await getIDeviceToken();
   const { mobile, mode } = await searchParams;
   

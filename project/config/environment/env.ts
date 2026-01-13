@@ -9,7 +9,7 @@
  * 
  * @remarks
  * - Add project-specific environment variables to the `ENV` object
- * - Add corresponding validation logic in `validateProjectEnv()` function
+ * - Add corresponding validation logic in `PROJECT_ENV_VALIDATE()` function
  * - Variables defined here take precedence over core variables if there's a naming conflict
  * - All values are readonly (as const) to prevent accidental modifications
  * 
@@ -33,7 +33,7 @@
  * @remarks
  * - Variables are read from `process.env` with empty string as fallback
  * - All values are readonly (as const) to ensure immutability
- * - Variables should be validated in the `validateProjectEnv()` function
+ * - Variables should be validated in the `PROJECT_ENV_VALIDATE()` function
  * 
  * @example
  * ```typescript
@@ -45,17 +45,21 @@
  * ```
  */
 export const ENV = {
+  // OTP Service Configuration
+  OTP_SERVER_URL: process.env.OTP_SERVER_URL || '',
+  OTP_SERVER_KEY: process.env.OTP_SERVER_KEY || '',
   // Zarinpal Payment Gateway Configuration
   ZARINPAL_API_URL: process.env.ZARINPAL_API_URL || '',
   ZARINPAL_MERCHANT_ID: process.env.ZARINPAL_MERCHANT_ID || '',
   ZARINPAL_CALLBACK_URL: process.env.ZARINPAL_CALLBACK_URL || '',
+  // s3 Configuration
   SSS_OBJECT: process.env.SSS_OBJECT || '',
   SSS_URL: process.env.SSS_URL || '',
   // Google Analytics Configuration
-  NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-JBLWQ3LWLN',
+  GOOGLE_ANALYTICS_ID: process.env.GOOGLE_ANALYTICS_ID || '',
   // PostHog Analytics Configuration
-  NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY || '',
-  NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com',
+  POSTHOG_HOST: process.env.POSTHOG_HOST || '',
+  POSTHOG_KEY: process.env.POSTHOG_KEY || '',
 } as const
 
 /* --- Validation ------------------------------------------------------------------------------- */
@@ -68,24 +72,29 @@ export const ENV = {
  * @returns An array of validation error messages. Returns an empty array if all validations pass.
  * 
  * @remarks
- * - This function is automatically called by `validateEnv()` in `core/config/env.ts`
+ * - This function is automatically called by `ENV_VALIDATE()` in `core/config/env.ts`
  * - Add validation logic here for any new project-specific environment variables
  * - Validation errors should be descriptive to help developers fix configuration issues
  * - Only validate variables that are present (non-empty) to allow optional variables
  * 
  * @example
  * ```typescript
- * import { validateProjectEnv } from '@/project/config/env-project'
+ * import { PROJECT_ENV_VALIDATE } from '@/project/config/env-project'
  * 
  * // Validate project environment variables
- * const errors = validateProjectEnv()
+ * const errors = PROJECT_ENV_VALIDATE()
  * if (errors.length > 0) {
  *   console.error('Project environment validation errors:', errors)
  * }
  * ```
  */
-export function validateEnv(): string[] {
+export function ENV_VALIDATE(): string[] {
   const errors: string[] = []
+
+
+  if (ENV.OTP_SERVER_URL && !ENV.OTP_SERVER_URL.startsWith('http')) {
+    errors.push('OTP_SERVER_URL must be a valid URL starting with http:// or https://')
+  }
 
   // Validate URL formats
   if (ENV.ZARINPAL_API_URL && !ENV.ZARINPAL_API_URL.startsWith('http')) {
@@ -113,8 +122,8 @@ export function validateEnv(): string[] {
   }
 
   // Validate PostHog Host URL format
-  if (ENV.NEXT_PUBLIC_POSTHOG_HOST && !ENV.NEXT_PUBLIC_POSTHOG_HOST.startsWith('http')) {
-    errors.push('NEXT_PUBLIC_POSTHOG_HOST must be a valid URL starting with http:// or https://')
+  if (ENV.POSTHOG_HOST && !ENV.POSTHOG_HOST.startsWith('http')) {
+    errors.push('POSTHOG_HOST must be a valid URL starting with http:// or https://')
   }
 
   return errors

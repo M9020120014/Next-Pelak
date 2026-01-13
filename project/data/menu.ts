@@ -1,6 +1,6 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import { Svg } from '@/core/components/ui/icons/Icons';
-import { LANGUAGE_TYPE } from '@/project/config/site';
+import { LANGUAGE_TYPE } from '@/core/config/lang';
 
 /* --- Types ------------------------------------------------------------------------------------ */
 export type MenuItem = {

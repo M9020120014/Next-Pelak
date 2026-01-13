@@ -1,4 +1,4 @@
-import { LANG_PARAMS, LANG } from "@/project/config/site";
+import { LANG_TYPE, LANG_FUNCTION } from "@/core/config/lang";
 import { getIDeviceToken } from "@/core/lib/token/idevice";
 import LogoutAllComponent from "@/core/components/auth/logout-all";
 
@@ -39,8 +39,8 @@ const translator = {
   },
 };
 
-export default async function LogoutAllPage({ params }: LANG_PARAMS) {
-  const { lang } = await LANG(params);
+export default async function LogoutAllPage({ params }: LANG_TYPE) {
+  const { lang } = await LANG_FUNCTION(params);
   const iDevice = await getIDeviceToken();
   return <LogoutAllComponent iDevice={iDevice} lang={lang} translator={translator[lang as keyof typeof translator]} />;
 }

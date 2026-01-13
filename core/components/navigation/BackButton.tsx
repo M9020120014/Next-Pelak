@@ -4,7 +4,7 @@
 import { useRouter } from "next/navigation"
 import { UI as P } from "@/core/components/ui/Pelak"
 import { ClassName as cn } from "@/core/components/ui/Pelak"
-import { LANGUAGE_TYPE } from "@/project/config/site"
+import { LANGUAGE_TYPE } from "@/core/config/lang"
 
 /* --- Types ------------------------------------------------------------------------------------ */
 export interface BackButtonProps {

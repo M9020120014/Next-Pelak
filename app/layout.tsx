@@ -1,13 +1,13 @@
 /* --- Base ------------------------------------------------------------------------------------- */
 import "@/app/globals.css";
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Font } from "@/core/lib/fonts";
 import { headers } from "next/headers";
 import Script from "next/script";
 /* --- Config ----------------------------------------------------------------------------------- */
-import { validateEnv, ENV } from "@/core/config/env";
-import { IS_PRODUCTION } from "@/core/config/core";
-import { LANGUAGE_DATA, extractLangFromHeaders } from "@/project/config/site";
+import { ENV_VALIDATE, ENV } from "@/core/config/env";
+import { IS_PRODUCTION } from "@/core/config/base";
+import { LANGUAGE_DATA, LANG_HEADER } from "@/core/config/lang";
 import { projectCoreConfig } from "@/core/config/project-override";
 import { setCoreConfig } from "@/core/config/config";
 /* --- Lib -------------------------------------------------------------------------------------- */
@@ -16,33 +16,30 @@ import { logError, logWarn } from "@/core/lib/log/logger-utils";
 /* --- Components ------------------------------------------------------------------------------- */
 import Security from "@/core/components/provider/Security";
 import Providers from "@/core/components/provider/Provider";
-import ProjectProvider from "@/project/components/provider/Provider";
-import Footer from "@/project/components/theme/footer/Footer";
-import Navbar from "@/project/components/theme/navbar/Navbar";
+import ProjectProvider from "@/project/provider/Provider";
+import Footer from "@/project/theme/footer/Footer";
+import Navbar from "@/project/theme/navbar/Navbar";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { BACE_SEO_LANG, BACE_SEO ,SITE_VIEWPORT} from "@/project/config/metadata";
-import { ROBOTS_OFF } from "@/core/config/metadata";
+import { SITE_VIEWPORT, META_BASE, META_LANG_BASE, META_ROBOT_OFF } from "@/core/config/meta";
 /* --- Set Core Configuration ------------------------------------------------------------------- */
 // Set project-specific core configuration before rendering
 // This must be called before CoreLayout is used
 setCoreConfig(projectCoreConfig);
 
-console.log("------------------------------- :",ENV.NEXT_PUBLIC_BASE_URL)
-
 loadProjectHooksSync();
 /* --- Constants -------------------------------------------------------------------------------- */
 // Get core config for metadata
 /* --- Root Layout Metadata ------------------------------------------- */
-export const viewport: Viewport = SITE_VIEWPORT;
+export const viewport = SITE_VIEWPORT;
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = await headers();
-  const lang = await extractLangFromHeaders(headersList);
+  const lang = LANG_HEADER(await headers());
   return {
-    ...BACE_SEO,
-    ...BACE_SEO_LANG(lang),
-    ...ROBOTS_OFF,
+    ...META_BASE,
+    ...META_LANG_BASE(lang),
+    ...META_ROBOT_OFF,
   };
 }
+
 /* --- Root Layout -------------------------------------------------- */
 export default async function RootLayout({
   children,
@@ -50,8 +47,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
+
+
+
   try {
-    validateEnv();
+    ENV_VALIDATE();
   } catch (error) {
     // In production, fail fast if environment is invalid
     // In development, log the error but allow the app to start
@@ -65,18 +65,18 @@ export default async function RootLayout({
 
   const headersList = await headers();
   const nonce = headersList.get('x-nonce') || headersList.get('X-CSP-Nonce') || null;
-  const lang = await extractLangFromHeaders(headersList);
-  const direction = LANGUAGE_DATA.direction[lang];
-  const fonts = Font[direction];
-  const gaId = ENV.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
+  const lang = LANG_HEADER(headersList)
+  const font = Font[LANGUAGE_DATA.direction[lang]];
+  const gaId = ENV.GOOGLE_ANALYTICS_ID;
+
 
   return (
     <Security>
       <html
-        lang={LANGUAGE_DATA.lang[lang]}
-        dir={direction}
-        className={`${fonts.text.variable} ${fonts.title.variable}`}
+        lang={lang}
+        dir={LANGUAGE_DATA.direction[lang]}
         suppressHydrationWarning
+        className={font.text.variable + " " + font.title.variable}
         {...(nonce && { nonce })}
       >
         <body className="antialiased">
@@ -111,6 +111,6 @@ export default async function RootLayout({
           </Providers>
         </body>
       </html>
-    </Security>
+    </Security >
   );
 }
