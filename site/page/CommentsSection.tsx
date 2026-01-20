@@ -11,7 +11,9 @@ import { pageDetailTranslator } from '@/site/translations/pageDetail'
 import { useAuth } from '@/core/lib/auth/use-auth'
 import { getAccessToken } from '@/core/lib/auth/token-manager'
 import { useSecurity } from '@/core/components/security/SecurityProvider'
-import Image from "next/image";
+import Image from "next/image"
+/* --- Lib -------------------------------------------------------------------------------------- */
+import { greToPer } from '@/core/lib/date'
 
 type CommentRecord = {
   id: number
@@ -28,6 +30,7 @@ type CommentRecord = {
   children?: CommentRecord[]
   user_profileimageid?: number
   user_profileimageurl?: string
+  updated?: string
 }
 
 interface CommentsSectionProps {
@@ -36,6 +39,40 @@ interface CommentsSectionProps {
   userName: string | null
   lang: LANGUAGE_TYPE
   iDevice: string
+}
+
+/* --- Format Date Helper ---------------------------------------------------------------------- */
+/**
+ * Formats an ISO date string to Persian (Jalali) format
+ * @param isoDate - ISO date string (e.g., "2026-01-18T10:29:29.549156+00:00")
+ * @returns Formatted Persian date string (e.g., "1404/10/28 10:29")
+ */
+function formatPersianDate(isoDate: string | undefined): string {
+  if (!isoDate) return ''
+
+  try {
+    // Parse ISO date and extract date and time parts (using local time)
+    const date = new Date(isoDate)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+
+    // Format as Gregorian: YYYY-MM-DD HH:MM
+    const gregorianDate = `${year}-${month}-${day} ${hours}:${minutes}`
+
+    // Convert to Persian
+    const persianDate = greToPer(gregorianDate)
+
+    // Format Persian date: YYYY/MM/DD HH:MM
+    const [datePart, timePart] = persianDate.split(' ')
+    const [py, pm, pd] = datePart.split('-')
+
+    return `${py}/${pm}/${pd} ${timePart || ''}`.trim()
+  } catch {
+    return isoDate
+  }
 }
 
 export default function CommentsSection({
@@ -554,32 +591,34 @@ function CommentNode({ comment, depth, onReply, onLike, likesMap, isAuthenticate
 
   const likeInfo = likesMap.get(comment.id) || { count: comment.likes_count || 0, liked: false }
 
-  // console.log(comment.user_profileimageurl) // DEBUG
+  // console.log(comment.user_profileimageurl)
   // className={`space-y-012-3 ${depth > 0 ? `border-r-2 border-Border ps-008-2` : ''}`}
   return (
     <div className={'bg-White rounded-3 border border-Border shadow-sm transition-all hover:shadow-md p-012-3 rounded-lg ' + (depth > 0 ? 'bg-Mid' : '')}>
       <div className="flex-col items-start gap-012-3">
 
 
-        <div className="flex items-center gap-008-2">
-          <div className="h-040-8 w-040-8 shrink-0 rounded-full bg-Mid/40 flex items-center justify-center">
-            <Image
-              src={comment.user_profileimageurl || '/profile/default.png'}
-              alt={'تصویر کاربر ' + (comment.userfullname || 'کاربر')}
-              width={40}
-              height={40}
-              className='object-cover object-center w-auto h-full rounded-full'
-            />
-          </div>                <span className="inline-flex items-center px-012-3 py-006-1.5 rounded-2 bg-Background text-Mid font-title">
-            {comment.userfullname && comment.userfullname.trim() ? comment.userfullname : 'کاربر ' + comment.userid}
-          </span>
+        <div className="flex justify-between">
+          <div className='flex flex-row'>
 
-          {/* <div className="flex items-center gap-006-1.5 text-Mid">
-              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span>{formattedDate}</span>
-            </div> */}
+            <div className="h-040-8 w-040-8 shrink-0 rounded-full bg-Mid/40 flex items-center justify-center">
+              <Image
+                src={comment.user_profileimageurl || '/profile/default.png'}
+                alt={'تصویر کاربر ' + (comment.userfullname || 'کاربر')}
+                width={40}
+                height={40}
+                className='object-cover object-center w-auto h-full rounded-full'
+              />
+            </div>                <span className="inline-flex items-center px-012-3 py-006-1.5 rounded-2 bg-Background text-Mid font-title">
+              {comment.userfullname && comment.userfullname.trim() ? comment.userfullname : 'کاربر ' + comment.userid}
+            </span>
+
+          </div>
+
+          <div className="text-Mid text-sm">
+            {formatPersianDate(comment.updated)}
+          </div>
+          
         </div>
 
         <div className="flex-1 space-y-008-2 min-w-0">
@@ -590,6 +629,7 @@ function CommentNode({ comment, depth, onReply, onLike, likesMap, isAuthenticate
 
           <div className="flex items-center gap-012-3 flex-wrap">
             <P.Button
+              ThemeProps='ghost'
               type="button"
               onClick={() => isAuthenticated && onReply(comment.id)}
               disabled={!isAuthenticated}
@@ -603,21 +643,25 @@ function CommentNode({ comment, depth, onReply, onLike, likesMap, isAuthenticate
             </P.Button>
 
             <P.Button
+              ThemeProps={likeInfo.liked ? "default" : "ghost"}
               type="button"
               onClick={() => isAuthenticated && onLike(comment.id)}
               disabled={!isAuthenticated}
               Theme={likeInfo.liked ? "primary" : "secondary"}
               Size="sm"
             >
+
               <svg
-                className={`h-3.5 w-3.5 inline-block mr-004-1 ${likeInfo.liked ? 'fill-current' : ''}`}
+                className={`h-3.5 w-3.5 inline-block mr-002-T ${likeInfo.liked ? 'fill-current' : ''}`}
                 fill={likeInfo.liked ? "currentColor" : "none"}
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
-              {likeInfo.liked ? t.unlike : t.like} ({likeInfo.count})
+              <div className='mt-002-T'>
+                {/* {likeInfo.liked ? t.unlike : t.like} */}{likeInfo.count}
+              </div>
             </P.Button>
           </div>
         </div>

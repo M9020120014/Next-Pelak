@@ -22,6 +22,7 @@ async function POSTHandler(request: NextRequest) {
 
   const body = await request.json()
   const { amount, description, idevice, mobile } = body
+
   // Validate amount
   if (!amount || typeof amount !== 'number' || amount < 1000) {
     return invalidInputError('مبلغ نامعتبر است. حداقل مبلغ ۱۰۰۰ تومان است.')
@@ -72,7 +73,7 @@ async function POSTHandler(request: NextRequest) {
         callback_url: ENV.ZARINPAL_CALLBACK_URL,
         description: description || 'Transaction description.',
         metadata: {
-          mobile: mobile || '09123456789',
+          ...(mobile && typeof mobile === 'string' && mobile.trim() !== '' ? { mobile: mobile.trim() } : {}),
           order_id: typeof idevice === 'string' ? idevice.slice(0, 40) : 'unknown',
         },
       }),

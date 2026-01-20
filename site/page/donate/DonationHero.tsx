@@ -1,7 +1,7 @@
 "use client"
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import Image from "next/image"
 /* --- Components ------------------------------------------------------------------------------- */
 import { UI as P } from "@/core/components/ui/Pelak"
@@ -9,6 +9,9 @@ import { SvgVideo } from "@/site/media/svg"
 import { useSecurity } from "@/core/components/security/SecurityProvider"
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { normalizeNumber } from "@/core/lib/normalize"
+import { getAccessToken } from '@/core/lib/auth/token-manager'
+import { decodeTokenPayload } from '@/core/lib/token/jwt-client'
+import { useAuth } from '@/core/lib/auth/use-auth'
 /* --- Types ------------------------------------------------------------------------------------ */
 import { LANGUAGE_TYPE } from "@/core/config/lang"
 import { donateTranslator } from "@/site/translations/donate"
@@ -76,18 +79,39 @@ function calculateEquivalent(amount: number, timeUnits: {
 interface DonationHeroProps {
   lang: LANGUAGE_TYPE
   iDevice: string
-  userMobile?: string | null
 }
 
-export default function DonationHero({ lang, iDevice, userMobile: initialUserMobile }: DonationHeroProps) {
+export default function DonationHero({ lang, iDevice }: DonationHeroProps) {
   const t = donateTranslator[lang]
   const { csrfToken } = useSecurity()
+  const { authState } = useAuth(iDevice)
   
   const [donationType, setDonationType] = useState<'monthly' | 'onetime'>('onetime')
   const [monthlyAmount, setMonthlyAmount] = useState<number>(200000)
   const [oneTimeAmount, setOneTimeAmount] = useState<number>(200000)
   const [customAmount, setCustomAmount] = useState<string>('200000')
-  const [userMobile] = useState<string | null>(initialUserMobile || null)
+
+  // استخراج شماره موبایل از Access Token
+  // اگر token موجود بود و mobile در آن بود، mobile را برمی‌گرداند وگرنه null
+  // با استفاده از authState، وقتی authentication state تغییر می‌کند، userMobile هم به‌روزرسانی می‌شود
+  const userMobile = useMemo(() => {
+    // اگر کاربر authenticated نیست، null برگردان
+    if (authState !== 'authenticated') {
+      return null
+    }
+    
+    const token = getAccessToken()
+    if (!token) {
+      return null
+    }
+    
+    const payload = decodeTokenPayload(token)
+    if (!payload || !payload.mobile) {
+      return null
+    }
+    
+    return payload.mobile
+  }, [authState]) // وقتی authState تغییر می‌کند، userMobile هم به‌روزرسانی می‌شود
 
   const currencySymbol = t.hero.currency
   const monthlyAmounts = t.hero.amounts.monthly
