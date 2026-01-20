@@ -266,9 +266,18 @@ export default function DashboardClient({ iDevice, lang }: DashboardClientProps)
   return (
     <main className="bg-Background lg:pt-034-7 min-h-[calc(100svh-var(--spacing-144-D))]">
       <P.Container className="space-y-018-4 lg:space-y-024-6">
-        <div className="mb-6">
-          <h1 className="text-3xl lg:text-4xl font-bold text-Text mb-2">{t.dashboard}</h1>
-          <div className="h-1 w-20 bg-Mid/30 rounded-full"></div>
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl lg:text-4xl font-bold text-Text mb-2">{t.dashboard}</h1>
+            <div className="h-1 w-20 bg-Mid/30 rounded-full"></div>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.push(`/${lang}/dashboard/tickets`)}
+            className="bg-Primary hover:bg-PrimaryDark text-PrimaryForeground px-4 py-2 rounded-md text-sm lg:text-base transition-colors"
+          >
+            ارسال پیام
+          </button>
         </div>
 
         <P.Card className="p-4 lg:p-6 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
