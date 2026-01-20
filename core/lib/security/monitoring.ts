@@ -54,8 +54,10 @@ const SUSPICIOUS_PATTERNS = [
   /\/winnt\//i,              // /winnt/ (Windows)
   /\/system32\//i,           // /system32/ (Windows)
   /%2e%2e/i,                 // URL encoded ..
-  /%2f/i,                    // URL encoded /
-  /%5c/i,                    // URL encoded \ (Windows)
+  // NOTE:
+  // We intentionally do NOT flag generic URL-encoded slashes (%2f, %5c) as suspicious,
+  // because they appear frequently in legitimate query parameters (e.g. redirect URLs)
+  // and cause many false positives in normal navigation flows.
 ]
 
 /* --- Functions -------------------------------------------------------------------------------- */
