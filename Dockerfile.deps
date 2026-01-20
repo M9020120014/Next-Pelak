@@ -1,0 +1,19 @@
+# Dependencies image - برای استفاده در محیط‌های آفلاین
+FROM r.htni.ir/node:20-alpine
+
+WORKDIR /app
+
+# نصب ابزارهای build برای native modules (lightningcss)
+RUN apk add --no-cache python3 make g++
+
+# کپی و نصب dependencies (همه dependencies شامل dev)
+COPY package.json package-lock.json ./
+RUN npm ci && \
+    npm cache clean --force
+
+# حذف ابزارهای build برای سبک‌تر شدن image
+RUN apk del python3 make g++ && \
+    rm -rf /var/cache/apk/*
+
+# فقط برای اینکه لایه node_modules در image باقی بماند
+CMD ["node", "-e", "console.log('Dependencies ready')"]
