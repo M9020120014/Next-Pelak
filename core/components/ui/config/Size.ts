@@ -1,4 +1,4 @@
-import { /*PropsMap,*/ ItemMap, /*ConfigPropsObject,*/ ConfigObject, /*PropsObject*/ } from "../Pelak";
+import { /*PropsMap,*/ ItemMap, /*ConfigPropsObject,*/ ConfigObject, ConfigObjectTree /*PropsObject*/ } from "../Pelak";
 
 /* --- Size Configuration ----------------------------------------------------------------------- */
 export const SizeConfig = {
@@ -61,7 +61,7 @@ export const PaddingConfig = {
     sm: ["p-004-1", "p-002-T"],
     md: ["p-008-2", "p-004-1"],
     lg: ["p-012-3", "p-008-2"],
-    xl: ["p-018-4", "p-012-2"],
+    xl: ["p-018-4", "p-012-3"],
     none: ["", ""],
   },
   Default: "md"
@@ -70,12 +70,30 @@ export const PaddingConfig = {
 /* --- Gaps Configuration ----------------------------------------------------------------------- */
 export const GapsConfig = {
   Items: {
-    xs: "gap-004-1",
-    sm: "gap-008-2",
-    md: "gap-012-3",
-    lg: "gap-018-4",
-    xl: "gap-024-5",
-    none: "",
+    md: {
+      xs: "gap-001-O",
+      sm: "gap-002-T",
+      md: "gap-004-1",
+      lg: "gap-008-2",
+      xl: "gap-012-3",
+      none: ""
+    },
+    lg: {
+      xs: "gap-002-T",
+      sm: "gap-004-1",
+      md: "gap-008-2",
+      lg: "gap-016-H",
+      xl: "gap-024-5",
+      none: ""
+    },
+    xl: {
+      xs: "gap-004-1",
+      sm: "gap-008-2",
+      md: "gap-012-3",
+      lg: "gap-024-5",
+      xl: "gap-034-7",
+      none: ""
+    }
   },
   Default: "md"
-} as const satisfies ConfigObject<ItemMap>
+} as const satisfies ConfigObjectTree<ItemMap>

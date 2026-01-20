@@ -89,7 +89,6 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
   const linkTelegram = 'https://t.me/share/url?text=' + shareText + '&url=' + shareUrl
   const linkEailto = 'mailto:?subject=' + shareText + '&body=' + shareUrl
 
-  console.log('----- : ', formattedDate)
   return (
     <>
       <main className=" bg-Background lg:pt-034-7">
