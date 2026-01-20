@@ -4,7 +4,6 @@
 import { usePathname } from 'next/navigation';
 /* --- Components ------------------------------------------------------------------------------- */
 import CategoryMenu from '@/project/theme/navbar/CategoryMenu';
-import { ClassName as cn } from '@/core/components/ui/Pelak';
 /* --- Data ------------------------------------------------------------------------------------- */
 import { LANG_PATHNAME } from '@/core/config/lang';
 

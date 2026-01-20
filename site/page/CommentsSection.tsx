@@ -11,6 +11,7 @@ import { pageDetailTranslator } from '@/site/translations/pageDetail'
 import { useAuth } from '@/core/lib/auth/use-auth'
 import { getAccessToken } from '@/core/lib/auth/token-manager'
 import { useSecurity } from '@/core/components/security/SecurityProvider'
+import Image from "next/image";
 
 type CommentRecord = {
   id: number
@@ -25,6 +26,8 @@ type CommentRecord = {
   user_liked?: boolean
   userfullname?: string
   children?: CommentRecord[]
+  user_profileimageid?: number
+  user_profileimageurl?: string
 }
 
 interface CommentsSectionProps {
@@ -35,18 +38,18 @@ interface CommentsSectionProps {
   iDevice: string
 }
 
-export default function CommentsSection({ 
-  pageId, 
-  userId, 
-  userName, 
+export default function CommentsSection({
+  pageId,
+  userId,
+  userName,
   lang,
-  iDevice 
+  iDevice
 }: CommentsSectionProps) {
   const t = pageDetailTranslator[lang]
   const router = useRouter()
   const { csrfToken } = useSecurity()
   const { authState } = useAuth(iDevice)
-  
+
   const [comments, setComments] = useState<CommentRecord[]>([])
   const [content, setContent] = useState('')
   const [parentId, setParentId] = useState<number | null>(null)
@@ -61,11 +64,11 @@ export default function CommentsSection({
 
   const normalizedComments = (raw: unknown): CommentRecord[] => {
     let comments: CommentRecord[] = []
-    
+
     // Handle array directly
     if (Array.isArray(raw)) {
       comments = raw as CommentRecord[]
-    } 
+    }
     // Handle object with comments property
     else if (raw && typeof raw === 'object' && 'comments' in raw) {
       const maybeComments = (raw as { comments?: unknown }).comments
@@ -73,7 +76,7 @@ export default function CommentsSection({
         comments = maybeComments as CommentRecord[]
       }
     }
-    
+
     // Filter out deleted comments and ensure all required fields exist
     return comments
       .filter((comment): comment is CommentRecord => {
@@ -128,13 +131,13 @@ export default function CommentsSection({
       if (accessToken && isAuthenticated) {
         headers['Authorization'] = `Bearer ${accessToken}`
       }
-      
+
       const response = await fetch(`/api/comments?pageId=${pageId}&sort=${sortType}`, {
         method: 'GET',
         headers,
         cache: 'no-store',
       })
-      
+
       if (!response.ok) {
         // Try to extract error message from response
         let errorMessage = t.commentError
@@ -161,9 +164,9 @@ export default function CommentsSection({
 
         throw new Error(errorMessage)
       }
-      
+
       const data = await response.json()
-      
+
       // Validate response structure
       if (!data || typeof data !== 'object') {
         throw new Error('Invalid response format')
@@ -171,7 +174,7 @@ export default function CommentsSection({
 
       const fetchedComments = normalizedComments(data)
       setComments(fetchedComments)
-      
+
       // Initialize likes map from fetched comments
       const newLikesMap = new Map<number, { count: number; liked: boolean }>()
       const updateLikesRecursive = (comments: CommentRecord[]) => {
@@ -204,9 +207,9 @@ export default function CommentsSection({
   // Scroll to comment form when replying to a comment
   useEffect(() => {
     if (parentId !== null && commentFormRef.current) {
-      commentFormRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
+      commentFormRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
       })
       setTimeout(() => {
         const textarea = commentFormRef.current?.querySelector('textarea')
@@ -380,12 +383,12 @@ export default function CommentsSection({
       {/* Comments List */}
       <div className="space-y-018-4">
 
-      {!loading && commentTree.length > 0 && (
+        {!loading && commentTree.length > 0 && (
           <div className="space-y-018-4">
             {commentTree.map((comment) => (
-              <CommentNode 
-                key={comment.id} 
-                comment={comment} 
+              <CommentNode
+                key={comment.id}
+                comment={comment}
                 onReply={setParentId}
                 onLike={handleLike}
                 likesMap={likes}
@@ -410,7 +413,7 @@ export default function CommentsSection({
             </span>
           </div>
         )}
-        
+
         {error && (
           <div className="rounded-3 border border-Error/50 bg-ErrorLight/10 p-018-4">
             <div className="flex items-start justify-between gap-012-3">
@@ -521,7 +524,7 @@ export default function CommentsSection({
                   </>
                 )}
               </P.Button>
-              
+
               {userName && (
                 <p className="text-Mid hidden sm:block">
                   {lang === 'fa' ? `${userName} عزیز، سپاس از همراهی شما!` : `Thank you, ${userName}!`}
@@ -548,100 +551,99 @@ type CommentNodeProps = {
 }
 
 function CommentNode({ comment, depth, onReply, onLike, likesMap, isAuthenticated, userId, lang, t }: CommentNodeProps) {
-  const createdAt = new Date(comment.createdat)
-  const formattedDate = createdAt.toLocaleDateString(lang === 'fa' ? 'fa-IR' : 'en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
 
-  const userInitial = `U${comment.userid}`.slice(0, 2)
   const likeInfo = likesMap.get(comment.id) || { count: comment.likes_count || 0, liked: false }
 
+  // console.log(comment.user_profileimageurl) // DEBUG
+  // className={`space-y-012-3 ${depth > 0 ? `border-r-2 border-Border ps-008-2` : ''}`}
   return (
-    <div
-      className={`space-y-012-3 ${depth > 0 ? `ms-024-5 border-r-2 border-Border ps-018-4` : ''}`}
-    >
-      <div className={`bg-White rounded-3 border border-Border shadow-sm transition-all hover:shadow-md p-018-4 ${depth > 0 ? 'bg-Background/30' : ''}`}>
-        <div className="flex items-start gap-012-3">
-          <div className="h-040-8 w-040-8 shrink-0 rounded-full bg-PrimaryLight/10 flex items-center justify-center text-Primary font-title">
-            {userInitial}
-          </div>
-          
-          <div className="flex-1 space-y-008-2 min-w-0">
-            <div className="flex items-center justify-between gap-008-2 flex-wrap">
-              <div className="flex items-center gap-008-2">
-                <span className="inline-flex items-center px-012-3 py-006-1.5 rounded-2 bg-Background text-Mid font-title">
-                  {comment.userfullname && comment.userfullname.trim() ? comment.userfullname : comment.userid}
-                </span>
-              </div>
-              {/* <div className="flex items-center gap-006-1.5 text-Mid">
-                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span>{formattedDate}</span>
-              </div> */}
-            </div>
-            
-            <p className="leading-relaxed text-Text whitespace-pre-wrap">
-              {comment.content}
-            </p>
-            
-            <div className="flex items-center gap-012-3 flex-wrap">
-              <P.Button
-                type="button"
-                onClick={() => isAuthenticated && onReply(comment.id)}
-                disabled={!isAuthenticated}
-                Theme="secondary"
-                Size="sm"
-              >
-                <svg className="h-3.5 w-3.5 inline-block mr-004-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                </svg>
-                {t.reply}
-              </P.Button>
+    <div className={'bg-White rounded-3 border border-Border shadow-sm transition-all hover:shadow-md p-012-3 rounded-lg ' + (depth > 0 ? 'bg-Mid' : '')}>
+      <div className="flex-col items-start gap-012-3">
 
-              <P.Button
-                type="button"
-                onClick={() => isAuthenticated && onLike(comment.id)}
-                disabled={!isAuthenticated}
-                Theme={likeInfo.liked ? "primary" : "secondary"}
-                Size="sm"
-              >
-                <svg 
-                  className={`h-3.5 w-3.5 inline-block mr-004-1 ${likeInfo.liked ? 'fill-current' : ''}`} 
-                  fill={likeInfo.liked ? "currentColor" : "none"} 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-                {likeInfo.liked ? t.unlike : t.like} ({likeInfo.count})
-              </P.Button>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {comment.children && comment.children.length > 0 && (
-        <div className="mt-008-2 space-y-018-4">
-          {comment.children.map((child) => (
-            <CommentNode 
-              key={child.id} 
-              comment={child} 
-              depth={depth + 1} 
-              onReply={onReply}
-              onLike={onLike}
-              likesMap={likesMap}
-              isAuthenticated={isAuthenticated}
-              userId={userId}
-              lang={lang}
-              t={t}
+        <div className="flex items-center gap-008-2">
+          <div className="h-040-8 w-040-8 shrink-0 rounded-full bg-Mid/40 flex items-center justify-center">
+            <Image
+              src={comment.user_profileimageurl || '/profile/default.png'}
+              alt={'تصویر کاربر ' + (comment.userfullname || 'کاربر')}
+              width={40}
+              height={40}
+              className='object-cover object-center w-auto h-full rounded-full'
             />
-          ))}
+          </div>                <span className="inline-flex items-center px-012-3 py-006-1.5 rounded-2 bg-Background text-Mid font-title">
+            {comment.userfullname && comment.userfullname.trim() ? comment.userfullname : 'کاربر ' + comment.userid}
+          </span>
+
+          {/* <div className="flex items-center gap-006-1.5 text-Mid">
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>{formattedDate}</span>
+            </div> */}
         </div>
-      )}
-    </div>
+
+        <div className="flex-1 space-y-008-2 min-w-0">
+
+          <p className="leading-relaxed text-Text whitespace-pre-wrap">
+            {comment.content}
+          </p>
+
+          <div className="flex items-center gap-012-3 flex-wrap">
+            <P.Button
+              type="button"
+              onClick={() => isAuthenticated && onReply(comment.id)}
+              disabled={!isAuthenticated}
+              Theme="secondary"
+              Size="sm"
+            >
+              <svg className="h-3.5 w-3.5 inline-block mr-004-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+              </svg>
+              {t.reply}
+            </P.Button>
+
+            <P.Button
+              type="button"
+              onClick={() => isAuthenticated && onLike(comment.id)}
+              disabled={!isAuthenticated}
+              Theme={likeInfo.liked ? "primary" : "secondary"}
+              Size="sm"
+            >
+              <svg
+                className={`h-3.5 w-3.5 inline-block mr-004-1 ${likeInfo.liked ? 'fill-current' : ''}`}
+                fill={likeInfo.liked ? "currentColor" : "none"}
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              {likeInfo.liked ? t.unlike : t.like} ({likeInfo.count})
+            </P.Button>
+          </div>
+        </div>
+
+
+        {comment.children && comment.children.length > 0 && (
+          <div className="mt-008-2 space-y-018-4">
+            {comment.children.map((child) => (
+              <CommentNode
+                key={child.id}
+                comment={child}
+                depth={depth + 1}
+                onReply={onReply}
+                onLike={onLike}
+                likesMap={likesMap}
+                isAuthenticated={isAuthenticated}
+                userId={userId}
+                lang={lang}
+                t={t}
+              />
+            ))}
+          </div>
+        )}
+
+      </div>
+    </div >
   )
 }
 

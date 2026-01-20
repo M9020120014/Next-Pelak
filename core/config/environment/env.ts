@@ -2,7 +2,7 @@ import { IS_PRODUCTION } from "../base"
 
 export const ENV = {
   // Base URL
-  NEXT_PUBLIC_BASE_URL: IS_PRODUCTION ? (process.env.NEXT_PUBLIC_BASE_URL || '') : (process.env.NEXT_DEVELOPMENT_URL || ''),
+  NEXT_PUBLIC_BASE_URL: (IS_PRODUCTION ? process.env.NEXT_PUBLIC_BASE_URL : process.env.NEXT_DEVELOPMENT_URL) || '',
 
   // Cookie Names
   IDEVICE_TOKEN_NAME: process.env.IDEVICE_TOKEN_NAME || 'idevice-token',

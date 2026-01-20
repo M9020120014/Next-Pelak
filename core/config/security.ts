@@ -78,7 +78,7 @@ export const RATE_LIMIT = {
 export const REQUEST = {
   MAX_SIZE_BYTES: 1024 * 1024, // 1MB
   MAX_SIZE_MB: 1,
-  TIMEOUT_MS: 30 * 1000, // 30 seconds timeout for external requests
+  TIMEOUT_MS: 60 * 1000, // 60 seconds timeout for external requests
 } as const
 
 /* --- Input Length Limits ----------------------------------------------------------------------- */

@@ -104,7 +104,9 @@ BEGIN
           'importance', COALESCE(c.importance, 0),
           'likes_count', COALESCE(likes.likes_count, 0),
           'user_liked', COALESCE(user_like.user_liked, false),
-          'userfullname', TRIM(CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.lastname, '')))
+          'userfullname', TRIM(CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.lastname, ''))),
+          'user_profileimageid',u.profileimageid,
+          'user_profileimageurl',u.profileimageurl
         ) ORDER BY COALESCE(likes.likes_count, 0) DESC, c.created DESC
       ),
       '[]'::jsonb
@@ -144,7 +146,9 @@ BEGIN
           'importance', COALESCE(c.importance, 0),
           'likes_count', COALESCE(likes.likes_count, 0),
           'user_liked', COALESCE(user_like.user_liked, false),
-          'userfullname', TRIM(CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.lastname, '')))
+          'userfullname', TRIM(CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.lastname, ''))),
+          'user_profileimageid',u.profileimageid,
+          'user_profileimageurl',u.profileimageurl
         ) ORDER BY COALESCE(c.importance, 0) DESC, c.created DESC
       ),
       '[]'::jsonb
@@ -184,7 +188,9 @@ BEGIN
           'importance', COALESCE(c.importance, 0),
           'likes_count', COALESCE(likes.likes_count, 0),
           'user_liked', COALESCE(user_like.user_liked, false),
-          'userfullname', TRIM(CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.lastname, '')))
+          'userfullname', TRIM(CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.lastname, ''))),
+          'user_profileimageid',u.profileimageid,
+          'user_profileimageurl',u.profileimageurl
         ) ORDER BY c.created DESC
       ),
       '[]'::jsonb

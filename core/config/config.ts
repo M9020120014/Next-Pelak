@@ -1,29 +1,19 @@
 export { ROUTES } from "@/project/config/config"
 
 
-
-
-
-
 /* --- Core Configuration Interface ------------------------------------------------------------- */
 /* This file provides the main configuration interface for the core module */
 /* Projects can override these configurations via core/config/project-override.ts */
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { defaultMetadataConfig , type MetadataConfig } from './meta';
 import { defaultHooksConfig , type HooksConfig } from './hooks';
-import { defaultMessagesConfig , type MessagesConfig } from './messages';
 
 /* --- Core Configuration Interface ------------------------------------------------------------- */
 export interface CoreConfig {
-  /** Metadata configuration */
-  metadata?: Partial<MetadataConfig>;
   
   /** Hooks configuration */
   hooks?: Partial<HooksConfig>;
   
-  /** Messages configuration */
-  messages?: Partial<MessagesConfig>;
 }
 
 /* --- Default Core Configuration -------------------------------------------------------------- */
@@ -32,9 +22,7 @@ export interface CoreConfig {
  * This is used when no project-specific config is provided
  */
 export const defaultCoreConfig: CoreConfig = {
-  metadata: undefined, // Will use defaultMetadataConfig
   hooks: undefined, // Will use defaultHooksConfig
-  messages: undefined, // Will use defaultMessagesConfig
 };
 
 /* --- Global Core Config Storage -------------------------------------------------------------- */
@@ -57,22 +45,14 @@ export function setCoreConfig(config: CoreConfig): void {
  * Returns merged config with defaults
  */
 export function getCoreConfig(): {
-  metadata: MetadataConfig;
   hooks: HooksConfig;
-  messages: MessagesConfig;
 } {
   const config = globalCoreConfig || defaultCoreConfig;
   
   return {
-    metadata: config.metadata 
-      ? { ...defaultMetadataConfig, ...config.metadata } as MetadataConfig
-      : defaultMetadataConfig,
     hooks: config.hooks
       ? { ...defaultHooksConfig, ...config.hooks } as HooksConfig
       : defaultHooksConfig,
-    messages: config.messages
-      ? { ...defaultMessagesConfig, ...config.messages } as MessagesConfig
-      : defaultMessagesConfig,
   };
 }
 
@@ -82,15 +62,9 @@ export function getCoreConfig(): {
  */
 export function mergeCoreConfig(projectConfig: CoreConfig): CoreConfig {
   return {
-    metadata: projectConfig.metadata 
-      ? { ...defaultMetadataConfig, ...projectConfig.metadata }
-      : defaultMetadataConfig,
     hooks: projectConfig.hooks
       ? { ...defaultHooksConfig, ...projectConfig.hooks }
       : defaultHooksConfig,
-    messages: projectConfig.messages
-      ? { ...defaultMessagesConfig, ...projectConfig.messages }
-      : defaultMessagesConfig,
   };
 }
 

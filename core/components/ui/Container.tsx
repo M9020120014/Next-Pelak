@@ -29,7 +29,7 @@ export function Container({
     >
       <div
         className={cn(
-          "max-w-7xl mx-auto",
+          "max-w-7xl mx-auto flex flex-col",
           (Padding !== "none") && PaddingConfig.Items[Padding][1],
           (Gaps !== "none") && GapsConfig.Items[Gaps],
           className

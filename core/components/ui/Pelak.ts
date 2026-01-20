@@ -22,7 +22,7 @@ import { Selector } from './Selector'
 import { DateInput } from './DateInput'
 import { DatePicker } from './DatePicker'
 /* --- Types -------------------------------------------------------- */
-type Properties = string | number | boolean | string[] | number[] | boolean[] ;
+type Properties = string | number | boolean | string[] | number[] | boolean[];
 export type ItemMap = Record<string, Properties>
 export type PropsMap = Record<string, ItemMap>
 export type PropsObject<ItemMap> = {
@@ -45,6 +45,20 @@ export function ClassName(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 /* --- Exports ------------------------------------------------------ */
-export const UI = { Input, Button, Icon, InputSecret, AspectRatio, Container, ...Dialog, ...Card, Separator, Skeleton, Selector, DateInput, DatePicker }
+export const UI = {
+  Container,
+  Input,
+  Button,
+  Icon,
+  InputSecret,
+  AspectRatio,
+  Separator,
+  Skeleton,
+  Selector,
+  DateInput,
+  DatePicker,
+  ...Dialog,
+  ...Card
+}
 /* --- q.:| ♢ |:.p -------------------------------------------------- */
 /* --- Thanks God --------------------------------------------------- */
