@@ -2,22 +2,22 @@ import { UI as P } from "@/core/components/ui/Pelak"
 
 export default function PelakUi() {
   return (
-    <div className="py-080-A">
+    <div className="py-080-A bg-Background">
 
       Container
 
-      <P.Container SectionClassName="bg-Success/40" className="bg-Warning/40">
-        <div className="bg-Error/40">
+      <P.Container SectionClassName="bg-Success/14 mb-018-4" className="bg-Success/12">
+        <div className="bg-Background">
           def container
         </div>
       </P.Container>
 
 
-      <P.Container Padding="xl" Gaps="none">
-        <div className="bg-Panel px-002-">
+      <P.Container SectionClassName="bg-Success/14 mb-018-4" className="bg-Success/12">
+        <div className="bg-Background">
           def container
         </div>
-        <div className="bg-Panel">
+        <div className="bg-Background">
           def container
         </div>
       </P.Container>

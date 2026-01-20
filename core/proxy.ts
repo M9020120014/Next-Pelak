@@ -145,7 +145,10 @@ export default async function proxy(
   // PostHog scripts can be loaded from assets endpoints (us-assets.i.posthog.com, eu-assets.i.posthog.com)
   // Note: CSP doesn't support wildcards in the middle (*.i.posthog.com), so we list specific domains
   const scriptSrc = `script-src 'self' 'nonce-${nonce}' 'sha256-1ejjuJTafqPpU5E26Lr6F53b1OwFIGPOZWX4Afjkfrg=' https://www.googletagmanager.com https://app.posthog.com https://us-assets.i.posthog.com https://eu-assets.i.posthog.com 'strict-dynamic'`
-  const styleSrc = `style-src 'self' 'nonce-${nonce}' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=' 'sha256-lGP/R5jOMXytzwBHVEM5Nv4XbT9fuH6V2dET/0dje2s=' 'unsafe-hashes'`
+  // style-src includes 'unsafe-inline' to allow inline styles in HTML content from CMS/database
+  // This is necessary because page.content and other HTML content may contain inline styles
+  // The nonce and hashes are still used for better security where possible
+  const styleSrc = `style-src 'self' 'nonce-${nonce}' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=' 'sha256-lGP/R5jOMXytzwBHVEM5Nv4XbT9fuH6V2dET/0dje2s=' 'sha256-zaGFlNmU3+rkk0d7vI3tQdm3lXhYyAGA+3SO9F5eibM=' 'sha256-jPaQlx730nTxIBFs3cL38mhA0Lpg3G4MIJPkKjvePkg=' 'sha256-ZDrxqUOB4m/L0JWL/+gS52g1CRH0l/qwMhjTw5Z/Fsc=' 'sha256-D9xOo6muKe/7NWssZktrvGjizMlYXbUzeOxXVWPZbvA=' 'sha256-jrqa2xeX6JXjJQ2s/r8RpH0sIkQDhRTLkdtQh7denWA=' 'sha256-cUtUA2GBdi4dtncTW7Pr5W2p1T9OmZosgcgFNgCzPx0=' 'unsafe-hashes' 'unsafe-inline'`
     
   // CSP configuration for Next.js
   // Using 'strict-dynamic' with nonce provides better security than 'unsafe-inline'
@@ -162,7 +165,7 @@ export default async function proxy(
     connectSrc,
     "media-src 'self' https://htni-box.s3.ir-thr-at1.arvanstorage.ir", // Added Arvan Storage for videos
     "object-src 'none'",
-    "frame-src 'self' https://www.aparat.com", // Added Aparat for video embeds
+    "frame-src 'self' https://www.aparat.com https://telewebion.com", // Added Aparat and Telewebion for video embeds
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",

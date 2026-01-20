@@ -31,7 +31,7 @@ export function Container({
         className={cn(
           "max-w-7xl mx-auto flex flex-col",
           (Padding !== "none") && PaddingConfig.Items[Padding][1],
-          (Gaps !== "none") && GapsConfig.Items[Gaps],
+          GapsConfig.Items[Gaps][Padding],
           className
         )}
         {...props}

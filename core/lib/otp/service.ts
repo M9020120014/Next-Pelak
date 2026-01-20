@@ -52,8 +52,6 @@ export async function sendOTP(mobile: string): Promise<OTPResponse> {
 
       clearTimeout(timeoutId)
 
-      console.log('response', response)
-
     if (!response.ok) {
       return {
         success: false,
@@ -63,10 +61,6 @@ export async function sendOTP(mobile: string): Promise<OTPResponse> {
     }
 
     const data = await response.json()
-
-
-
-    console.log('data', data)
     
     if (!data.success) {
       return {

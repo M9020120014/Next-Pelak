@@ -34,6 +34,11 @@ export type ConfigObject<ItemMap> = {
   Items: ItemMap;
   Default: keyof ItemMap;
 }
+export type ConfigObjectTree<ItemMap> = {
+  Base?: Properties;
+  Items: Record<string, ItemMap>;
+  Default: keyof ItemMap;
+}
 export type ConfigPropsObject<PropsObject, PropsMap, ItemMap> = {
   Base?: Properties;
   Props: Record<keyof PropsMap, PropsObject>;
