@@ -93,7 +93,7 @@ export default function TicketsClient({ lang }: TicketsClientProps) {
           <h1 className="text-2xl lg:text-3xl font-bold text-Text">
             تیکت‌های من
           </h1>
-          <Link href={`/${lang}/dashboard/tickets/new`}>
+          <Link href={`/${lang}/dashboard/ticket/new`}>
             <button
               type="button"
               className="bg-Primary hover:bg-PrimaryDark text-PrimaryForeground px-4 py-2 rounded-md text-sm lg:text-base transition-colors"
@@ -150,7 +150,7 @@ export default function TicketsClient({ lang }: TicketsClientProps) {
                         <td className="px-4 py-3 text-Text">{status}</td>
                         <td className="px-4 py-3 text-Text">{updatedAt}</td>
                         <td className="px-4 py-3">
-                          <Link href={`/${lang}/dashboard/tickets/${id}`}>
+                          <Link href={`/${lang}/dashboard/ticket/${id}`}>
                             <button
                               type="button"
                               className="bg-Background text-Text border border-Border/60 hover:bg-Primary/10 px-3 py-1.5 rounded-md text-xs lg:text-sm transition-colors"
