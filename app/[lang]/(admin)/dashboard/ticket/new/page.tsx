@@ -104,7 +104,7 @@ export default function NewTicketPage() {
       }
 
       // On success: redirect to tickets page with success flag
-      router.push(`/${lang}/dashboard/tickets?ticket=created`)
+      router.push(`/${lang}/dashboard/ticket?ticket=created`)
     } catch {
       setError('خطا در ارتباط با سرور')
     } finally {
@@ -126,7 +126,7 @@ export default function NewTicketPage() {
               لطفاً عنوان، دپارتمان مربوطه و متن درخواست خود را وارد کنید.
             </p>
           </div>
-          <Link href={`/${lang}/dashboard/tickets`}>
+          <Link href={`/${lang}/dashboard/ticket`}>
             <button
               type="button"
               className="bg-Background text-Text border border-Border/60 hover:bg-Primary/10 px-4 py-2 rounded-md text-sm lg:text-base transition-colors"

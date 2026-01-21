@@ -273,7 +273,7 @@ export default function DashboardClient({ iDevice, lang }: DashboardClientProps)
           </div>
           <button
             type="button"
-            onClick={() => router.push(`/${lang}/dashboard/tickets`)}
+            onClick={() => router.push(`/${lang}/dashboard/ticket`)}
             className="bg-Primary hover:bg-PrimaryDark text-PrimaryForeground px-4 py-2 rounded-md text-sm lg:text-base transition-colors"
           >
             ارسال پیام
