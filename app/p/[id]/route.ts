@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { notFound } from "next/navigation";
 /* --- Lib -------------------------------------------------------------------------------------- */
 import { callRpc } from "@/core/lib/rest/rpc";
+import { ENV } from "@/core/config/env";
 /* --- Functions -------------------------------------------------------------------------------- */
 
 /* --- Language ID to Code Mapping */
@@ -65,7 +66,7 @@ export async function GET(
     
     // Redirect to the actual page URL
     // Use NextResponse.redirect() for route handlers
-    return NextResponse.redirect(new URL(`/${langCode}/page/${url}`, request.url), { status: 307 });
+    return NextResponse.redirect(new URL(`/${langCode}/page/${url}`, ENV.NEXT_PUBLIC_BASE_URL), { status: 307 });
   } catch (error) {
     // If notFound() was called, it throws an error - re-throw it
     if (error && typeof error === 'object' && 'digest' in error) {

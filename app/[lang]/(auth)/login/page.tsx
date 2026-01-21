@@ -1,4 +1,3 @@
-import React from "react";
 import { LANG_TYPE, LANG_FUNCTION } from "@/core/config/lang";
 import { getIDeviceToken } from "@/core/lib/token/idevice";
 import LoginComponent from "@/core/components/auth/login";

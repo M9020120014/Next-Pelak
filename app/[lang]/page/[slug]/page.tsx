@@ -2,9 +2,9 @@
 import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
 /* --- Data ------------------------------------------------------------------------------------- */
-import { SITE_DATA_URL,SITE_DATA_BASE, SITE_DATA_LANG } from "@/core/config/site";
+import { SITE_DATA_URL, SITE_DATA_BASE, SITE_DATA_LANG } from "@/core/config/site";
 import { LANGUAGE_DATA, LANG_FUNCTION } from "@/core/config/lang";
-import { META_LANG_BASE,META_ROBOT_OFF, META_ROBOT_ON } from "@/core/config/meta";
+import { META_LANG_BASE, META_ROBOT_OFF, META_ROBOT_ON } from "@/core/config/meta";
 import { ENV } from "@/core/config/env";
 import { getIDeviceToken } from "@/core/lib/token/idevice";
 /* --- Components ------------------------------------------------------------------------------ */
@@ -183,19 +183,6 @@ export default async function PageDetailPage({
   }
 
   const iDevice = await getIDeviceToken();
-
-  const cookieStore = await cookies();
-  // const token = getAccessToken()
-  // if (!token) {
-  //   return null
-  // }
-  
-  // const payload = decodeTokenPayload(token)
-  // if (!payload || !payload.mobile) {
-  //   return null
-  // }
-  
-  console.log("--- ----- aaa :",cookieStore)
 
   // Compute image URL on server to avoid hydration mismatch
   // ENV.SSS_OBJECT is only available on server, not client
