@@ -23,4 +23,3 @@ export interface HookResult {
   results?: unknown[]
   errors?: Error[]
 }
-

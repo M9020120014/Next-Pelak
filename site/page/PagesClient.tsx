@@ -140,17 +140,16 @@ export default function PagesClient({ lang }: PagesClientProps) {
   return (
     <>
       {/* --- Main Content --------- */}
-      <main className=" bg-Background lg:pt-034-7">
-        <P.Container className='space-y-018-4'>
+      <main className=" bg-Background lg:pt-040-8">
+        <P.Container className='space-y-008-2'>
         {/* Header */}
-        <div className="bg-linear-to-br from-PrimaryLight/20 via-Primary/10 to-SecondaryLight/20 rounded-lg p-028-6 border border-PrimaryLight/30">
-          <div className="flex items-center gap-008-2 mb-012-3">
-            <div className="w-040-8 h-040-8 rounded-2 bg-Primary/20 flex items-center justify-center text-Primary">
+        <div className="bg-linear-to-br from-PrimaryLight/20 via-Primary/10 to-SecondaryLight/20 rounded-lg p-012-3 border border-PrimaryLight/30">
+          <div className="flex items-center gap-012-3">
+            <div className="w-040-8 h-040-8 rounded-sm bg-Primary/20 flex items-center justify-center text-Primary">
               <Icon Icon="category" Size="lg" />
             </div>
             <div>
-              <h1 className="text-C font-title mb-004-1 text-Text">{t.title}</h1>
-              <p className="text-Mid text-F">{t.description}</p>
+              <p className="text-Mid text-C">{t.description}</p>
             </div>
           </div>
         </div>

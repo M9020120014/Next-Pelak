@@ -9,6 +9,9 @@ import { ENV } from "@/core/config/env";
 import { getIDeviceToken } from "@/core/lib/token/idevice";
 /* --- Components ------------------------------------------------------------------------------ */
 import PageDetailClient from "@/site/page/PageDetailClient";
+import { cookies } from "next/headers";
+import { getAccessToken } from "@/core/lib/auth/token-manager";
+import { decodeTokenPayload } from "@/core/lib/token/jwt";
 /* --- Functions -------------------------------------------------------------------------------- */
 
 /* --- Get Image URL Helper ------- */
@@ -180,6 +183,19 @@ export default async function PageDetailPage({
   }
 
   const iDevice = await getIDeviceToken();
+
+  const cookieStore = await cookies();
+  // const token = getAccessToken()
+  // if (!token) {
+  //   return null
+  // }
+  
+  // const payload = decodeTokenPayload(token)
+  // if (!payload || !payload.mobile) {
+  //   return null
+  // }
+  
+  console.log("--- ----- aaa :",cookieStore)
 
   // Compute image URL on server to avoid hydration mismatch
   // ENV.SSS_OBJECT is only available on server, not client

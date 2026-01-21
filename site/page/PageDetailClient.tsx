@@ -208,7 +208,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
             <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
               <div className="flex items-center gap-008-2">
                 <P.Icon Icon="dashboard" Size="md" className="text-Primary" />
-                <h2 className="text-E font-title text-Text">{t.pageInfo}</h2>
+                <h2>{t.pageInfo}</h2>
               </div>
             </div>
             <div className="p-018-4">
@@ -253,7 +253,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
               <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
                 <div className="flex items-center gap-008-2">
                   <P.Icon Icon="category" Size="md" className="text-Primary" />
-                  <h2 className="text-E font-title text-Text">{t.relatedCategories}</h2>
+                  <h2>{t.relatedCategories}</h2>
                 </div>
               </div>
               <div className="p-018-4">
@@ -262,7 +262,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
                     <Link
                       key={index}
                       href={`/${lang}/page?tag=${encodeURIComponent(tagItem.trim())}`}
-                      className="inline-flex items-center gap-004-1 bg-PrimaryLight/10 text-Primary border border-PrimaryLight/20 px-012-3 py-008-2 rounded-2 text-F font-title hover:bg-Primary hover:text-White hover:border-Primary transition-all"
+                      className="inline-flex items-center gap-004-1 bg-PrimaryLight/10 text-Primary border border-PrimaryLight/20 px-012-3 py-008-2 rounded-2 text-C font-title hover:bg-Primary hover:text-White hover:border-Primary transition-all"
                     >
                       {tagItem.trim()}
                     </Link>
@@ -290,7 +290,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
               <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
                 <div className="flex items-center gap-008-2">
                   <P.Icon Icon="category" Size="md" className="text-Primary" />
-                  <h2 className="text-E font-title text-Text">{t.comments}</h2>
+                  <h2>{t.comments}</h2>
                 </div>
               </div>
               <div className="p-018-4">
