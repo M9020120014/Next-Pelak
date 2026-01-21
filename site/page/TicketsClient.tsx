@@ -2,6 +2,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { LANGUAGE_TYPE } from '@/core/config/lang'
 import { getAccessToken } from '@/core/lib/auth/token-manager'
@@ -48,6 +49,8 @@ export default function TicketsClient({ lang }: TicketsClientProps) {
   const [tickets, setTickets] = useState<ApiTicket[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const ticketCreated = searchParams.get('ticket') === 'created'
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -100,6 +103,12 @@ export default function TicketsClient({ lang }: TicketsClientProps) {
           </Link>
         </div>
 
+        {ticketCreated && (
+          <div className="mb-4 rounded-md border border-Success/60 bg-Success/10 px-4 py-3 text-sm text-Success">
+            تیکت شما با موفقیت ثبت شد. ممنون از همراهی شما.
+          </div>
+        )}
+
         {loading ? (
           <div className="bg-Panel/80 border border-Border/60 rounded-xl shadow-md p-6 text-center text-Mid">
             در حال دریافت لیست تیکت‌ها...
@@ -141,12 +150,14 @@ export default function TicketsClient({ lang }: TicketsClientProps) {
                         <td className="px-4 py-3 text-Text">{status}</td>
                         <td className="px-4 py-3 text-Text">{updatedAt}</td>
                         <td className="px-4 py-3">
-                          <button
-                            type="button"
-                            className="bg-Background text-Text border border-Border/60 hover:bg-Primary/10 px-3 py-1.5 rounded-md text-xs lg:text-sm transition-colors"
-                          >
-                            مشاهده 👁️
-                          </button>
+                          <Link href={`/${lang}/dashboard/tickets/${id}`}>
+                            <button
+                              type="button"
+                              className="bg-Background text-Text border border-Border/60 hover:bg-Primary/10 px-3 py-1.5 rounded-md text-xs lg:text-sm transition-colors"
+                            >
+                              مشاهده 👁️
+                            </button>
+                          </Link>
                         </td>
                       </tr>
                     )
