@@ -14,9 +14,9 @@ export default async function ExamIdRedirectPage({
 
   const { examid } = await params;
   const callBack = ENV.NEXT_PUBLIC_BASE_URL + "/p/" + examid
-  console.log("--- ----- ----- ----- ----- ----- ----- ----- ----- callBack:", callBack) // DEBUG
+  // console.log("--- ----- ----- ----- ----- ----- ----- ----- ----- callBack:", callBack) // DEBUG
   const { eurl } = await searchParams;
-  console.log("--- ----- ----- ----- ----- ----- ----- ----- ----- eurl:", eurl) // DEBUG
+  // console.log("--- ----- ----- ----- ----- ----- ----- ----- ----- eurl:", eurl) // DEBUG
   if (!eurl) {
     redirect(callBack)
   }

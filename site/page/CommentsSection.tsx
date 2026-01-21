@@ -591,7 +591,7 @@ function CommentNode({ comment, depth, onReply, onLike, likesMap, isAuthenticate
 
   const likeInfo = likesMap.get(comment.id) || { count: comment.likes_count || 0, liked: false }
 
-  // console.log(comment.user_profileimageurl)
+  // console.log(comment.user_profileimageurl) // DEBUG
   // className={`space-y-012-3 ${depth > 0 ? `border-r-2 border-Border ps-008-2` : ''}`}
   return (
     <div className={'bg-White rounded-3 border border-Border shadow-sm transition-all hover:shadow-md p-012-3 rounded-lg ' + (depth > 0 ? 'bg-Mid' : '')}>

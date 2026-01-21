@@ -52,7 +52,7 @@ export default function ExamBasePageIdPage({ examid, lang, iDevice }: CommentsSe
     return null
   }
 
-  console.log("--- ----- aaa :", payload) // DEBUG
+  // console.log("--- ----- aaa :", payload) // DEBUG
   
   return (
     <CommentsSection
