@@ -1,7 +1,6 @@
 "use client"
 
 import { UI as P } from "@/core/components/ui/Pelak"
-import Link from "next/link"
 
 export default function ContainerUiPage() {
   return (
@@ -104,7 +103,7 @@ export default function ContainerUiPage() {
               {(["xs", "sm", "md", "lg", "xl"] as const).map((padding) => (
                 <div key={padding} className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <code className="bg-Background px-2 py-1 rounded text-sm">Padding="{padding}"</code>
+                    <code className="bg-Background px-2 py-1 rounded text-sm">Padding=&quot;{padding}&quot;</code>
                   </div>
                   <div className="bg-Lightness p-4 rounded-lg">
                     <P.Container Padding={padding} className="bg-Panel/30">
@@ -128,7 +127,7 @@ export default function ContainerUiPage() {
               {(["md", "lg", "xl"] as const).map((gap) => (
                 <div key={gap} className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <code className="bg-Background px-2 py-1 rounded text-sm">Gaps="{gap}"</code>
+                    <code className="bg-Background px-2 py-1 rounded text-sm">Gaps=&quot;{gap}&quot;</code>
                   </div>
                   <div className="bg-Lightness p-4 rounded-lg">
                     <P.Container Gaps={gap} className="bg-Panel/30">

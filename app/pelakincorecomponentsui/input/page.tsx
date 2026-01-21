@@ -221,7 +221,7 @@ export default function InputUiPage() {
             <div className="space-y-2">
               <h3 className="font-semibold text-Text">❌ انجام ندهید:</h3>
               <ul className="list-disc list-inside space-y-1 text-Mid">
-                <li>از type="text" برای همه فیلدها استفاده نکنید</li>
+                <li>از type=&quot;text&quot; برای همه فیلدها استفاده نکنید</li>
                 <li>placeholder را به عنوان label استفاده نکنید</li>
                 <li>فیلدهای required را بدون label رها نکنید</li>
                 <li>از disabled به جای readOnly برای فیلدهای فقط خواندنی استفاده نکنید</li>

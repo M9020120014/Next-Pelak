@@ -2,11 +2,12 @@
 
 import { UI as P } from "@/core/components/ui/Pelak"
 import Link from "next/link"
+import { Svg } from "@/core/components/ui/icons/Icons"
 
 const iconList = [
   "default", "home", "category", "dashboard", "missions", "donate", 
   "menu", "xClose", "plus", "minus", "Eye", "EyeOff", "calendar", "back"
-]
+] as const
 
 export default function IconUiPage() {
   return (
@@ -98,7 +99,7 @@ export default function IconUiPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {iconList.map((icon) => (
                   <div key={icon} className="flex flex-col items-center gap-2 p-3 bg-Background rounded">
-                    <P.Icon Icon={icon as any} />
+                    <P.Icon Icon={icon as keyof typeof Svg} />
                     <span className="text-xs text-Mid text-center">{icon}</span>
                   </div>
                 ))}

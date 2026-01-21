@@ -63,7 +63,7 @@ export default function InputSecretUiPage() {
                 </div>
                 
                 <div className="mt-4 p-3 bg-Primary/10 rounded text-Mid text-sm">
-                  <strong>نکته:</strong> InputSecret به صورت خودکار دکمه نمایش/مخفی کردن رمز را اضافه می‌کند و نیازی به تنظیم type="password" نیست.
+                  <strong>نکته:</strong> InputSecret به صورت خودکار دکمه نمایش/مخفی کردن رمز را اضافه می‌کند و نیازی به تنظیم type=&quot;password&quot; نیست.
                 </div>
               </div>
             </div>
