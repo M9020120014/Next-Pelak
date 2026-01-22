@@ -2,6 +2,7 @@
 import { getIDeviceToken } from '@/core/lib/token/idevice'
 import { ENV } from "@/core/config/env"
 import { redirect } from 'next/navigation';
+import ExamBasePageid from '@/site/page/ExamBasePageid';
 
 export default async function ExamIdRedirectPage({
   params,
@@ -14,9 +15,7 @@ export default async function ExamIdRedirectPage({
 
   const { examid } = await params;
   const callBack = ENV.NEXT_PUBLIC_BASE_URL + "/p/" + examid
-  // console.log("--- ----- ----- ----- ----- ----- ----- ----- ----- callBack:", callBack) // DEBUG
   const { eurl } = await searchParams;
-  // console.log("--- ----- ----- ----- ----- ----- ----- ----- ----- eurl:", eurl) // DEBUG
   if (!eurl) {
     redirect(callBack)
   }
@@ -24,9 +23,5 @@ export default async function ExamIdRedirectPage({
   const iDevice = await getIDeviceToken()
 
 
-  return (
-    <div className='lg:pt-056-M'>
-      صبر کنید تا به آزمون منطقل بشید
-    </div>
-  )
+  return <ExamBasePageid callBack={callBack} eurl={eurl} iDevice={iDevice}/>
 }

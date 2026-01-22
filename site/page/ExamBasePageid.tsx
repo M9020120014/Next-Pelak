@@ -1,46 +1,21 @@
 'use client'
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { useState, useEffect, startTransition } from 'react'
 import { getAccessToken } from '@/core/lib/auth/token-manager'
 import { decodeTokenPayload } from '@/core/lib/token/jwt-client'
-/* --- Components ------------------------------------------------------------------------------- */
-import CommentsSection from './CommentsSection'
-/* --- Types ------------------------------------------------------------------------------------ */
-import { LANGUAGE_TYPE } from '@/core/config/lang'
 
 type CommentsSectionWrapperProps = {
-  examid: number
-  lang: LANGUAGE_TYPE
+  eurl: string
+  callBack: string
   iDevice: string
 }
 
-export default function ExamBasePageIdPage({ examid, lang, iDevice }: CommentsSectionWrapperProps) {
-  // Use mounted state to prevent hydration mismatch
-  const [mounted, setMounted] = useState(false)
-  const [userId, setUserId] = useState<number | null>(null)
-  const [userName, setUserName] = useState<string | null>(null)
+export default function ExamBasePageIdPage({ eurl, callBack, iDevice }: CommentsSectionWrapperProps) {
 
-  // Set user info after component mounts (client-side only)
-  // Use startTransition to prevent cascading renders
-  useEffect(() => {
-    startTransition(() => {
-      setMounted(true)
-    })
-    const token = getAccessToken()
-    const userInfo = token ? decodeTokenPayload(token) : null
-    
-    if (userInfo) {
-      startTransition(() => {
-        setUserId(userInfo.userid ?? null)
-        setUserName(
-          userInfo.firstname && userInfo.lastname 
-            ? `${userInfo.firstname} ${userInfo.lastname}`
-            : userInfo.mobile ?? null
-        )
-      })
-    }
-  }, [])
+
+  console.log("--- ----- ----- ----- ----- ----- ----- ----- ----- eurl:", eurl) // DEBUG
+  console.log("--- ----- ----- ----- ----- ----- ----- ----- ----- iDevice:", iDevice) // DEBUG
+  console.log("--- ----- ----- ----- ----- ----- ----- ----- ----- callBack:", callBack) // DEBUG
 
   const token = getAccessToken();
   if (!token) {
@@ -52,16 +27,12 @@ export default function ExamBasePageIdPage({ examid, lang, iDevice }: CommentsSe
     return null
   }
 
-  // console.log("--- ----- aaa :", payload) // DEBUG
-  
+  console.log("--- ----- aaa :", payload) // DEBUG
+
   return (
-    <CommentsSection
-      pageId={examid}
-      userId={mounted ? userId : null}
-      userName={mounted ? userName : null}
-      lang={lang}
-      iDevice={iDevice}
-    />
+    <div className='lg:pt-056-M'>
+      صبر کنید تا به آزمون منطقل بشید
+    </div>
   )
 }
 
