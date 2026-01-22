@@ -1,4 +1,4 @@
-// /core/api/user/ticket/[id]/messages/route.ts
+// /core/api/user/ticket/[id]/close/route.ts
 
 /* --- Base ------------------------------------------------------------------------------------- */
 import { NextRequest } from "next/server"
@@ -12,13 +12,13 @@ import { RATE_LIMIT } from "@/core/config/security"
 import { logError } from "@/core/lib/log/logger-utils"
 import { setRefreshTokenInResponse } from "@/core/lib/token/auth-cookie"
 
-/* --- POST Ticket Messages --------------------------------------------------------------------- */
+/* --- POST Ticket Close ----------------------------------------------------------------------- */
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const startTime = Date.now()
-  const routeEndpoint = '/api/user/ticket/[id]/messages'
+  const routeEndpoint = '/api/user/ticket/[id]/close'
 
   // Security validation
   const securityCheck = await validateAPIRequest(request, true, {
@@ -35,7 +35,7 @@ export async function POST(
 
   const authCheck = await checkAuthorizationWithRefresh(request, accessToken, 'user');
   if (!authCheck.allowed) {
-    return unauthorizedError(authCheck.reason || "برای دریافت پیام‌های تیکت نیاز به ورود به حساب کاربری دارید.");
+    return unauthorizedError(authCheck.reason || "برای بستن تیکت نیاز به ورود به حساب کاربری دارید.");
   }
 
   // Get user ID from token (use new token if refreshed)
@@ -55,14 +55,14 @@ export async function POST(
   }
 
   try {
-    // Call backend RPC to get ticket messages
-    const result = await callRpc("ticket_get_messages", {
+    // Call backend RPC to close ticket
+    const result = await callRpc("ticket_close", {
       p_ticketid: ticketId,
     });
 
     if (!result.success) {
       logError(
-        'Failed to fetch ticket messages from backend',
+        'Failed to close ticket from backend',
         {
           userId,
           ticketId,
@@ -71,23 +71,16 @@ export async function POST(
         },
         routeEndpoint
       );
-      return serverError(result.message || "خطا در دریافت پیام‌های تیکت");
+      return serverError(result.message || "خطا در بستن تیکت");
     }
-
-    // استخراج subject و status از result (اگر وجود داشته باشد)
-    const resultData = result as Record<string, unknown>
-    const subject = typeof resultData.subject === 'string' ? resultData.subject : undefined
-    const status = typeof resultData.status === 'string' ? resultData.status : undefined
 
     let response = successResponse(
       {
-        title: "Messages fetched",
-        message: result.message || "پیام‌های تیکت با موفقیت دریافت شد.",
-        ...(subject && { subject }),
-        ...(status && { status }),
-        data: (resultData.data as unknown[]) ?? [],
+        title: "Ticket Closed",
+        message: result.message || "تیکت با موفقیت بسته شد.",
+        data: (result as unknown as { data?: unknown }).data ?? result,
       },
-      result.message || "پیام‌های تیکت با موفقیت دریافت شد.",
+      result.message || "تیکت با موفقیت بسته شد.",
       200,
       securityCheck.rateLimitHeaders
     );
@@ -113,11 +106,11 @@ export async function POST(
     return response
   } catch (error) {
     logError(
-      'Unexpected error in POST ticket messages handler',
+      'Unexpected error in POST ticket close handler',
       error,
       routeEndpoint,
       { userId, ticketId }
     );
-    return serverError("خطای غیرمنتظره در دریافت پیام‌های تیکت.");
+    return serverError("خطای غیرمنتظره در بستن تیکت.");
   }
 }
