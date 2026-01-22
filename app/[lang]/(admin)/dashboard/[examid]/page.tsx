@@ -23,5 +23,5 @@ export default async function ExamIdRedirectPage({
   const iDevice = await getIDeviceToken()
 
 
-  return <ExamBasePageid callBack={callBack} eurl={eurl} iDevice={iDevice}/>
+  return <ExamBasePageid callBack={callBack} eurl={parseInt(eurl)} iDevice={iDevice}/>
 }
