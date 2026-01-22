@@ -19,25 +19,6 @@ function toPersianDigits(value: string): string {
   return value.replace(/[0-9]/g, (d) => persianDigits[englishDigits.indexOf(d)])
 }
 
-// نگاشت وضعیت تیکت از مقادیر انگلیسی به فارسی
-function mapStatus(status: string | null | undefined): { text: string; color: string } {
-  if (!status) return { text: '-', color: 'text-Mid' }
-
-  const statusLower = status.toLowerCase()
-  
-  switch (statusLower) {
-    case 'open':
-      return { text: 'باز', color: 'bg-Primary text-PrimaryForeground' }
-    case 'pending':
-      return { text: 'منتظر پاسخ', color: 'bg-Secondary text-SecondaryForeground' }
-    case 'answered':
-      return { text: 'پاسخ داده شده', color: 'bg-Error text-ErrorForeground' }
-    case 'closed':
-      return { text: 'بسته شده', color: 'bg-Mid text-Text' }
-    default:
-      return { text: status, color: 'bg-Mid text-Text' }
-  }
-}
 
 // فرمت تاریخ و زمان برای نمایش
 function formatDateTime(isoDate: string | undefined): string {
@@ -69,13 +50,6 @@ interface TicketMessage {
   created: string
 }
 
-interface TicketDetail {
-  ticketid?: number
-  subject?: string
-  status?: string
-  created?: string
-}
-
 interface TicketDetailClientProps {
   ticketId: string
   lang: LANGUAGE_TYPE
@@ -83,8 +57,8 @@ interface TicketDetailClientProps {
 
 export default function TicketDetailClient({ ticketId, lang }: TicketDetailClientProps) {
   const { csrfToken } = useSecurity()
-  const [ticket, setTicket] = useState<TicketDetail | null>(null)
   const [messages, setMessages] = useState<TicketMessage[]>([])
+  const [subject, setSubject] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [messageText, setMessageText] = useState('')
@@ -96,40 +70,6 @@ export default function TicketDetailClient({ ticketId, lang }: TicketDetailClien
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
-
-  // دریافت اطلاعات تیکت (اختیاری - اگر خطا داد، فقط چت را نمایش می‌دهیم)
-  useEffect(() => {
-    const fetchTicketDetail = async () => {
-      try {
-        const token = getAccessToken()
-
-        const res = await fetch(`/api/user/ticket/${ticketId}`, {
-          method: 'GET',
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        })
-
-        const json = await res.json()
-
-        if (!res.ok || !json?.success) {
-          // اگر خطا داد، فقط لاگ می‌کنیم اما صفحه را نمایش می‌دهیم
-          console.warn('Failed to fetch ticket details:', json?.message)
-          setTicket({ ticketid: parseInt(ticketId, 10) })
-          return
-        }
-
-        const data = json.data as TicketDetail
-        setTicket(data)
-      } catch (err) {
-        // اگر خطا داد، فقط لاگ می‌کنیم اما صفحه را نمایش می‌دهیم
-        console.warn('Error fetching ticket details:', err)
-        setTicket({ ticketid: parseInt(ticketId, 10) })
-      }
-    }
-
-    fetchTicketDetail()
-  }, [ticketId])
 
   // دریافت پیام‌های تیکت
   useEffect(() => {
@@ -152,6 +92,11 @@ export default function TicketDetailClient({ ticketId, lang }: TicketDetailClien
           setError(json?.message || 'خطا در دریافت پیام‌های تیکت')
           setMessages([])
           return
+        }
+
+        // استخراج subject از response (اگر وجود داشته باشد)
+        if (json.subject && typeof json.subject === 'string') {
+          setSubject(json.subject)
         }
 
         const data = (json.data || []) as TicketMessage[]
@@ -192,8 +137,6 @@ export default function TicketDetailClient({ ticketId, lang }: TicketDetailClien
     }, 500)
   }
 
-  const statusInfo = mapStatus(ticket?.status)
-
   return (
     <main className="flex flex-col h-[calc(100svh-var(--spacing-144-D))] bg-Background">
       <div className="flex-shrink-0 border-b border-Border bg-Panel/80 px-4 py-3 lg:px-6">
@@ -212,17 +155,9 @@ export default function TicketDetailClient({ ticketId, lang }: TicketDetailClien
                 </Button>
               </Link>
               <h1 className="text-lg lg:text-xl font-bold text-Text truncate">
-                {ticket?.subject || `تیکت #${ticketId}`}
+                {subject || `تیکت #${ticketId}`}
               </h1>
             </div>
-            {ticket?.status && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-Mid">وضعیت:</span>
-                <span className={`px-2 py-1 rounded-md text-xs font-medium ${statusInfo.color}`}>
-                  {statusInfo.text}
-                </span>
-              </div>
-            )}
           </div>
         </div>
       </div>

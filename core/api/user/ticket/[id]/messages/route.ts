@@ -74,11 +74,16 @@ export async function POST(
       return serverError(result.message || "خطا در دریافت پیام‌های تیکت");
     }
 
+    // استخراج subject از result (اگر وجود داشته باشد)
+    const resultData = result as Record<string, unknown>
+    const subject = typeof resultData.subject === 'string' ? resultData.subject : undefined
+
     let response = successResponse(
       {
         title: "Messages fetched",
         message: result.message || "پیام‌های تیکت با موفقیت دریافت شد.",
-        data: (result as unknown as { data?: unknown }).data ?? [],
+        ...(subject && { subject }),
+        data: (resultData.data as unknown[]) ?? [],
       },
       result.message || "پیام‌های تیکت با موفقیت دریافت شد.",
       200,
