@@ -149,16 +149,42 @@ export async function callRpc(functionName: string, params: RpcParamsObject = {}
 
       clearTimeout(timeoutId)
 
+      // Read response body once
+      let responseData: unknown
+      try {
+        responseData = await response.json()
+      } catch {
+        // If we can't parse the response, return parse error
+        return {
+          success: false,
+          title: ERROR_MESSAGES.PARSE_ERROR.title,
+          message: ERROR_MESSAGES.PARSE_ERROR.message,
+        } as RpcResponseType
+      }
+
       if (!response.ok) {
+        // Try to get error details from response
+        let errorMessage = ERROR_MESSAGES.SERVER_CONNECTION_ERROR.message
+        if (responseData && typeof responseData === 'object') {
+          const errorData = responseData as Record<string, unknown>
+          if (typeof errorData.message === 'string') {
+            errorMessage = errorData.message
+          } else if (typeof errorData.error === 'string') {
+            errorMessage = errorData.error
+          } else if (typeof errorData.hint === 'string') {
+            errorMessage = errorData.hint
+          }
+        }
+        
         return { 
           success: false, 
           title: ERROR_MESSAGES.SERVER_CONNECTION_ERROR.title, 
-          message: ERROR_MESSAGES.SERVER_CONNECTION_ERROR.message 
+          message: errorMessage
         } as RpcResponseType;
       }
 
       try {
-        const data = await response.json();
+        const data = responseData as RpcResponseType;
 
         if (!data.success) {
           return {
