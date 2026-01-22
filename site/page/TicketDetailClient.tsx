@@ -138,7 +138,7 @@ export default function TicketDetailClient({ ticketId, lang }: TicketDetailClien
   }
 
   return (
-    <main className="flex flex-col h-[calc(100svh-var(--spacing-144-D))] bg-Background">
+    <main className="flex flex-col h-[calc(100svh-var(--spacing-144-D))] bg-Background lg:pt-034-7">
       <div className="flex-shrink-0 border-b border-Border bg-Panel/80 px-4 py-3 lg:px-6">
         {/* هدر صفحه */}
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">

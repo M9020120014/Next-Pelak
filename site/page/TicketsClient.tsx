@@ -144,20 +144,28 @@ export default function TicketsClient({ lang }: TicketsClientProps) {
                     const id = ticket.ticketid ?? index + 1
 
                     return (
-                      <tr key={id} className="hover:bg-Background/60 transition-colors">
+                      <tr
+                        key={id}
+                        className="hover:bg-Background/60 transition-colors cursor-pointer"
+                        onClick={() => window.location.href = `/${lang}/dashboard/ticket/${id}`}
+                        tabIndex={0}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            window.location.href = `/${lang}/dashboard/ticket/${id}`
+                          }
+                        }}
+                        aria-label={`مشاهده تیکت ${id}`}
+                      >
                         <td className="px-4 py-3 text-Text">{index + 1}</td>
                         <td className="px-4 py-3 text-Text">{title}</td>
                         <td className="px-4 py-3 text-Text">{status}</td>
                         <td className="px-4 py-3 text-Text">{updatedAt}</td>
                         <td className="px-4 py-3">
-                          <Link href={`/${lang}/dashboard/ticket/${id}`}>
-                            <button
-                              type="button"
-                              className="bg-Background text-Text border border-Border/60 hover:bg-Primary/10 px-3 py-1.5 rounded-md text-xs lg:text-sm transition-colors"
-                            >
-                              مشاهده
-                            </button>
-                          </Link>
+                          <span
+                            className="bg-Background text-Text border border-Border/60 hover:bg-Primary/10 px-3 py-1.5 rounded-md text-xs lg:text-sm transition-colors inline-block"
+                          >
+                            مشاهده
+                          </span>
                         </td>
                       </tr>
                     )
