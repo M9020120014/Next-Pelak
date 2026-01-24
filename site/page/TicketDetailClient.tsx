@@ -350,6 +350,7 @@ export default function TicketDetailClient({ ticketId, lang }: TicketDetailClien
             </button>
           </Link>
         </div>
+      </div>
 
       {/* قسمت چت */}
       <div className="flex-1 flex flex-col min-h-0 max-w-4xl mx-auto w-full">
@@ -367,7 +368,6 @@ export default function TicketDetailClient({ ticketId, lang }: TicketDetailClien
           </div>
         ) : (
           <>
-            {/* لیست پیام‌ها */}
             <div
               ref={chatContainerRef}
               className="flex-1 overflow-y-auto px-4 py-4 lg:px-6 space-y-4"

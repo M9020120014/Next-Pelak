@@ -94,7 +94,6 @@ export default function TicketsClient({ lang }: TicketsClientProps) {
             تیکت‌های من
           </h1>
           <Link href={`/${lang}/dashboard/ticket/new`}>
-          <Link href={`/${lang}/dashboard/ticket/new`}>
             <button
               type="button"
               className="bg-Primary hover:bg-PrimaryDark text-PrimaryForeground px-4 py-2 rounded-md text-sm lg:text-base transition-colors"
