@@ -143,7 +143,7 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
 
       if (json.launch?.exam_url) {
         // Redirect to exam URL (external URL)
-        window.location.href = json.launch.exam_url
+        window.location.href = "https://app.ayareto.ir/quiz/" + json.launch.quiz_id
       } else {
         setLaunchError('آدرس آزمون دریافت نشد')
       }
@@ -272,11 +272,10 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
               {/* Status Badge */}
               <div className="flex items-center justify-between p-4 rounded-lg bg-PrimaryLight/10 border border-PrimaryLight/30">
                 <span className="text-sm text-Mid">وضعیت آزمون</span>
-                <span className={`px-3 py-1 rounded-md text-sm font-medium ${
-                  examData.is_active
+                <span className={`px-3 py-1 rounded-md text-sm font-medium ${examData.is_active
                     ? 'bg-Success/10 text-Success border border-Success/20'
                     : 'bg-Error/10 text-Error border border-Error/20'
-                }`}>
+                  }`}>
                   {examData.is_active ? 'فعال' : 'غیرفعال'}
                 </span>
               </div>
@@ -290,7 +289,7 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
                     </div>
                   )}
                   <p className="text-sm text-Mid">
-                    {examData.is_active 
+                    {examData.is_active
                       ? 'برای شروع آزمون روی دکمه زیر کلیک کنید'
                       : 'این آزمون در حال حاضر غیرفعال است'}
                   </p>

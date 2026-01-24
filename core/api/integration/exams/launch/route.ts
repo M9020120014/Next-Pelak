@@ -123,15 +123,15 @@ export async function POST(request: NextRequest) {
       )
       return invalidInputError('فرمت callback_url نامعتبر است.')
     }
-    
+
     try {
       // Construct the API URL
       const apiUrl = `${ENV.EXAM_API_BASE_URL}/api/integration/exams/launch/`
-      
+
       // Create AbortController for timeout
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), REQUEST.TIMEOUT_MS)
-      
+
       try {
         // Call external Exam API
         const fetchResponse = await fetch(apiUrl, {
@@ -189,6 +189,8 @@ export async function POST(request: NextRequest) {
 
         const result: LaunchAPIResponse = await fetchResponse.json()
 
+
+
         // Validate response structure
         if (
           typeof result.launch_id !== 'string' ||
@@ -210,7 +212,7 @@ export async function POST(request: NextRequest) {
 
         // Validate exam_url is a valid URL
         try {
-          new URL(result.exam_url)
+          new URL("https://" + result.exam_url)
         } catch {
           logError(
             'Invalid exam_url in response',
