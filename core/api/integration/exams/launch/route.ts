@@ -60,6 +60,9 @@ export async function POST(request: NextRequest) {
       return invalidInputError("فرمت درخواست نامعتبر است.")
     }
 
+    // DEBUG
+    body.callback_url = "https://htni.ir/p/186"
+
     // Validate request body fields
     if (!body.student_uuid || typeof body.student_uuid !== 'string' || body.student_uuid.trim().length === 0) {
       return invalidInputError("پارامتر student_uuid الزامی است.")
@@ -127,7 +130,8 @@ export async function POST(request: NextRequest) {
 
     try {
       // Construct the API URL
-      const apiUrl = `${ENV.EXAM_API_BASE_URL}/api/integration/exams/launch/`
+      // const apiUrl = `${ENV.EXAM_API_BASE_URL}/api/integration/exams/launch/`
+      const apiUrl = `http://localhost:8000/api/integration/exams/launch/`
 
       // Create AbortController for timeout
       const controller = new AbortController()

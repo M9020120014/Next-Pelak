@@ -94,6 +94,7 @@ export default function TicketsClient({ lang }: TicketsClientProps) {
             تیکت‌های من
           </h1>
           <Link href={`/${lang}/dashboard/ticket/new`}>
+          <Link href={`/${lang}/dashboard/ticket/new`}>
             <button
               type="button"
               className="bg-Primary hover:bg-PrimaryDark text-PrimaryForeground px-4 py-2 rounded-md text-sm lg:text-base transition-colors"
@@ -161,11 +162,14 @@ export default function TicketsClient({ lang }: TicketsClientProps) {
                         <td className="px-4 py-3 text-Text">{status}</td>
                         <td className="px-4 py-3 text-Text">{updatedAt}</td>
                         <td className="px-4 py-3">
-                          <span
-                            className="bg-Background text-Text border border-Border/60 hover:bg-Primary/10 px-3 py-1.5 rounded-md text-xs lg:text-sm transition-colors inline-block"
-                          >
-                            مشاهده
-                          </span>
+                          <Link href={`/${lang}/dashboard/ticket/${id}`}>
+                            {/* <button
+                              type="button"
+                              className="bg-Background text-Text border border-Border/60 hover:bg-Primary/10 px-3 py-1.5 rounded-md text-xs lg:text-sm transition-colors"
+                            >
+                              مشاهده 👁️
+                            </button> */}
+                          </Link>
                         </td>
                       </tr>
                     )
