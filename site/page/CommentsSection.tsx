@@ -406,7 +406,7 @@ export default function CommentsSection({
           <select
             value={sortType}
             onChange={(e) => setSortType(e.target.value as typeof sortType)}
-            className="rounded-2 border border-Border bg-White px-012-3 py-008-2 text-Text focus:outline-none focus:border-Primary transition-colors"
+            className="rounded-2 border border-Border bg-White px-008-2 py-008-2 text-Text focus:outline-none focus:border-Primary transition-colors"
             dir={lang === 'fa' ? 'rtl' : 'ltr'}
           >
             <option value="time_desc">{t.sortTimeDesc}</option>

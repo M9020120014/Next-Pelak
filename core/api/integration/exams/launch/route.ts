@@ -16,6 +16,7 @@ interface LaunchRequest {
   mobile: string
   eurl: number
   callback_url: string
+  name: string
 }
 
 interface LaunchAPIResponse {
@@ -146,6 +147,7 @@ export async function POST(request: NextRequest) {
             mobile: body.mobile.trim(),
             eurl: body.eurl,
             callback_url: body.callback_url,
+            name: body.name
           }),
           cache: 'no-store',
           signal: controller.signal,

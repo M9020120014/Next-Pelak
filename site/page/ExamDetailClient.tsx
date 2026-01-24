@@ -131,6 +131,7 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
           mobile: payload.mobile,
           eurl: examData.eurl,
           callback_url: callBack,
+          name: payload.firstname + " " + payload.lastname
         }),
       })
 
@@ -141,9 +142,10 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
         return
       }
 
-      if (json.launch?.exam_url) {
-        // Redirect to exam URL (external URL)
-        window.location.href = "https://app.ayareto.ir/quiz/" + json.launch.quiz_id
+      if (json.launch?.quiz_id) {
+        // Redirect to exam URL (external URL) with custom header
+        // Use a proxy route that adds the header
+        window.location.href = `/api/integration/exams/redirect?quiz_id=${json.launch.quiz_id}`
       } else {
         setLaunchError('آدرس آزمون دریافت نشد')
       }

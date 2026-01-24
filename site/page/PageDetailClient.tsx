@@ -178,8 +178,8 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
               </div>
 
               {/* Reading Time */}
-              <div className="flex items-center gap-018-4">
-                <div className="flex items-center gap-008-2 text-F text-Mid bg-PrimaryLight/5 border border-PrimaryLight/20 rounded-2 px-012-3 py-008-2">
+              <div className="flex items-center gap-008-2 text-B">
+                <div className="flex items-center gap-008-2 text-Mid bg-PrimaryLight/5 border border-PrimaryLight/20 rounded-2 px-008-2 py-004-1">
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -204,7 +204,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
           )}
 
           {/* --- Meta Info Card --------- */}
-          <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
+          {/* <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
             <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
               <div className="flex items-center gap-008-2">
                 <P.Icon Icon="dashboard" Size="md" className="text-Primary" />
@@ -212,7 +212,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
               </div>
             </div>
             <div className="p-018-4">
-              <div className="flex flex-wrap items-center gap-018-4 text-F text-Mid">
+              <div className="flex flex-wrap items-center gap-018-4 text-Mid">
                 {page.authors && (
                   <div className="flex items-center gap-008-2">
                     <svg className="h-4 w-4 text-Primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,7 +245,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
                 )}
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* --- Related Categories Card --------- */}
           {tags && tags.length > 0 && (
@@ -262,7 +262,7 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
                     <Link
                       key={index}
                       href={`/${lang}/page?tag=${encodeURIComponent(tagItem.trim())}`}
-                      className="inline-flex items-center gap-004-1 bg-PrimaryLight/10 text-Primary border border-PrimaryLight/20 px-012-3 py-008-2 rounded-2 text-C font-title hover:bg-Primary hover:text-White hover:border-Primary transition-all"
+                      className="inline-flex items-center gap-004-1 bg-PrimaryLight/10 text-Primary border border-PrimaryLight/20 px-012-3 py-008-2 rounded-2 font-title hover:bg-Primary hover:text-White hover:border-Primary transition-all"
                     >
                       {tagItem.trim()}
                     </Link>
