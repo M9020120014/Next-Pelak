@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { SvgHtniLogo, SvgVideo, SvgLogoType } from '@/site/media/svg';
 import Image from "next/image";
+import { useHeader } from "@/project/theme/header/HeaderProvider";
+import { useEffect } from "react";
 
 interface HomeProps {
   lang: string
@@ -218,9 +220,22 @@ const translator = {
 } as const
 
 export default function HomeClient({ lang }: HomeProps) {
-
   const TRANSLATOR = translator[lang as keyof typeof translator];
   const router = useRouter();
+
+
+  const { setHeader, resetHeader } = useHeader()
+  useEffect(() => {
+    // Set header title
+    setHeader({
+      pRight: "",
+    })
+
+    // Reset header on unmount
+    return () => {
+      resetHeader()
+    }
+  }, [setHeader, resetHeader])
 
   return (
     <main>
