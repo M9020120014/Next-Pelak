@@ -39,6 +39,7 @@ interface LaunchResponse {
       mobile: string
     }
     is_existing_quiz: boolean
+    access_token: string
   }
 }
 
@@ -142,10 +143,9 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
         return
       }
 
-      if (json.launch?.quiz_id) {
-        // Redirect to exam URL (external URL) with custom header
-        // Use a proxy route that adds the header
-        window.location.href = `/api/integration/exams/redirect?quiz_id=${json.launch.quiz_id}`
+      if (json.launch?.exam_url) {
+        // Redirect to exam URL (external URL)
+        window.location.href = `https://app.ayareto.ir/quiz/${json.launch.quiz_id}?token=${json.launch.launch_id}`
       } else {
         setLaunchError('آدرس آزمون دریافت نشد')
       }

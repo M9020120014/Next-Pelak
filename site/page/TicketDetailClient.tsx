@@ -341,8 +341,15 @@ export default function TicketDetailClient({ ticketId, lang }: TicketDetailClien
               </div>
             )}
           </div>
+          <Link href={`/${lang}/dashboard/ticket`}>
+            <button
+              type="button"
+              className="bg-Background text-Text border border-Border/60 hover:bg-Primary/10 px-4 py-2 rounded-md text-sm lg:text-base transition-colors"
+            >
+              بازگشت
+            </button>
+          </Link>
         </div>
-      </div>
 
       {/* قسمت چت */}
       <div className="flex-1 flex flex-col min-h-0 max-w-4xl mx-auto w-full">
