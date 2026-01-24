@@ -175,7 +175,7 @@ describe('API Security Middleware', () => {
     })
 
     it('should skip CSRF validation for GET requests', async () => {
-      const request = new NextRequest('http://localhost:3000/api/test', {
+      const request = new NextRequest('https://localhost:3000/api/test', {
         method: 'GET',
       })
       const result = await validateAPIRequest(request, true)
