@@ -39,6 +39,7 @@ interface LaunchResponse {
       mobile: string
     }
     is_existing_quiz: boolean
+    access_token: string
   }
 }
 
@@ -143,7 +144,12 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
 
       if (json.launch?.exam_url) {
         // Redirect to exam URL (external URL)
-        window.location.href = "https://app.ayareto.ir/quiz/" + json.launch.quiz_id
+        // window.location.href = "https://app.ayareto.ir/quiz/" + json.launch.quiz_id
+        console.log(json.launch.launch_id);
+        setTimeout(() => {
+          console.log(json?.launch?.launch_id);
+        }, 30000);
+        window.location.href = `http://localhost:3000/quiz/${json.launch.quiz_id}?token=${json.launch.launch_id}`
       } else {
         setLaunchError('آدرس آزمون دریافت نشد')
       }
