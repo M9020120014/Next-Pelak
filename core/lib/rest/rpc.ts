@@ -164,7 +164,7 @@ export async function callRpc(functionName: string, params: RpcParamsObject = {}
 
       if (!response.ok) {
         // Try to get error details from response
-        let errorMessage = ERROR_MESSAGES.SERVER_CONNECTION_ERROR.message
+        let errorMessage: string = ERROR_MESSAGES.SERVER_CONNECTION_ERROR.message
         if (responseData && typeof responseData === 'object') {
           const errorData = responseData as Record<string, unknown>
           if (typeof errorData.message === 'string') {
