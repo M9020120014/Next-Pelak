@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { SvgHtniLogo, SvgVideo, SvgLogoType } from '@/site/media/svg';
 import Image from "next/image";
+import { useHeader } from "@/project/theme/header/HeaderProvider";
+import { useEffect } from "react";
 
 interface HomeProps {
   lang: string
@@ -215,12 +217,25 @@ const translator = {
       callToAction: "Click to learn about ways to support the party.",
     },
   },
-}
+} as const
 
 export default function HomeClient({ lang }: HomeProps) {
-
   const TRANSLATOR = translator[lang as keyof typeof translator];
   const router = useRouter();
+
+
+  const { setHeader, resetHeader } = useHeader()
+  useEffect(() => {
+    // Set header title
+    setHeader({
+      pRight: "",
+    })
+
+    // Reset header on unmount
+    return () => {
+      resetHeader()
+    }
+  }, [setHeader, resetHeader])
 
   return (
     <main>
@@ -242,7 +257,7 @@ export default function HomeClient({ lang }: HomeProps) {
           Theme="none"
           Size="lg"
           className="min-w-180-E bg-Background text-Primary hover:bg-Panel hover:text-PrimaryDark active:bg-Lightness"
-          onClick={() => router.push(`/${lang}/verification`)}>
+          onClick={() => router.push(`/${lang}/dashboard`)}>
           {TRANSLATOR.hero.button}
         </P.Button>
 
@@ -333,14 +348,14 @@ export default function HomeClient({ lang }: HomeProps) {
             <p className='flex-1'>
               {TRANSLATOR.mission.membershipDescription}
             </p>
-            <P.Button
+            {/* <P.Button
               Theme="primary"
               Size="md"
               className='flex-none'
-              onClick={() => router.push(`/${lang}/verification`)}
+              onClick={() => router.push(`/${lang}/dashboard`)}
             >
               {TRANSLATOR.mission.membershipButton}
-            </P.Button>
+            </P.Button> */}
           </div>
 
           <h3 className='w-full mt-018-4'>{TRANSLATOR.mission.socialTitle}</h3>
@@ -348,14 +363,14 @@ export default function HomeClient({ lang }: HomeProps) {
             <p className='flex-1'>
               {TRANSLATOR.mission.socialDescription}
             </p>
-            <P.Button
+            {/* <P.Button
               Theme="primary"
               Size="md"
               className='flex-none'
-              onClick={() => router.push(`/${lang}/verification`)}
+              onClick={() => router.push(`/${lang}/dashboard`)}
             >
               {TRANSLATOR.mission.socialButton}
-            </P.Button>
+            </P.Button> */}
           </div>
 
           <h3 className='w-full mt-018-4'>{TRANSLATOR.mission.supportTitle}</h3>
@@ -363,14 +378,14 @@ export default function HomeClient({ lang }: HomeProps) {
             <p className='flex-1'>
               {TRANSLATOR.mission.supportDescription}
             </p>
-            <P.Button
+            {/* <P.Button
               Theme="primary"
               Size="md"
               className='flex-none'
-              onClick={() => router.push(`/${lang}/verification`)}
+              onClick={() => router.push(`/${lang}/donate`)}
             >
               {TRANSLATOR.mission.supportButton}
-            </P.Button>
+            </P.Button> */}
           </div>
           <div className='h-001-O w-full mt-040-8 border-t border-Border border-dotted' />
 
@@ -539,7 +554,7 @@ export default function HomeClient({ lang }: HomeProps) {
 
       <P.Container id="banner" className="pt-008-2 pb-018-4 py-034-7 flex flex-col">
 
-        <Link href={`/${lang}/verification`} className='relative text-White bg-Primary hover:bg-PrimaryDark w-full active:bg-PrimaryLight rounded-md h-144-D lg:h-180-E'>
+        <Link href={`/${lang}/dashboard`} className='relative text-White bg-Primary hover:bg-PrimaryDark w-full active:bg-PrimaryLight rounded-md h-144-D lg:h-180-E'>
 
           <div className='flex flex-col lg:flex-row justify-between items-center w-full h-full p-018-4 text-White'>
             <div className='flex flex-col gap-008-2 lg:gap-012-3'>

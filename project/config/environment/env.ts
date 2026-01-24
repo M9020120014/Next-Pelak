@@ -60,6 +60,9 @@ export const ENV = {
   // PostHog Analytics Configuration
   POSTHOG_HOST: process.env.POSTHOG_HOST || '',
   POSTHOG_KEY: process.env.POSTHOG_KEY || '',
+  // Exam Client Token UUID Configuration
+  EXAM_CLIENT_TOKEN_UUID: process.env.EXAM_CLIENT_TOKEN_UUID || '',
+  EXAM_API_BASE_URL: process.env.EXAM_API_BASE_URL || '',
 } as const
 
 /* --- Validation ------------------------------------------------------------------------------- */
@@ -124,6 +127,10 @@ export function ENV_VALIDATE(): string[] {
   // Validate PostHog Host URL format
   if (ENV.POSTHOG_HOST && !ENV.POSTHOG_HOST.startsWith('http')) {
     errors.push('POSTHOG_HOST must be a valid URL starting with http:// or https://')
+  }
+
+  if (ENV.EXAM_API_BASE_URL && !ENV.EXAM_API_BASE_URL.startsWith('http')) {
+    errors.push('EXAM_API_BASE_URL must be a valid URL starting with http:// or https://')
   }
 
   return errors

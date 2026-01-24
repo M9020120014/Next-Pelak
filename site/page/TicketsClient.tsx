@@ -94,6 +94,7 @@ export default function TicketsClient({ lang }: TicketsClientProps) {
             تیکت‌های من
           </h1>
           <Link href={`/${lang}/dashboard/ticket/new`}>
+          <Link href={`/${lang}/dashboard/ticket/new`}>
             <button
               type="button"
               className="bg-Primary hover:bg-PrimaryDark text-PrimaryForeground px-4 py-2 rounded-md text-sm lg:text-base transition-colors"
@@ -144,7 +145,18 @@ export default function TicketsClient({ lang }: TicketsClientProps) {
                     const id = ticket.ticketid ?? index + 1
 
                     return (
-                      <tr key={id} className="hover:bg-Background/60 transition-colors">
+                      <tr
+                        key={id}
+                        className="hover:bg-Background/60 transition-colors cursor-pointer"
+                        onClick={() => window.location.href = `/${lang}/dashboard/ticket/${id}`}
+                        tabIndex={0}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            window.location.href = `/${lang}/dashboard/ticket/${id}`
+                          }
+                        }}
+                        aria-label={`مشاهده تیکت ${id}`}
+                      >
                         <td className="px-4 py-3 text-Text">{index + 1}</td>
                         <td className="px-4 py-3 text-Text">{title}</td>
                         <td className="px-4 py-3 text-Text">{status}</td>
