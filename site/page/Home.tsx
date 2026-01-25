@@ -238,30 +238,31 @@ export default function HomeClient({ lang }: HomeProps) {
   }, [setHeader, resetHeader])
 
   return (
-    <main>
+    <main className="bg-Background">
+      <div className="w-full bg-Primary">
+        <P.Container id="hero" className="flex flex-col items-center lg:pt-034-7">
 
-      <P.Container SectionClassName="bg-Primary" id="hero" className="flex flex-col items-center lg:pt-034-7">
+          <div className='bg-Background max-w-340-H mx-auto p-024-5 rounded-3xl'>
+            <SvgHtniLogo className='w-full text-White' />
+          </div>
 
-        <div className='bg-Background max-w-340-H mx-auto p-024-5 rounded-3xl'>
-          <SvgHtniLogo className='w-full text-White' />
-        </div>
+          <p className="text-White text-shadow-1 text-shadow-PrimaryDark text-center">
+            {TRANSLATOR.hero.title}
+            <br />
+            {TRANSLATOR.hero.description}
+          </p>
 
-        <p className="text-White text-shadow-1 text-shadow-PrimaryDark text-center">
-          {TRANSLATOR.hero.title}
-          <br />
-          {TRANSLATOR.hero.description}
-        </p>
+          <P.Button
+            ThemeProps="default"
+            Theme="none"
+            Size="lg"
+            className="min-w-180-E bg-Background text-Primary hover:bg-Panel hover:text-PrimaryDark active:bg-Lightness"
+            onClick={() => router.push(`/${lang}/dashboard`)}>
+            {TRANSLATOR.hero.button}
+          </P.Button>
 
-        <P.Button
-          ThemeProps="default"
-          Theme="none"
-          Size="lg"
-          className="min-w-180-E bg-Background text-Primary hover:bg-Panel hover:text-PrimaryDark active:bg-Lightness"
-          onClick={() => router.push(`/${lang}/dashboard`)}>
-          {TRANSLATOR.hero.button}
-        </P.Button>
-
-      </P.Container >
+        </P.Container >
+      </div>
       <P.Container id="why" className="flex flex-col md:flex-row items-stretch" Gaps="xl">
 
         <div className='flex flex-col w-full md:w-1/2 lg:w-2/5 gap-008-2'>
@@ -525,8 +526,8 @@ export default function HomeClient({ lang }: HomeProps) {
                 <div
                   key={index}
                   className={`w-full lg:w-1/2 py-012-3 flex flex-col gap-008-2 ${isLeft
-                      ? `lg:pe-012-3 lg:border-e border-Border border-dotted${isLastRow && isLeft ? ' lg:border-b-0' : ''}`
-                      : 'lg:ps-012-3'
+                    ? `lg:pe-012-3 lg:border-e border-Border border-dotted${isLastRow && isLeft ? ' lg:border-b-0' : ''}`
+                    : 'lg:ps-012-3'
                     } ${showBorderBottom
                       ? 'border-b border-Border border-dotted'
                       : ''

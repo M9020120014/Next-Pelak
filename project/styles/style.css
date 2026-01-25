@@ -197,7 +197,7 @@
     @apply py-008-2 gap-008-2;
     @apply transition-all disabled:pointer-events-none [&_svg]:pointer-events-none cursor-pointer;
     @apply aria-invalid:ring-Error/40 aria-invalid:border-Error;
-    @apply shrink-0 [&_svg]:shrink-0;
+    @apply shrink-0 [&_svg]:shrink-0 text-H2;
     @apply bg-Primary border border-PrimaryDark text-PrimaryForeground hover:bg-PrimaryDark hover:border-PrimaryDark active:bg-PrimaryLight;
     @apply outline-none focus-visible:ring-2;
     @apply focus-visible:border-SecondaryDark focus-visible:ring-SecondaryDark/40;

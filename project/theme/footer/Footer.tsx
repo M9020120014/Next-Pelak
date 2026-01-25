@@ -30,8 +30,7 @@ export default function Footer({ className }: FooterProps) {
       <div className="h-1 w-full bg-linear-to-l from-PrimaryLight via-Primary to-SecondaryLight" />
 
       <Container
-        SectionClassName={cn("bg-Background", className ?? "")}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        className={"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" + className}
       >
 
         <Card className="bg-Background border-Border shadow-sm">
@@ -153,38 +152,38 @@ export default function Footer({ className }: FooterProps) {
           </CardContent>
         </Card>
       </Container>
-
-      <Container
-        Padding="sm"
-        SectionClassName="border-t border-Border bg-Background"
-        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-008-2"
-      >
-        <div className="w-full md:w-2/3">
-          <p className="text-sm text-Mid text-center md:text-start">
-            {t.copyright}
-          </p>
-        </div>
-        <div className="w-full md:w-1/3 flex justify-center md:justify-end gap-008-2">
-          <P.Button
-            Theme="primary"
-            ThemeProps="link"
-            Size="sm"
-            asChild
-            className="text-sm"
-          >
-            <Link href={`/${lang}/terms`}>{t.termsAndConditions}</Link>
-          </P.Button>
-          <P.Button
-            Theme="primary"
-            ThemeProps="link"
-            Size="sm"
-            asChild
-            className="text-sm"
-          >
-            <Link href={`/${lang}/privacy`}>{t.privacyPolicy}</Link>
-          </P.Button>
-        </div>
-      </Container>
+      <div className="bg-Background border-t border-Border">
+        <Container
+          Padding="sm"
+          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-008-2"
+        >
+          <div className="w-full md:w-2/3">
+            <p className="text-sm text-Mid text-center md:text-start">
+              {t.copyright}
+            </p>
+          </div>
+          <div className="w-full md:w-1/3 flex justify-center md:justify-end gap-008-2">
+            <P.Button
+              Theme="primary"
+              ThemeProps="link"
+              Size="sm"
+              asChild
+              className="text-sm"
+            >
+              <Link href={`/${lang}/terms`}>{t.termsAndConditions}</Link>
+            </P.Button>
+            <P.Button
+              Theme="primary"
+              ThemeProps="link"
+              Size="sm"
+              asChild
+              className="text-sm"
+            >
+              <Link href={`/${lang}/privacy`}>{t.privacyPolicy}</Link>
+            </P.Button>
+          </div>
+        </Container>
+      </div>
     </div>
   )
 }

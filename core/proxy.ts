@@ -103,6 +103,8 @@ export default async function proxy(
   const requestHeaders = new Headers(request.headers)
   const nonce = generateNonce()
   requestHeaders.set('x-nonce', nonce)
+  // Set x-pathname header so layout can extract language from pathname
+  requestHeaders.set('x-pathname', pathname)
   
   const response = NextResponse.next({
     request: {

@@ -57,11 +57,11 @@ export const SvgStrokeSizeConfig = {
 /* --- Padding Configuration -------------------------------------------------------------------- */
 export const PaddingConfig = {
   Items: {
-    xs: ["p-002-T", "p-001-O"],
-    sm: ["p-004-1", "p-002-T"],
-    md: ["p-008-2", "p-004-1"],
-    lg: ["p-012-3", "p-008-2"],
-    xl: ["p-018-4", "p-012-3"],
+    xs: "p-002-T",
+    sm: "p-004-1",
+    md: "p-008-2",
+    lg: "p-012-3",
+    xl: "p-018-4",
     none: ["", ""],
   },
   Default: "md"

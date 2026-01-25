@@ -4,24 +4,110 @@ import { UI as P } from "@/core/components/ui/Pelak"
 
 export default function ContainerUiPage() {
   return (
-    <P.Container className="py-056-M">
-      <div className="space-y-056-M">
+    <>
+      <P.Container className="py-056-M">
         {/* Header */}
 
-          <div>
-            <h1>Container</h1>
-            <p>
-              کامپوننت Container برای ایجاد بخش‌های محتوا که مقادیری به صورت پیشفرض دارد و قابل تنظیم استفاده می‌شود.
-            </p>
-            <p>
-              این کامپوننت در اصل دو div داخل هم هستن ...{/* DEBUG */}
-            </p>
+        <div>
+          <h1>Container</h1>
+          <p>
+            کامپوننت Container برای ایجاد بخش‌های محتوا که مقادیری به صورت پیشفرض دارد و قابل تنظیم استفاده می‌شود.
+          </p>
+          <p>
+            این کامپوننت در اصل از دو المان تشکیل شده است: یک <code className="bg-Background px-1 rounded">&lt;section&gt;</code> بیرونی که padding خارجی را مدیریت می‌کند و یک <code className="bg-Background px-1 rounded">&lt;div&gt;</code> داخلی که با <code className="bg-Background px-1 rounded">max-w-7xl mx-auto</code> عرض را محدود می‌کند و با <code className="bg-Background px-1 rounded">flex flex-col</code> المان‌های فرزند را به صورت عمودی چیدمان می‌کند. padding داخلی و gap بین المان‌های فرزند نیز در div داخلی اعمال می‌شود.
+          </p>
+        </div>
+
+      </P.Container>
+      <div className="bg-Background">
+
+        <P.Container Padding="none" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[80px]">
+          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
+            Padding="none"
           </div>
+        </P.Container>
+
+        <div className="h-012-3" />
+
+        <P.Container Padding="xs" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[80px]">
+          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
+            Padding="xs"
+          </div>
+        </P.Container>
+
+        <div className="h-012-3" />
+
+        <P.Container Padding="sm" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[80px]">
+          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
+            Padding="sm"
+          </div>
+        </P.Container>
+
+        <div className="h-012-3" />
+
+        <P.Container SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[80px]">
+          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
+            Padding="md" پیشفرض
+          </div>
+        </P.Container>
+
+        <div className="h-012-3" />
+
+        <P.Container Padding="lg" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[80px]">
+          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
+            Padding="lg"
+          </div>
+        </P.Container>
+
+        <div className="h-012-3" />
+
+        <P.Container Padding="xl" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[80px]">
+          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
+            Padding="xl"
+          </div>
+        </P.Container>
+
+        <div className="h-012-3" />
+
+        <P.Container SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[180px]">
+          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
+            Padding="md" پیشفرض
+          </div>
+          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
+            Gaps="md" پیشفرض
+          </div>
+        </P.Container>
+
+        <div className="h-012-3" />
+
+        <P.Container Gaps="lg" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[180px]">
+          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
+            Padding="md" پیشفرض
+          </div>
+          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
+            Gaps="lg"
+          </div>
+        </P.Container>
+
+        <div className="h-012-3" />
+
+        <P.Container Gaps="xl" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[180px]">
+          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
+            Padding="md" پیشفرض
+          </div>
+          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
+            Gaps="xl"
+          </div>
+        </P.Container>
+
+
+      </div>
+      <P.Container className="py-056-M">
 
         {/* API Reference */}
         <section className="space-y-4">
           <h2 className="text-2xl font-bold text-Text">مرجع API</h2>
-          
+
           <div className="bg-Lightness p-6 rounded-lg space-y-4">
             <div>
               <h3 className="font-semibold text-Text mb-2">پارامترها:</h3>
@@ -35,7 +121,7 @@ export default function ContainerUiPage() {
                   <br />
                   پیش‌فرض: <code className="bg-Background px-1 rounded">md</code>
                 </div>
-                
+
                 <div className="flex gap-2 mt-4">
                   <code className="bg-Background px-2 py-1 rounded font-mono text-Primary">Gaps</code>
                   <span className="text-Mid">: تنظیم فاصله بین المان‌های فرزند</span>
@@ -45,17 +131,17 @@ export default function ContainerUiPage() {
                   <br />
                   پیش‌فرض: <code className="bg-Background px-1 rounded">md</code>
                 </div>
-                
+
                 <div className="flex gap-2 mt-4">
                   <code className="bg-Background px-2 py-1 rounded font-mono text-Primary">SectionClassName</code>
                   <span className="text-Mid">: کلاس‌های اضافی برای element section</span>
                 </div>
-                
+
                 <div className="flex gap-2 mt-4">
                   <code className="bg-Background px-2 py-1 rounded font-mono text-Primary">className</code>
                   <span className="text-Mid">: کلاس‌های اضافی برای div داخلی</span>
                 </div>
-                
+
                 <div className="flex gap-2 mt-4">
                   <code className="bg-Background px-2 py-1 rounded font-mono text-Primary">children</code>
                   <span className="text-Mid">: محتوای Container</span>
@@ -86,7 +172,7 @@ export default function ContainerUiPage() {
             </div>
             <div className="bg-Shadow/50 p-4 rounded-lg">
               <pre className="text-sm overflow-x-auto">
-{`<P.Container>
+                {`<P.Container>
   <div>محتوای داخل Container</div>
 </P.Container>`}
               </pre>
@@ -156,7 +242,7 @@ export default function ContainerUiPage() {
             </div>
             <div className="bg-Shadow/50 p-4 rounded-lg">
               <pre className="text-sm overflow-x-auto">
-{`<P.Container Padding="lg" Gaps="lg">
+                {`<P.Container Padding="lg" Gaps="lg">
   <div>آیتم 1</div>
   <div>آیتم 2</div>
   <div>آیتم 3</div>
@@ -172,8 +258,8 @@ export default function ContainerUiPage() {
               می‌توانید از SectionClassName و className برای استایل‌دهی استفاده کنید:
             </p>
             <div className="bg-Lightness p-4 rounded-lg">
-              <P.Container 
-                SectionClassName="bg-Success/10 mb-4" 
+              <P.Container
+                SectionClassName="bg-Success/10 mb-4"
                 className="bg-Primary/10"
               >
                 <div className="bg-Background p-4 rounded text-center">
@@ -183,7 +269,7 @@ export default function ContainerUiPage() {
             </div>
             <div className="bg-Shadow/50 p-4 rounded-lg">
               <pre className="text-sm overflow-x-auto">
-{`<P.Container 
+                {`<P.Container 
   SectionClassName="bg-Success/10 mb-4" 
   className="bg-Primary/10"
 >
@@ -208,7 +294,7 @@ export default function ContainerUiPage() {
             </div>
             <div className="bg-Shadow/50 p-4 rounded-lg">
               <pre className="text-sm overflow-x-auto">
-{`<P.Container Padding="none">
+                {`<P.Container Padding="none">
   <div>محتوای Container</div>
 </P.Container>`}
               </pre>
@@ -262,7 +348,7 @@ export default function ContainerUiPage() {
             </div>
           </div>
         </section>
-      </div>
-    </P.Container>
+      </P.Container>
+    </>
   )
 }

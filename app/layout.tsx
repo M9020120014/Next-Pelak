@@ -7,7 +7,7 @@ import Script from "next/script";
 /* --- Config ----------------------------------------------------------------------------------- */
 import { ENV_VALIDATE, ENV } from "@/core/config/env";
 import { IS_PRODUCTION } from "@/core/config/base";
-import { LANGUAGE_DATA, LANG_HEADER } from "@/core/config/lang";
+import { LANGUAGE_DATA, LANG_HEADER, LANG_PATHNAME } from "@/core/config/lang";
 import { projectCoreConfig } from "@/core/config/project-override";
 import { setCoreConfig } from "@/core/config/config";
 /* --- Lib -------------------------------------------------------------------------------------- */
@@ -32,7 +32,15 @@ loadProjectHooksSync();
 /* --- Root Layout Metadata ------------------------------------------- */
 export const viewport = SITE_VIEWPORT;
 export async function generateMetadata(): Promise<Metadata> {
-  const lang = LANG_HEADER(await headers());
+  const headersList = await headers();
+  // Try to get pathname from various headers
+  const invokePath = headersList.get('x-invoke-path');
+  const pathnameHeader = headersList.get('x-pathname');
+  const pathname = invokePath || pathnameHeader;
+  
+  // Use LANG_PATHNAME for better pathname extraction, fallback to LANG_HEADER
+  const lang = pathname ? LANG_PATHNAME(pathname) : LANG_HEADER(headersList);
+  
   return {
     ...META_BASE,
     ...META_LANG_BASE(lang),
@@ -65,7 +73,15 @@ export default async function RootLayout({
 
   const headersList = await headers();
   const nonce = headersList.get('x-nonce') || headersList.get('X-CSP-Nonce') || null;
-  const lang = LANG_HEADER(headersList)
+  
+  // Try to get pathname from various headers
+  const invokePath = headersList.get('x-invoke-path');
+  const pathnameHeader = headersList.get('x-pathname');
+  const pathname = invokePath || pathnameHeader;
+  
+  // Use LANG_PATHNAME for better pathname extraction, fallback to LANG_HEADER
+  const lang = pathname ? LANG_PATHNAME(pathname) : LANG_HEADER(headersList);
+  
   const font = Font[LANGUAGE_DATA.direction[lang]];
   const gaId = ENV.GOOGLE_ANALYTICS_ID;
 

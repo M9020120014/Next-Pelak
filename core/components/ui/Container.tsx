@@ -19,25 +19,17 @@ export function Container({
 }) {
   /* --- Run ------------------------ */
   return (
+
     <section
-      data-slot="container"
       className={cn(
-        "bg-Background",
-        (Padding !== "none") && PaddingConfig.Items[Padding][0],
-        SectionClassName
+        "max-w-7xl mx-auto flex flex-col",
+        (Padding !== "none") && PaddingConfig.Items[Padding],
+        GapsConfig.Items[Gaps][Padding],
+        className
       )}
+      {...props}
     >
-      <div
-        className={cn(
-          "max-w-7xl mx-auto flex flex-col",
-          (Padding !== "none") && PaddingConfig.Items[Padding][1],
-          GapsConfig.Items[Gaps][Padding],
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </div>
+      {children}
     </section>
   )
 }
