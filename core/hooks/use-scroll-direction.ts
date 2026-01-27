@@ -43,7 +43,7 @@ export function useScrollDirection() {
   useEffect(() => {
 
     window.scrollTo({
-      top: 58,
+      top: 0,
       behavior: 'smooth'
     })
   }, [pathname])
