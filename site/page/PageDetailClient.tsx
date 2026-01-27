@@ -6,11 +6,18 @@ import { AspectRatio } from '@/core/components/ui/AspectRatio'
 import CopyLinkButton from '@/site/page/CopyLinkButton'
 import CommentsSectionWrapper from '@/site/page/CommentsSectionWrapper'
 import { UI as P } from '@/core/components/ui/Pelak'
+import { callRpc, RpcResponseType } from "@/core/lib/rest/rpc";
 /* --- Types ------------------------------------------------------------------------------------ */
 import { SITE_DATA_URL } from '@/core/config/site'
 import { LANGUAGE_TYPE } from '@/core/config/lang'
 import { pageDetailTranslator } from '@/site/translations/pageDetail'
+import { ENV } from '@/core/config/env'
 
+
+type missionType = {
+  id: number
+  missionid: string
+}
 /* --- Page Type Interface ---------- */
 interface PageType {
   id: number
@@ -72,7 +79,7 @@ const getFirstWords = (text: string | null | undefined, charLimit: number = 40):
 }
 
 /* --- Page Detail Client Component - */
-export default function PageDetailClient({ page, lang, iDevice, imageUrl }: PageDetailClientProps) {
+export default async function PageDetailClient({ page, lang, iDevice, imageUrl }: PageDetailClientProps) {
   const t = pageDetailTranslator[lang]
   const readingTime = calculateReadingTime(page.content)
   const formattedDate = page.publishedtime
@@ -89,10 +96,58 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
   const linkTelegram = 'https://t.me/share/url?text=' + shareText + '&url=' + shareUrl
   const linkEailto = 'mailto:?subject=' + shareText + '&body=' + shareUrl
 
+
+
+
+
+
+
+
+  const missionResult = await callRpc("project_mission_page", {
+    p_pageid: page.id,
+  })
+
+  if (missionResult.success && Array.isArray(missionResult.data)) {
+    const mission = missionResult.data as missionType[]; // Make sure mission is an array of mission
+    
+    const missionData = mission.map(async (mission) => {
+
+      const res = await fetch(`/api/missions/${mission.missionid}`, {
+        method: 'GET',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        }
+      })
+    
+      return {
+        id: mission.id,
+        missionid: mission.missionid,
+        user: res.user,
+        typeid: res.typeid,
+        typetitle: res.typetitle,
+        title: res.title,
+        content: res.content,
+        mo: res.mo,
+        point: res.point,
+        create_at: res.create_at,
+        modified_at: res.modified_at,
+        expier_at: res.expier_at,
+        is_active: res.is_active,
+        at_least_point: res.at_least_point,
+        ctatext: res.ctatext,
+        eurl: res.eurl
+      }
+    
+    })
+
+  }
+
+  const missionData = null;
+
   return (
     <>
-      <main className=" bg-Background lg:pt-034-7">
-        <P.Container className='space-y-018-4'>
+      <main className=" bg-Background lg:pt-040-8">
+        <P.Container>
           {/* --- Main Image --------- */}
           <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
             <AspectRatio ratio={16 / 9} className="bg-Background relative">
@@ -189,9 +244,11 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
               </div>
             </div>
           </div>
+        </P.Container>
 
-          {/* --- Content Card --------- */}
-          {page.content && (
+        {/* --- Content Card --------- */}
+        {page.content && (
+          <P.Container>
             <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
               <div className="p-024-5 lg:p-028-6">
                 <article
@@ -201,10 +258,11 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
                 />
               </div>
             </div>
-          )}
+          </P.Container>
+        )}
 
-          {/* --- Meta Info Card --------- */}
-          {/* <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
+        {/* --- Meta Info Card --------- */}
+        {/* <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
             <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
               <div className="flex items-center gap-008-2">
                 <P.Icon Icon="dashboard" Size="md" className="text-Primary" />
@@ -246,9 +304,36 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
               </div>
             </div>
           </div> */}
+        {/* --- Mission Card --------- */}
+        {missionData && missionData.length > 0 && (
+          <P.Container>
+            <P.Card>
+              <P.CardHeader className="flex flex-row items-center gap-012-3 bg-Primary/10">
+                <P.Icon Icon="dashboard" className="text-Primary" />
+                <h2>ماموریت ها</h2>
 
-          {/* --- Related Categories Card --------- */}
-          {tags && tags.length > 0 && (
+              </P.CardHeader>
+              <P.CardContent className="flex flex-col gap-012-3">
+                {missionData.map((mission) => (
+                  <P.Card key={mission.id}>
+                    <P.CardContent className="flex flex-row items-center justify-between gap-012-3">
+                      <p className="text-Text">{mission.title}</p>
+                      <Link href={"/" + lang + "/dashboard/exam/" + page.id + "/" + mission.eurl} target="_blank">
+                        <P.Button Theme="primary">
+                          {mission.ctatext}
+                        </P.Button>
+                      </Link>
+                    </P.CardContent>
+                  </P.Card>
+                ))}
+              </P.CardContent>
+            </P.Card>
+          </P.Container>
+        )}
+
+        {/* --- Related Categories Card --------- */}
+        {tags && tags.length > 0 && (
+          <P.Container>
             <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
               <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
                 <div className="flex items-center gap-008-2">
@@ -270,10 +355,12 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
                 </div>
               </div>
             </div>
-          )}
+          </P.Container>
+        )}
 
-          {/* --- No Content Message ---- */}
-          {!page.content && (
+        {/* --- No Content Message ---- */}
+        {!page.content && (
+          <P.Container>
             <div className="bg-White rounded-lg border border-Border shadow-sm p-028-6">
               <div className="flex flex-col items-center gap-012-3 text-center">
                 <div className="w-048-N h-048-N rounded-3 bg-Background flex items-center justify-center">
@@ -282,10 +369,12 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
                 <p className="text-F font-title text-Text">{t.noContent}</p>
               </div>
             </div>
-          )}
+          </P.Container>
+        )}
 
-          {/* --- Comments Card --------- */}
-          {page.id && (
+        {/* --- Comments Card --------- */}
+        {page.id && (
+          <P.Container>
             <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
               <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
                 <div className="flex items-center gap-008-2">
@@ -297,9 +386,9 @@ export default function PageDetailClient({ page, lang, iDevice, imageUrl }: Page
                 <CommentsSectionWrapper pageId={page.id} lang={lang} iDevice={iDevice} />
               </div>
             </div>
-          )}
+          </P.Container>
+        )}
 
-        </P.Container>
       </main>
     </>
   )
