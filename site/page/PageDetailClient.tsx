@@ -6,17 +6,36 @@ import { AspectRatio } from '@/core/components/ui/AspectRatio'
 import CopyLinkButton from '@/site/page/CopyLinkButton'
 import CommentsSectionWrapper from '@/site/page/CommentsSectionWrapper'
 import { UI as P } from '@/core/components/ui/Pelak'
-import { callRpc, RpcResponseType } from "@/core/lib/rest/rpc";
+import { callRpc } from "@/core/lib/rest/rpc";
 /* --- Types ------------------------------------------------------------------------------------ */
 import { SITE_DATA_URL } from '@/core/config/site'
 import { LANGUAGE_TYPE } from '@/core/config/lang'
 import { pageDetailTranslator } from '@/site/translations/pageDetail'
-import { ENV } from '@/core/config/env'
 
 
 type missionType = {
   id: number
   missionid: string
+}
+
+interface Mission {
+  id: number
+  company: number | null
+  user: number | null
+  typeid: number | null
+  typetitle: string | null
+  title: string
+  content: string
+  mo: boolean
+  point: number
+  create_at: string
+  modified_at: string | null
+  expier_at: string | null
+  is_active: boolean
+  at_least_point: number | null
+  ctatext: string | null
+  eurl: string | null
+  evaluation_results: unknown[]
 }
 /* --- Page Type Interface ---------- */
 interface PageType {
@@ -86,20 +105,10 @@ export default async function PageDetailClient({ page, lang, iDevice, imageUrl }
     ? new Date(page.publishedtime).toLocaleDateString(lang === 'fa' ? 'fa-IR' : 'en-US')
     : ''
   const shareUrl = SITE_DATA_URL + '/p/' + page.id
-  const shareText = page.title || ''
   const tags = page.tags
     ? page.tags.split(',').map((tag) => tag.trim()).filter((tag) => tag !== '')
     : null
   const shortDescription = getFirstWords(page.description, 40)
-
-  const linkWhatsapp = 'whatsapp://send?text=' + shareText + ' ' + shareUrl
-  const linkTelegram = 'https://t.me/share/url?text=' + shareText + '&url=' + shareUrl
-  const linkEailto = 'mailto:?subject=' + shareText + '&body=' + shareUrl
-
-
-
-
-
 
 
 
@@ -107,42 +116,49 @@ export default async function PageDetailClient({ page, lang, iDevice, imageUrl }
     p_pageid: page.id,
   })
 
-  if (missionResult.success && Array.isArray(missionResult.data)) {
-    const mission = missionResult.data as missionType[]; // Make sure mission is an array of mission
-    
-    const missionData = mission.map(async (mission) => {
+  let missionData: Mission[] = []
 
-      const res = await fetch(`/api/missions/${mission.missionid}`, {
-        method: 'GET',
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  if (missionResult.success && Array.isArray(missionResult.data)) {
+    const missions = missionResult.data as missionType[]
+
+    const missionPromises = missions.map(async (mission) => {
+      console.log("--- ----- mission:", mission) // DEBUG
+      try {
+        const response = await fetch(`/api/missions/${mission.missionid}`, {
+          method: 'GET',
+          headers: {
+            accept: 'application/json',
+          },
+          cache: 'no-store',
+        })
+
+        if (!response.ok) {
+          console.error('Failed to fetch mission details', mission.missionid, response.status)
+          return null
         }
-      })
-    
-      return {
-        id: mission.id,
-        missionid: mission.missionid,
-        user: res.user,
-        typeid: res.typeid,
-        typetitle: res.typetitle,
-        title: res.title,
-        content: res.content,
-        mo: res.mo,
-        point: res.point,
-        create_at: res.create_at,
-        modified_at: res.modified_at,
-        expier_at: res.expier_at,
-        is_active: res.is_active,
-        at_least_point: res.at_least_point,
-        ctatext: res.ctatext,
-        eurl: res.eurl
+
+        const result = await response.json() as Mission
+
+        if (
+          typeof result.id !== 'number' ||
+          typeof result.title !== 'string' ||
+          typeof result.is_active !== 'boolean'
+        ) {
+          console.error('Invalid mission response structure', result)
+          return null
+        }
+
+        return result
+      } catch (error) {
+        console.error('Error fetching mission details', mission.missionid, error)
+        return null
       }
-    
     })
 
+    const resolvedMissions = await Promise.all(missionPromises)
+    missionData = resolvedMissions.filter((mission): mission is Mission => mission !== null)
+    console.log("--- ----- missionData:", missionData) // DEBUG
   }
-
-  const missionData = null;
 
   return (
     <>
