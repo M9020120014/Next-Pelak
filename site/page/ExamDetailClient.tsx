@@ -161,7 +161,7 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
       <main className="bg-Background lg:pt-034-7 min-h-[calc(100svh-var(--spacing-144-D))]">
         <P.Container className="space-y-018-4 lg:space-y-024-6">
           <div className="bg-Panel/80 border border-Border/60 rounded-xl shadow-md p-6 text-center text-Mid">
-            صبر کنید تا به آزمون منطقل بشید
+            صبر کنید تا به آزمون منتقل شوید
           </div>
         </P.Container>
       </main>
