@@ -1,7 +1,7 @@
 "use client"
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { ClassName as cn, ThemeInputConfig, RoundedConfig, FocusConfig, SizeConfig } from "./Pelak"
+import { ClassName as cn, ThemeInputConfig, SizeRoundedConfig, ThemeFocusConfig, SizeButtonConfig } from "./Pelak"
 import { Icon } from "./Icon"
 
 /* --- Types ------------------------------------------------------------------------------------ */
@@ -49,10 +49,10 @@ export function SelectField({
           ThemeInputConfig.Base,
           ThemeInputConfig.Props[ThemeInputConfig.DefaultProps].Base,
           ThemeInputConfig.Props[ThemeInputConfig.DefaultProps].Items[ThemeInputConfig.Default],
-          FocusConfig.Base,
-          FocusConfig.Items[FocusConfig.Default],
-          RoundedConfig.Items[RoundedConfig.Default],
-          SizeConfig.Items[SizeConfig.Default],
+          ThemeFocusConfig.Base,
+          ThemeFocusConfig.Items[ThemeFocusConfig.Default],
+          SizeRoundedConfig.Items[SizeRoundedConfig.Default],
+          SizeButtonConfig.Items[SizeButtonConfig.Default],
           "appearance-none cursor-pointer",
           "bg-Lightness border border-Border",
           "text-Text",

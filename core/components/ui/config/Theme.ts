@@ -1,4 +1,99 @@
 import { PropsMap, ItemMap, ConfigPropsObject, ConfigObject, PropsObject } from "../Pelak";
+
+/* --- Theme Background Configuration ----------------------------------------------------------------- */
+export const ThemeBackgroundConfig = {
+  Items: {
+    white: "bg-White",
+    whiteA: "bg-WhiteA",
+    whiteB: "bg-WhiteB",
+    blackb: "bg-BlackB",
+    blacka: "bg-BlackA",
+    black: "bg-Black",
+    lightness: "bg-Lightness",
+    background: "bg-Background",
+    panel: "bg-Panel",
+    border: "bg-Border",
+    mid: "bg-Mid",
+    shadow: "bg-Shadow",
+    text: "bg-Text",
+    foreground: "bg-Foreground",
+    darkness: "bg-Darkness",
+    primary: "bg-Primary",
+    primaryForeground: "bg-PrimaryForeground",
+    primaryDark: "bg-PrimaryDark",
+    primaryLight: "bg-PrimaryLight",
+    secondary: "bg-Secondary",
+    secondaryForeground: "bg-SecondaryForeground",
+    secondaryDark: "bg-SecondaryDark",
+    secondaryLight: "bg-SecondaryLight",
+    third: "bg-Third",
+    thirdForeground: "bg-ThirdForeground",
+    thirdDark: "bg-ThirdDark",
+    thirdLight: "bg-ThirdLight",
+    success: "bg-Success",
+    successForeground: "bg-SuccessForeground",
+    successDark: "bg-SuccessDark",
+    successLight: "bg-SuccessLight",
+    error: "bg-Error",
+    errorForeground: "bg-ErrorForeground",
+    errorDark: "bg-ErrorDark",
+    errorLight: "bg-ErrorLight",
+    warning: "bg-Warning",
+    warningForeground: "bg-WarningForeground",
+    warningDark: "bg-WarningDark",
+    warningLight: "bg-WarningLight",
+    none: "",
+  },
+  Default: "background"
+} as const satisfies ConfigObject<ItemMap>
+
+/* --- Theme Card Configuration ----------------------------------------------------------------- */
+export const ThemeBorderConfig = {
+  Items: {
+    white: "border-White",
+    whiteA: "border-WhiteA",
+    whiteB: "border-WhiteB",
+    blackb: "border-BlackB",
+    blacka: "border-BlackA",
+    black: "border-Black",
+    lightness: "border-Lightness",
+    background: "border-Background",
+    panel: "border-Panel",
+    border: "border-Border",
+    mid: "border-Mid",
+    shadow: "border-Shadow",
+    text: "border-Text",
+    foreground: "border-Foreground",
+    darkness: "border-Darkness",
+    primary: "border-Primary",
+    primaryForeground: "border-PrimaryForeground",
+    primaryDark: "border-PrimaryDark",
+    primaryLight: "border-PrimaryLight",
+    secondary: "border-Secondary",
+    secondaryForeground: "border-SecondaryForeground",
+    secondaryDark: "border-SecondaryDark",
+    secondaryLight: "border-SecondaryLight",
+    third: "border-Third",
+    thirdForeground: "border-ThirdForeground",
+    thirdDark: "border-ThirdDark",
+    thirdLight: "border-ThirdLight",
+    success: "border-Success",
+    successForeground: "border-SuccessForeground",
+    successDark: "border-SuccessDark",
+    successLight: "border-SuccessLight",
+    error: "border-Error",
+    errorForeground: "border-ErrorForeground",
+    errorDark: "border-ErrorDark",
+    errorLight: "border-ErrorLight",
+    warning: "border-Warning",
+    warningForeground: "border-WarningForeground",
+    warningDark: "border-WarningDark",
+    warningLight: "border-WarningLight",
+    none: "",
+  },
+  Default: "border"
+} as const satisfies ConfigObject<ItemMap>
+
 /* --- Theme Button Configuration --------------------------------------------------------------- */
 export const ThemeButtonConfig = {
   Base:
@@ -112,7 +207,7 @@ export const ThemeInputConfig = {
 } as const satisfies ConfigPropsObject<PropsObject<ItemMap>, PropsMap, ItemMap>
 
 /* --- TFocus Configuration --------------------------------------------------------------------- */
-export const FocusConfig = {
+export const ThemeFocusConfig = {
   Base: "outline-none focus-visible:ring-2",
   Items: {
     primary: "focus-visible:border-PrimaryDark focus-visible:ring-PrimaryDark/40",

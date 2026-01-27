@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation"
 import { Container } from "@/core/components/ui/Container"
 import { Button } from "@/core/components/ui/Button"
 import { Separator } from "@/core/components/ui/Separator"
-import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/Card"
 import { SvgLogoType } from "@/site/media/svg"
 import { ClassName as cn, UI as P } from "@/core/components/ui/Pelak"
 import { LANG_PATHNAME, } from "@/core/config/lang"
@@ -33,27 +32,27 @@ export default function Footer({ className }: FooterProps) {
         className={"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" + className}
       >
 
-        <Card className="bg-Background border-Border shadow-sm">
-          <CardHeader className="px-012-3 text-Primary">
+        <P.Card>
+          <P.CardHeader className="text-Primary">
             <SvgLogoType className="p-018-4 max-h-110-C mx-auto" />
-          </CardHeader>
-          <CardContent className="px-012-3 mb-012-3">
-            <Separator className="mb-012-3" />
+          </P.CardHeader>
+          <P.CardContent>
             <p className="font-title">
               {t.partyName}
             </p>
             <p className="text-xs text-Mid">
               {t.partyDescription}
             </p>
-          </CardContent>
-        </Card>
+          </P.CardContent>
+        </P.Card>
 
-        <Card className="bg-Background border-Border shadow-sm">
-          <CardHeader className="p-012-3 text-Text font-title">
-            {t.usefulLinks}
-          </CardHeader>
-          <CardContent className="px-012-3 mb-012-3">
-            <Separator className="mb-012-3" />
+        <P.Card>
+          <P.CardHeader>
+            <P.CardTitle>
+              {t.usefulLinks}
+            </P.CardTitle>
+          </P.CardHeader>
+          <P.CardContent>
             <ul className="space-y-004-1 text-xs text-Mid">
               <li>
                 <Button
@@ -100,15 +99,16 @@ export default function Footer({ className }: FooterProps) {
                 </Button>
               </li>
             </ul>
-          </CardContent>
-        </Card>
+          </P.CardContent>
+        </P.Card>
 
-        <Card className="bg-Background border-Border shadow-sm">
-          <CardHeader className="p-012-3 text-Text font-title">
-            {t.contactInfo}
-          </CardHeader>
-          <CardContent className="p-012-3">
-            <Separator className="mb-2" />
+        <P.Card>
+          <P.CardHeader>
+            <P.CardTitle>
+              {t.contactInfo}
+            </P.CardTitle>
+          </P.CardHeader>
+          <P.CardContent>
             <div className="text-sm text-Mid space-y-2">
               <div>
                 <p className="font-title text-Mid text-sm mt-012-3">
@@ -137,11 +137,11 @@ export default function Footer({ className }: FooterProps) {
                 <p className="text-sm text-Foreground">{t.responseHoursTime}</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </P.CardContent>
+        </P.Card>
 
-        <Card className="bg-Background border-Border flex items-center justify-center">
-          <CardContent className="px-3 py-3">
+        <P.Card className="flex items-center justify-center">
+          <P.CardContent className="px-3 py-3">
             <div
               className="inline-block rounded-md border border-Border bg-White px-3 py-2 shadow-sm"
               dangerouslySetInnerHTML={{
@@ -149,8 +149,8 @@ export default function Footer({ className }: FooterProps) {
                   "<Link referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=668062&Code=Tp2C6D52DObZamUetoEihrt8L4Qiej0g'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=668062&Code=Tp2C6D52DObZamUetoEihrt8L4Qiej0g' alt='نماد اعتماد الکترونیکی' style='cursor:pointer' code='Tp2C6D52DObZamUetoEihrt8L4Qiej0g'></Link>",
               }}
             />
-          </CardContent>
-        </Card>
+          </P.CardContent>
+        </P.Card>
       </Container>
       <div className="bg-Background border-t border-Border">
         <Container

@@ -2,7 +2,7 @@
 
 /* --- Base ------------------------------------------------------------------------------------- */
 import { useState } from "react"
-import { ThemeInputConfig, RoundedConfig, FocusConfig, SizeConfig} from "./Pelak"
+import { ThemeInputConfig, SizeRoundedConfig, ThemeFocusConfig, SizeButtonConfig} from "./Pelak"
 import { Input } from "./Input"
 import { Button } from "./Button"
 import { Icon } from "./Icon"
@@ -11,17 +11,17 @@ import { Icon } from "./Icon"
 export function InputSecret({
   ThemeProps = ThemeInputConfig.DefaultProps,
   Theme = ThemeInputConfig.Default,
-  Rounded = RoundedConfig.Default,
-  Focus = FocusConfig.Default,
-  Size = SizeConfig.Default,
+  Rounded = SizeRoundedConfig.Default,
+  Focus = ThemeFocusConfig.Default,
+  Size = SizeButtonConfig.Default,
   className,
   ...props
 }: React.ComponentProps<"input"> & {
   ThemeProps?: keyof typeof ThemeInputConfig.Props
   Theme?: keyof typeof ThemeInputConfig.Props[typeof ThemeInputConfig.DefaultProps]["Items"]
-  Rounded?: keyof typeof RoundedConfig.Items
-  Focus?: keyof typeof FocusConfig.Items
-  Size?: keyof typeof SizeConfig.Items
+  Rounded?: keyof typeof SizeRoundedConfig.Items
+  Focus?: keyof typeof ThemeFocusConfig.Items
+  Size?: keyof typeof SizeButtonConfig.Items
 }) {
   const [showPassword, setShowPassword] = useState(false)
 

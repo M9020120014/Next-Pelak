@@ -13,7 +13,6 @@ import { Icon } from '@/core/components/ui/Icon'
 
 import { dashboardTranslator } from "@/site/translations/dashboard";
 import { LANGUAGE_TYPE } from "@/core/config/lang";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/core/components/ui/Card'
 
 interface ProfileData {
   userid: number
@@ -214,7 +213,7 @@ export default function DashboardClient({ iDevice, lang }: DashboardClientProps)
         <div className="mb-6">
           <P.Skeleton className="h-9 w-48 mb-2" />
         </div>
-        <P.Card className="p-4 lg:p-6 shadow-md border-Border/50">
+        <P.Card >
           <div className="h-full flex flex-col">
             <div className="flex items-center gap-4 lg:gap-6 flex-1">
               <P.Skeleton className="w-24 h-24 lg:w-28 lg:h-28 rounded-full shrink-0 ml-auto" />
@@ -280,7 +279,7 @@ export default function DashboardClient({ iDevice, lang }: DashboardClientProps)
           </button>
         </div>
 
-        <P.Card className="p-4 lg:p-6 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
+        <P.Card className="p-4 lg:p-6">
           <div className="h-full flex flex-col">
             {/* Top Section: Image, Name, Mobile */}
             <div className="flex items-center gap-4 lg:gap-6 flex-1">
@@ -345,20 +344,20 @@ export default function DashboardClient({ iDevice, lang }: DashboardClientProps)
 
       {completionPercentage < 100 && (
         <P.Container className="space-y-018-4 lg:space-y-024-6">
-          <Card className="relative overflow-hidden border-2 border-Primary/30 bg-linear-to-br from-PrimaryLight/10 via-PrimaryLight/5 to-Background shadow-lg">
+          <P.Card className="relative overflow-hidden border-2 border-Primary/30 bg-linear-to-br from-PrimaryLight/10 via-PrimaryLight/5 to-Background shadow-lg">
             <div className="absolute top-0 end-0 w-32 h-32 bg-Primary/5 rounded-full -translate-y-16 translate-x-16 blur-3xl"></div>
-            <CardHeader className="relative p-6 lg:p-8 pb-4">
+            <P.CardHeader className="relative p-6 lg:p-8 pb-4">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-full bg-Primary/20 flex items-center justify-center shrink-0">
                   <Icon Icon="dashboard" Stroke="md" className="text-Primary" Size="md" />
                 </div>
-                <CardTitle className="text-xl lg:text-2xl font-bold text-Primary">اولین قدم</CardTitle>
+                <P.CardTitle className="text-xl lg:text-2xl font-bold text-Primary">اولین قدم</P.CardTitle>
               </div>
-              <CardDescription className="text-sm text-Mid">
+              <P.CardDescription className="text-sm text-Mid">
                 برای استفاده کامل از امکانات، لطفاً پروفایل خود را تکمیل کنید
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="relative p-6 lg:p-8 pt-0">
+              </P.CardDescription>
+            </P.CardHeader>
+            <P.CardContent className="relative p-6 lg:p-8 pt-0">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-lg bg-PrimaryLight/10 border border-PrimaryLight/30">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -379,8 +378,8 @@ export default function DashboardClient({ iDevice, lang }: DashboardClientProps)
                   شروع تکمیل پروفایل
                 </P.Button>
               </div>
-            </CardContent>
-          </Card>
+            </P.CardContent>
+          </P.Card>
         </P.Container>
       )}
 

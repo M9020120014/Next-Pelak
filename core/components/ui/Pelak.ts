@@ -5,8 +5,26 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 export { Slot } from "@radix-ui/react-slot"
 /* --- Configuration ------------------------------------------------ */
-export { ThemeButtonConfig, ThemeInputConfig, FocusConfig } from './config/Theme'
-export { SizeConfig, RoundedConfig, SvgStrokeSizeConfig, SvgSizeConfig, PaddingConfig, GapsConfig } from './config/Size'
+export {
+  BaseFlexConfig
+} from './config/Base'
+export {
+  ThemeButtonConfig,
+  ThemeInputConfig,
+  ThemeFocusConfig,
+  ThemeBorderConfig,
+  ThemeBackgroundConfig
+} from './config/Theme'
+export {
+  SizeButtonConfig,
+  SizeRoundedConfig,
+  SizeSvgStrokeConfig,
+  SizeSvgConfig,
+  SizePaddingConfig,
+  SizeGapsConfig,
+  SizeMaxWidthConfig,
+  SizeBorderConfig
+} from './config/Size'
 /* --- Components --------------------------------------------------- */
 import { Input } from './Input'
 import { Button } from './Button'

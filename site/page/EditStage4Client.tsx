@@ -342,7 +342,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
           <P.Skeleton className="h-9 w-48 mb-2" />
           <P.Skeleton className="h-1 w-20 rounded-full" />
         </div>
-        <P.Card className="p-6 lg:p-8 shadow-md border-Border/50">
+        <P.Card className="p-3 shadow-md border-Border/50">
           <div className="space-y-6">
             <P.Skeleton className="h-64 w-full rounded-md" />
             <div className="space-y-2">
@@ -405,7 +405,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
         )}
 
         {!stagesCompleted.stage1 && (
-          <P.Card className="p-6 lg:p-8 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 shadow-sm">
+          <P.Card className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
               <p className="text-yellow-800 dark:text-yellow-300 font-medium">{t.stage1NotCompleted || "لطفاً ابتدا مرحله 1 را تکمیل کنید"}</p>
@@ -420,7 +420,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
         )}
 
         {stagesCompleted.stage1 && !stagesCompleted.stage2 && (
-          <P.Card className="p-6 lg:p-8 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 shadow-sm">
+          <P.Card className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
               <p className="text-yellow-800 dark:text-yellow-300 font-medium">{t.stage2NotCompleted || "لطفاً ابتدا مرحله 2 را تکمیل کنید"}</p>
@@ -435,7 +435,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
         )}
 
         {stagesCompleted.stage1 && stagesCompleted.stage2 && !stagesCompleted.stage3 && (
-          <P.Card className="p-6 lg:p-8 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 shadow-sm">
+          <P.Card className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
               <p className="text-yellow-800 dark:text-yellow-300 font-medium">{t.stage3NotCompleted || "لطفاً ابتدا مرحله 3 را تکمیل کنید"}</p>
@@ -463,7 +463,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
 
         {/* Display All Information */}
         {additionalInfo && stagesCompleted.stage1 && stagesCompleted.stage2 && stagesCompleted.stage3 && (
-          <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
+          <P.Card className="p-3 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
             <h2 className="text-xl lg:text-2xl font-bold text-Text mb-6 pb-4 border-b border-Border/30">بررسی اطلاعات وارد شده</h2>
             <div className="space-y-8">
               {/* Stage 1: Personal Information */}
@@ -610,7 +610,7 @@ export default function EditStage4Client({ iDevice, lang }: EditStage4ClientProp
           </P.Card>
         )}
 
-        <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
+        <P.Card className="p-3 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
           <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
             {/* Consent */}
             <div className="flex items-start gap-3 p-4 rounded-lg bg-Mid/5 border border-Border/30">

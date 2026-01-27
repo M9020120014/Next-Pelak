@@ -4,7 +4,6 @@
 import { useRouter } from 'next/navigation'
 import { UI as P } from '@/core/components/ui/Pelak'
 import { Icon } from '@/core/components/ui/Icon'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/core/components/ui/Card'
 import { ExamData } from '@/core/api/integration/exams/[eurl]/route'
 import { LANGUAGE_TYPE } from '@/core/config/lang'
 
@@ -77,26 +76,26 @@ export default function ExamListClient({ lang }: ExamListClientProps) {
         {/* Exams Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {mockExams.map((exam) => (
-            <Card
+            <P.Card
               key={exam.eurl}
               className="relative overflow-hidden border-2 border-Primary/30 bg-linear-to-br from-PrimaryLight/10 via-PrimaryLight/5 to-Background shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
               onClick={() => handleExamClick(exam.eurl, exam.eurl)}
             >
               <div className="absolute top-0 end-0 w-32 h-32 bg-Primary/5 rounded-full -translate-y-16 translate-x-16 blur-3xl"></div>
-              <CardHeader className="relative p-6 lg:p-8 pb-4">
+              <P.CardHeader className="relative p-6 lg:p-8 pb-4">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-full bg-Primary/20 flex items-center justify-center shrink-0">
                     <Icon Icon="dashboard" Stroke="md" className="text-Primary" Size="md" />
                   </div>
-                  <CardTitle className="text-lg lg:text-xl font-bold text-Primary line-clamp-2">
+                  <P.CardTitle className="text-lg lg:text-xl font-bold text-Primary line-clamp-2">
                     {exam.title}
-                  </CardTitle>
+                  </P.CardTitle>
                 </div>
-                <CardDescription className="text-sm text-Mid">
+                <P.CardDescription className="text-sm text-Mid">
                   {exam.number_of_question} سوال • {exam.duration} دقیقه
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="relative p-6 lg:p-8 pt-0">
+                </P.CardDescription>
+              </P.CardHeader>
+              <P.CardContent className="relative pt-0">
                 <div className="space-y-4">
                   {/* Exam Details */}
                   <div className="space-y-2">
@@ -137,8 +136,8 @@ export default function ExamListClient({ lang }: ExamListClientProps) {
                     {exam.is_active ? 'مشاهده آزمون' : 'غیرفعال'}
                   </P.Button>
                 </div>
-              </CardContent>
-            </Card>
+              </P.CardContent>
+            </P.Card>
           ))}
         </div>
 

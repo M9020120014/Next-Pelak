@@ -228,7 +228,7 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
           <P.Skeleton className="h-9 w-48 mb-2" />
           <P.Skeleton className="h-1 w-20 rounded-full" />
         </div>
-        <P.Card className="p-6 lg:p-8 shadow-md border-Border/50">
+        <P.Card className="p-3 shadow-md border-Border/50">
           <div className="space-y-6">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="space-y-2">
@@ -293,7 +293,7 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
         )}
 
         {!stage1Completed && (
-          <P.Card className="p-6 lg:p-8 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 shadow-sm">
+          <P.Card className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
               <p className="text-yellow-800 dark:text-yellow-300 font-medium">{t.stage1NotCompleted || "لطفاً ابتدا مرحله 1 را تکمیل کنید"}</p>
@@ -307,7 +307,7 @@ export default function EditStage2Client({ iDevice, lang }: EditStage2ClientProp
           </P.Card>
         )}
 
-        <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
+        <P.Card className="p-3 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
           <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
             {/* Job */}
             <FormField

@@ -1,7 +1,7 @@
 "use client"
 
 /* --- Base ------------------------------------------------------------------------------------- */
-import { ClassName as cn, ThemeInputConfig, RoundedConfig, FocusConfig, SizeConfig } from "./Pelak"
+import { ClassName as cn, ThemeInputConfig, SizeRoundedConfig, ThemeFocusConfig, SizeButtonConfig } from "./Pelak"
 
 /* --- Types ------------------------------------------------------------------------------------ */
 interface TextareaFieldProps {
@@ -39,10 +39,10 @@ export function TextareaField({
         ThemeInputConfig.Base,
         ThemeInputConfig.Props[ThemeInputConfig.DefaultProps].Base,
         ThemeInputConfig.Props[ThemeInputConfig.DefaultProps].Items[ThemeInputConfig.Default],
-        FocusConfig.Base,
-        FocusConfig.Items[FocusConfig.Default],
-        RoundedConfig.Items[RoundedConfig.Default],
-        SizeConfig.Items[SizeConfig.Default],
+        ThemeFocusConfig.Base,
+        ThemeFocusConfig.Items[ThemeFocusConfig.Default],
+        SizeRoundedConfig.Items[SizeRoundedConfig.Default],
+        SizeButtonConfig.Items[SizeButtonConfig.Default],
         "resize-none h-072-9",
         error && "border-red-500 focus-visible:border-red-600 focus-visible:ring-red-500/40",
         required && !value && !error && "border-red-500",

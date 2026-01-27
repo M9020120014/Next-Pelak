@@ -306,7 +306,7 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
 
   // Skeleton component for main profile section
   const MainProfileSkeleton = () => (
-    <P.Card className="p-6 lg:p-8 shadow-md border-Border/50">
+    <P.Card className="p-3 shadow-md border-Border/50">
       <div className="flex justify-between items-center mb-6">
         <P.Skeleton className="h-7 w-32" />
         <P.Skeleton className="h-10 w-24 rounded-md" />
@@ -341,7 +341,7 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
 
   // Skeleton component for additional info section
   const AdditionalInfoSkeleton = () => (
-    <P.Card className="p-6 lg:p-8 shadow-md border-Border/50">
+    <P.Card className="p-3 shadow-md border-Border/50">
       <div className="flex justify-between items-center mb-6">
         <P.Skeleton className="h-7 w-36" />
         <P.Skeleton className="h-10 w-24 rounded-md" />
@@ -399,7 +399,7 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
         ) : (
           <>
             {/* Section 1: Main Profile Information */}
-            <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
+            <P.Card className="p-3 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-Border/30">
                 <h2 className="text-xl lg:text-2xl font-bold text-Text">اطلاعات اصلی</h2>
                 <P.Button
@@ -446,7 +446,7 @@ export default function ProfileClient({ iDevice, lang }: ProfileClientProps) {
             </P.Card>
 
             {/* Section 2: Additional Information */}
-            <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
+            <P.Card className="p-3 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-Border/30">
                 <h2 className="text-xl lg:text-2xl font-bold text-Text">اطلاعات تکمیلی</h2>
                 <P.Button

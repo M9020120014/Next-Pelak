@@ -4,351 +4,441 @@ import { UI as P } from "@/core/components/ui/Pelak"
 
 export default function ContainerUiPage() {
   return (
-    <>
-      <P.Container className="py-056-M">
+    <main className="bg-Background xl:pt-040-8">
+      <P.Container>
         {/* Header */}
+        <div className="space-y-4">
+          <h1 className="text-3xl font-bold text-Text">Container</h1>
+          <p className="text-Mid text-lg leading-relaxed">
+            کامپوننت <code className="bg-Background px-2 py-1 rounded text-Primary">Container</code> یک کامپوننت لایه‌بندی قدرتمند است که برای ایجاد بخش‌های محتوا با قابلیت‌های پیشرفته چیدمان استفاده می‌شود.
+          </p>
 
-        <div>
-          <h1>Container</h1>
-          <p>
-            کامپوننت Container برای ایجاد بخش‌های محتوا که مقادیری به صورت پیشفرض دارد و قابل تنظیم استفاده می‌شود.
-          </p>
-          <p>
-            این کامپوننت در اصل از دو المان تشکیل شده است: یک <code className="bg-Background px-1 rounded">&lt;section&gt;</code> بیرونی که padding خارجی را مدیریت می‌کند و یک <code className="bg-Background px-1 rounded">&lt;div&gt;</code> داخلی که با <code className="bg-Background px-1 rounded">max-w-7xl mx-auto</code> عرض را محدود می‌کند و با <code className="bg-Background px-1 rounded">flex flex-col</code> المان‌های فرزند را به صورت عمودی چیدمان می‌کند. padding داخلی و gap بین المان‌های فرزند نیز در div داخلی اعمال می‌شود.
-          </p>
+          <div className="space-y-3 text-Mid">
+            <p>
+              این کامپوننت یک المان <code className="bg-Background px-2 py-1">&lt;section&gt;</code> است که با کلاس‌های Tailwind CSS استایل‌دهی می‌شود و قابلیت‌های زیر را ارائه می‌دهد:
+            </p>
+
+            <ul className="list-disc list-inside space-y-2 mr-4">
+              <li>
+                <strong className="text-Text">Padding:</strong> کنترل فاصله داخلی با مقادیر <code className="bg-Background px-1">xs</code>, <code className="bg-Background px-1">sm</code>, <code className="bg-Background px-1">md</code> (پیش‌فرض), <code className="bg-Background px-1">lg</code>, <code className="bg-Background px-1">xl</code> و <code className="bg-Background px-1">none</code>
+              </li>
+              <li>
+                <strong className="text-Text">Gaps:</strong> کنترل فاصله بین المان‌های فرزند با مقادیر <code className="bg-Background px-1">md</code> (پیش‌فرض), <code className="bg-Background px-1">lg</code> و <code className="bg-Background px-1">xl</code>
+              </li>
+              <li>
+                <strong className="text-Text">Flex:</strong> کنترل جهت چیدمان المان‌های فرزند با مقادیر <code className="bg-Background px-1">col</code> (پیش‌فرض), <code className="bg-Background px-1">row</code>, <code className="bg-Background px-1">warp</code>, <code className="bg-Background px-1">colrev</code>, <code className="bg-Background px-1">rowrev</code>, <code className="bg-Background px-1">warprev</code> و <code className="bg-Background px-1">none</code>
+              </li>
+              <li>
+                <strong className="text-Text">MaxWidth:</strong> محدود کردن عرض حداکثر با مقادیر <code className="bg-Background px-1">xs</code> (max-w-sm), <code className="bg-Background px-1">sm</code> (max-w-xl), <code className="bg-Background px-1">md</code> (max-w-3xl), <code className="bg-Background px-1">lg</code> (max-w-5xl), <code className="bg-Background px-1">xl</code> (max-w-7xl, پیش‌فرض) و <code className="bg-Background px-1">none</code>
+              </li>
+            </ul>
+
+            <div className="bg-Primary/10 border border-Primary/20 rounded-lg p-4 mt-4">
+              <p className="text-sm text-Text font-semibold mb-2">نکته مهم:</p>
+              <p className="text-sm text-Mid">
+                مقدار <code className="bg-Background px-1">Gaps</code> به صورت پویا بر اساس مقدار <code className="bg-Background px-1">Padding</code> تنظیم می‌شود تا هماهنگی بصری بهتری ایجاد شود.
+              </p>
+            </div>
+          </div>
         </div>
-
       </P.Container>
-      <div className="bg-Background">
 
-        <P.Container Padding="none" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[80px]">
-          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
-            Padding="none"
+      {/* Padding Examples */}
+      <P.Container>
+        <h2 className="text-2xl font-bold text-Text">مثال‌های Padding</h2>
+        <p className="text-Mid">
+          کنترل فاصله داخلی کامپوننت با استفاده از prop <code className="bg-Background px-2 py-1">Padding</code>
+        </p>
+      </P.Container>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Padding=&quot;none&quot;
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container Padding="none" className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            بدون padding داخلی
           </div>
         </P.Container>
-
-        <div className="h-012-3" />
-
-        <P.Container Padding="xs" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[80px]">
-          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
-            Padding="xs"
-          </div>
-        </P.Container>
-
-        <div className="h-012-3" />
-
-        <P.Container Padding="sm" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[80px]">
-          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
-            Padding="sm"
-          </div>
-        </P.Container>
-
-        <div className="h-012-3" />
-
-        <P.Container SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[80px]">
-          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
-            Padding="md" پیشفرض
-          </div>
-        </P.Container>
-
-        <div className="h-012-3" />
-
-        <P.Container Padding="lg" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[80px]">
-          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
-            Padding="lg"
-          </div>
-        </P.Container>
-
-        <div className="h-012-3" />
-
-        <P.Container Padding="xl" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[80px]">
-          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
-            Padding="xl"
-          </div>
-        </P.Container>
-
-        <div className="h-012-3" />
-
-        <P.Container SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[180px]">
-          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
-            Padding="md" پیشفرض
-          </div>
-          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
-            Gaps="md" پیشفرض
-          </div>
-        </P.Container>
-
-        <div className="h-012-3" />
-
-        <P.Container Gaps="lg" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[180px]">
-          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
-            Padding="md" پیشفرض
-          </div>
-          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
-            Gaps="lg"
-          </div>
-        </P.Container>
-
-        <div className="h-012-3" />
-
-        <P.Container Gaps="xl" SectionClassName="bg-Primary/20" className="bg-Secondary/20 h-[180px]">
-          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
-            Padding="md" پیشفرض
-          </div>
-          <div className="bg-Background/80 w-full h-full flex justify-center items-center">
-            Gaps="xl"
-          </div>
-        </P.Container>
-
-
       </div>
-      <P.Container className="py-056-M">
 
-        {/* API Reference */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-Text">مرجع API</h2>
-
-          <div className="bg-Lightness p-6 rounded-lg space-y-4">
-            <div>
-              <h3 className="font-semibold text-Text mb-2">پارامترها:</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex gap-2">
-                  <code className="bg-Background px-2 py-1 rounded font-mono text-Primary">Padding</code>
-                  <span className="text-Mid">: تنظیم padding برای section و div داخلی</span>
-                </div>
-                <div className="rtl:pr-4 ltr:pl-4 text-Mid">
-                  مقادیر ممکن: <code className="bg-Background px-1 rounded">xs</code>, <code className="bg-Background px-1 rounded">sm</code>, <code className="bg-Background px-1 rounded">md</code>, <code className="bg-Background px-1 rounded">lg</code>, <code className="bg-Background px-1 rounded">xl</code>, <code className="bg-Background px-1 rounded">none</code>
-                  <br />
-                  پیش‌فرض: <code className="bg-Background px-1 rounded">md</code>
-                </div>
-
-                <div className="flex gap-2 mt-4">
-                  <code className="bg-Background px-2 py-1 rounded font-mono text-Primary">Gaps</code>
-                  <span className="text-Mid">: تنظیم فاصله بین المان‌های فرزند</span>
-                </div>
-                <div className="rtl:pr-4 ltr:pl-4 text-Mid">
-                  مقادیر ممکن: <code className="bg-Background px-1 rounded">md</code>, <code className="bg-Background px-1 rounded">lg</code>, <code className="bg-Background px-1 rounded">xl</code>
-                  <br />
-                  پیش‌فرض: <code className="bg-Background px-1 rounded">md</code>
-                </div>
-
-                <div className="flex gap-2 mt-4">
-                  <code className="bg-Background px-2 py-1 rounded font-mono text-Primary">SectionClassName</code>
-                  <span className="text-Mid">: کلاس‌های اضافی برای element section</span>
-                </div>
-
-                <div className="flex gap-2 mt-4">
-                  <code className="bg-Background px-2 py-1 rounded font-mono text-Primary">className</code>
-                  <span className="text-Mid">: کلاس‌های اضافی برای div داخلی</span>
-                </div>
-
-                <div className="flex gap-2 mt-4">
-                  <code className="bg-Background px-2 py-1 rounded font-mono text-Primary">children</code>
-                  <span className="text-Mid">: محتوای Container</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <P.Separator />
-
-        {/* Usage Examples */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-bold text-Text">نمونه‌های استفاده</h2>
-
-          {/* Basic Usage */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-Text">استفاده پایه</h3>
-            <p className="text-Mid">
-              ساده‌ترین استفاده از Container بدون تنظیمات خاص:
-            </p>
-            <div className="bg-Lightness p-4 rounded-lg">
-              <P.Container className="bg-Panel/30">
-                <div className="bg-Background p-4 rounded text-center">
-                  محتوای داخل Container
-                </div>
-              </P.Container>
-            </div>
-            <div className="bg-Shadow/50 p-4 rounded-lg">
-              <pre className="text-sm overflow-x-auto">
-                {`<P.Container>
-  <div>محتوای داخل Container</div>
-</P.Container>`}
-              </pre>
-            </div>
-          </div>
-
-          {/* Padding Variants */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-Text">انواع Padding</h3>
-            <p className="text-Mid">
-              Container از padding های مختلف پشتیبانی می‌کند:
-            </p>
-            <div className="space-y-4">
-              {(["xs", "sm", "md", "lg", "xl"] as const).map((padding) => (
-                <div key={padding} className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <code className="bg-Background px-2 py-1 rounded text-sm">Padding=&quot;{padding}&quot;</code>
-                  </div>
-                  <div className="bg-Lightness p-4 rounded-lg">
-                    <P.Container Padding={padding} className="bg-Panel/30">
-                      <div className="bg-Background p-2 rounded text-sm text-center">
-                        Padding: {padding}
-                      </div>
-                    </P.Container>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Gap Variants */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-Text">انواع Gap</h3>
-            <p className="text-Mid">
-              فاصله بین المان‌های فرزند را می‌توانید تنظیم کنید:
-            </p>
-            <div className="space-y-4">
-              {(["md", "lg", "xl"] as const).map((gap) => (
-                <div key={gap} className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <code className="bg-Background px-2 py-1 rounded text-sm">Gaps=&quot;{gap}&quot;</code>
-                  </div>
-                  <div className="bg-Lightness p-4 rounded-lg">
-                    <P.Container Gaps={gap} className="bg-Panel/30">
-                      <div className="bg-Background p-4 rounded text-center">آیتم 1</div>
-                      <div className="bg-Background p-4 rounded text-center">آیتم 2</div>
-                      <div className="bg-Background p-4 rounded text-center">آیتم 3</div>
-                    </P.Container>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Combined Padding and Gap */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-Text">ترکیب Padding و Gap</h3>
-            <p className="text-Mid">
-              می‌توانید Padding و Gap را همزمان تنظیم کنید:
-            </p>
-            <div className="bg-Lightness p-4 rounded-lg">
-              <P.Container Padding="lg" Gaps="lg" className="bg-Panel/30">
-                <div className="bg-Background p-4 rounded text-center">آیتم 1</div>
-                <div className="bg-Background p-4 rounded text-center">آیتم 2</div>
-                <div className="bg-Background p-4 rounded text-center">آیتم 3</div>
-              </P.Container>
-            </div>
-            <div className="bg-Shadow/50 p-4 rounded-lg">
-              <pre className="text-sm overflow-x-auto">
-                {`<P.Container Padding="lg" Gaps="lg">
-  <div>آیتم 1</div>
-  <div>آیتم 2</div>
-  <div>آیتم 3</div>
-</P.Container>`}
-              </pre>
-            </div>
-          </div>
-
-          {/* Custom Styling */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-Text">استایل‌دهی سفارشی</h3>
-            <p className="text-Mid">
-              می‌توانید از SectionClassName و className برای استایل‌دهی استفاده کنید:
-            </p>
-            <div className="bg-Lightness p-4 rounded-lg">
-              <P.Container
-                SectionClassName="bg-Success/10 mb-4"
-                className="bg-Primary/10"
-              >
-                <div className="bg-Background p-4 rounded text-center">
-                  Container با استایل سفارشی
-                </div>
-              </P.Container>
-            </div>
-            <div className="bg-Shadow/50 p-4 rounded-lg">
-              <pre className="text-sm overflow-x-auto">
-                {`<P.Container 
-  SectionClassName="bg-Success/10 mb-4" 
-  className="bg-Primary/10"
->
-  <div>محتوای Container</div>
-</P.Container>`}
-              </pre>
-            </div>
-          </div>
-
-          {/* No Padding */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-Text">بدون Padding</h3>
-            <p className="text-Mid">
-              برای حذف padding از مقدار <code className="bg-Background px-1 rounded">none</code> استفاده کنید:
-            </p>
-            <div className="bg-Lightness p-4 rounded-lg">
-              <P.Container Padding="none" className="bg-Panel/30">
-                <div className="bg-Background p-4 rounded text-center">
-                  Container بدون padding
-                </div>
-              </P.Container>
-            </div>
-            <div className="bg-Shadow/50 p-4 rounded-lg">
-              <pre className="text-sm overflow-x-auto">
-                {`<P.Container Padding="none">
-  <div>محتوای Container</div>
-</P.Container>`}
-              </pre>
-            </div>
-          </div>
-        </section>
-
-        <P.Separator />
-
-        {/* Best Practices */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-Text">بهترین روش‌ها</h2>
-          <div className="bg-Lightness p-6 rounded-lg space-y-4">
-            <div className="space-y-2">
-              <h3 className="font-semibold text-Text">✅ انجام دهید:</h3>
-              <ul className="list-disc list-inside space-y-1 text-Mid">
-                <li>از Container برای ساختاردهی بخش‌های اصلی صفحه استفاده کنید</li>
-                <li>Padding و Gap را بر اساس نیاز طراحی تنظیم کنید</li>
-                <li>از SectionClassName برای استایل‌دهی section استفاده کنید</li>
-                <li>از className برای استایل‌دهی div داخلی استفاده کنید</li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-semibold text-Text">❌ انجام ندهید:</h3>
-              <ul className="list-disc list-inside space-y-1 text-Mid">
-                <li>از Container برای المان‌های کوچک استفاده نکنید</li>
-                <li>Padding و Gap را همزمان با margin در children تنظیم نکنید</li>
-                <li>از Container به صورت تو در تو بیش از حد استفاده نکنید</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <P.Separator />
-
-        {/* Structure */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-Text">ساختار داخلی</h2>
-          <div className="bg-Lightness p-6 rounded-lg">
-            <p className="text-Mid mb-4">
-              Container از دو المان تشکیل شده است:
-            </p>
-            <div className="space-y-2 text-sm">
-              <div className="bg-Background p-3 rounded">
-                <code className="text-Primary">&lt;section&gt;</code> - المان بیرونی با padding
-              </div>
-              <div className="rtl:pr-4 ltr:pl-4 text-Mid">↓</div>
-              <div className="bg-Background p-3 rounded">
-                <code className="text-Primary">&lt;div&gt;</code> - المان داخلی با max-width و gap
-              </div>
-            </div>
-          </div>
-        </section>
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Padding=&quot;xs&quot;
+        </p>
       </P.Container>
-    </>
+
+      <div className="bg-Primary/20">
+        <P.Container Padding="xs" className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            فاصله داخلی بسیار کوچک
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Padding=&quot;sm&quot;
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container Padding="sm" className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            فاصله داخلی کوچک
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Padding=&quot;md&quot; (پیش‌فرض)
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            فاصله داخلی متوسط (پیش‌فرض)
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Padding=&quot;lg&quot;
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container Padding="lg" className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            فاصله داخلی بزرگ
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Padding=&quot;xl&quot;
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container Padding="xl" className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            فاصله داخلی بسیار بزرگ
+          </div>
+        </P.Container>
+      </div>
+
+      {/* Gaps Examples */}
+      <P.Container>
+        <h2 className="text-2xl font-bold text-Text">مثال‌های Gaps</h2>
+        <p className="text-Mid">
+          کنترل فاصله بین المان‌های فرزند با استفاده از prop <code className="bg-Background px-2 py-1">Gaps</code>
+        </p>
+      </P.Container>
+
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Gaps=&quot;md&quot; (پیش‌فرض)
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            المان اول
+          </div>
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            المان دوم
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Gaps=&quot;lg&quot;
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container Gaps="lg" className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            المان اول
+          </div>
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            المان دوم
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Gaps=&quot;xl&quot;
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container Gaps="xl" className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            المان اول
+          </div>
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            المان دوم
+          </div>
+        </P.Container>
+      </div>
+
+      {/* Flex Examples */}
+      <P.Container>
+        <h2 className="text-2xl font-bold text-Text">مثال‌های Flex</h2>
+        <p className="text-Mid">
+          کنترل جهت چیدمان المان‌های فرزند با استفاده از prop <code className="bg-Background px-2 py-1">Flex</code>
+        </p>
+      </P.Container>
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Flex=&quot;col&quot; (پیش‌فرض)
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container className="bg-Primary/20">
+          <div className="bg-Background/90 min-h-[50px] flex justify-center items-center">
+            المان اول
+          </div>
+          <div className="bg-Background/90 min-h-[50px] flex justify-center items-center">
+            المان دوم
+          </div>
+          <div className="bg-Background/90 min-h-[50px] flex justify-center items-center">
+            المان سوم
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Flex=&quot;row&quot;
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container Flex="row" className="bg-Primary/20 min-h-[100px]">
+          <div className="bg-Background/90 flex-1 min-h-080-A flex justify-center items-center">
+            المان اول
+          </div>
+          <div className="bg-Background/90 flex-1 min-h-080-A flex justify-center items-center">
+            المان دوم
+          </div>
+          <div className="bg-Background/90 flex-1 min-h-080-A flex justify-center items-center">
+            المان سوم
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Flex=&quot;colrev&quot;
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container Flex="colrev" className="bg-Primary/20">
+          <div className="bg-Background/90 min-h-[50px] flex justify-center items-center">
+            المان اول (نمایش در انتها)
+          </div>
+          <div className="bg-Background/90 min-h-[50px] flex justify-center items-center">
+            المان دوم
+          </div>
+          <div className="bg-Background/90 min-h-[50px] flex justify-center items-center">
+            المان سوم (نمایش در ابتدا)
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Flex=&quot;rowrev&quot;
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container Flex="rowrev" className="bg-Primary/20 min-h-[100px]">
+          <div className="bg-Background/90 flex-1 min-h-080-A flex justify-center items-center">
+            المان اول (نمایش در انتها)
+          </div>
+          <div className="bg-Background/90 flex-1 min-h-080-A flex justify-center items-center">
+            المان دوم
+          </div>
+          <div className="bg-Background/90 flex-1 min-h-080-A flex justify-center items-center">
+            المان سوم (نمایش در ابتدا)
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Flex=&quot;warp&quot;
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container Flex="warp" className="bg-Primary/20">
+          <div className="bg-Background/90 min-h-[50px] flex justify-center items-center w-[200px]">
+            المان اول
+          </div>
+          <div className="bg-Background/90 min-h-[50px] flex justify-center items-center w-[200px]">
+            المان دوم
+          </div>
+          <div className="bg-Background/90 min-h-[50px] flex justify-center items-center w-[200px]">
+            المان سوم
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Flex=&quot;warprev&quot;
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container Flex="warprev" className="bg-Primary/20">
+          <div className="bg-Background/90 min-h-[50px] flex justify-center items-center w-[200px]">
+            المان اول (نمایش در انتها)
+          </div>
+          <div className="bg-Background/90 min-h-[50px] flex justify-center items-center w-[200px]">
+            المان دوم
+          </div>
+          <div className="bg-Background/90 min-h-[50px] flex justify-center items-center w-[200px]">
+            المان سوم (نمایش در ابتدا)
+          </div>
+        </P.Container>
+      </div>
+
+      {/* MaxWidth Examples */}
+      <P.Container>
+        <h2 className="text-2xl font-bold text-Text">مثال‌های MaxWidth</h2>
+        <p className="text-Mid">
+          کنترل عرض حداکثر کامپوننت با استفاده از prop <code className="bg-Background px-2 py-1">MaxWidth</code>
+        </p>
+      </P.Container>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          MaxWidth=&quot;xl&quot; (پیش‌فرض) - max-w-7xl mx-auto
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            عرض محدود شده به max-w-7xl و در مرکز قرار گرفته
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          MaxWidth=&quot;lg&quot; - max-w-5xl mx-auto
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container MaxWidth="lg" className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            عرض محدود شده به max-w-5xl و در مرکز قرار گرفته
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          MaxWidth=&quot;md&quot; - max-w-3xl mx-auto
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container MaxWidth="md" className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            عرض محدود شده به max-w-3xl و در مرکز قرار گرفته
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          MaxWidth=&quot;sm&quot; - max-w-xl mx-auto
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container MaxWidth="sm" className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            عرض محدود شده به max-w-xl و در مرکز قرار گرفته
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          MaxWidth=&quot;xs&quot; - max-w-sm mx-auto
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container MaxWidth="xs" className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            عرض محدود شده به max-w-sm و در مرکز قرار گرفته
+          </div>
+        </P.Container>
+      </div>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          MaxWidth=&quot;none&quot; - عرض کامل صفحه
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container MaxWidth="none" className="bg-Primary/20">
+          <div className="bg-Background/90 w-full min-h-080-A flex justify-center items-center">
+            بدون محدودیت عرض - عرض کامل صفحه
+          </div>
+        </P.Container>
+      </div>
+
+      {/* Combined Examples */}
+      <P.Container>
+        <h2 className="text-2xl font-bold text-Text">مثال‌های ترکیبی</h2>
+        <p className="text-Mid">
+          استفاده همزمان از چند prop برای ایجاد چیدمان‌های پیچیده‌تر
+        </p>
+      </P.Container>
+
+      <P.Container>
+        <p className="text-Mid text-center" style={{direction:"ltr"}}>
+          Padding=&quot;lg&quot; + Gaps=&quot;xl&quot; + Flex=&quot;row&quot;
+        </p>
+      </P.Container>
+
+      <div className="bg-Primary/20">
+        <P.Container Padding="lg" Gaps="xl" Flex="row" className="bg-Primary/20 min-h-[120px]">
+          <div className="bg-Background/90 flex-1 flex justify-center items-center">
+            المان اول
+          </div>
+          <div className="bg-Background/90 flex-1 flex justify-center items-center">
+            المان دوم
+          </div>
+        </P.Container>
+      </div>
+
+    </main >
   )
 }

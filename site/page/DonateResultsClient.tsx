@@ -4,7 +4,6 @@
 import Link from "next/link"
 /* --- Components ------------------------------------------------------------------------------- */
 import { UI as P } from "@/core/components/ui/Pelak"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/core/components/ui/Card"
 /* --- Types ------------------------------------------------------------------------------------ */
 import { LANGUAGE_TYPE } from "@/core/config/lang"
 import { donateTranslator } from "@/site/translations/donate"
@@ -55,8 +54,8 @@ export default function DonateResultsClient({ lang, status }: DonateResultsClien
   return (
     <main className="min-h-[calc(100svh-var(--spacing-144-D))] bg-linear-to-br from-Primary via-PrimaryLight/50 to-Primary/80 flex items-center justify-center px-018-4 py-034-7 lg:py-040-8">
       <div className="max-w-lg w-full transition-opacity duration-500">
-        <Card className="bg-White/98 dark:bg-Panel/98 border border-Border/50 shadow-2xl backdrop-blur-md transition-all duration-300 hover:shadow-3xl">
-          <CardHeader className="flex flex-col items-center text-center px-028-6 pt-034-7 pb-024-6 space-y-024-6">
+        <P.Card className="bg-White/98 dark:bg-Panel/98 border border-Border/50 shadow-2xl backdrop-blur-md transition-all duration-300 hover:shadow-3xl">
+          <P.CardHeader className="flex flex-col items-center text-center px-028-6 pt-034-7 pb-024-6 space-y-024-6">
             <div
               className={cn(
                 "w-040-8 h-040-8 lg:w-048-10 lg:h-048-10 rounded-full flex items-center justify-center",
@@ -114,16 +113,16 @@ export default function DonateResultsClient({ lang, status }: DonateResultsClien
             </div>
 
             <div className="space-y-012-3 w-full">
-              <CardTitle className={cn("font-title text-E lg:text-F font-bold", config.titleColor)}>
+              <P.CardTitle className={cn("font-title text-E lg:text-F font-bold", config.titleColor)}>
                 {config.title}
-              </CardTitle>
-              <CardDescription className="text-C lg:text-D leading-relaxed text-Text/90 max-w-md mx-auto">
+              </P.CardTitle>
+              <P.CardDescription className="text-C lg:text-D leading-relaxed text-Text/90 max-w-md mx-auto">
                 {config.description}
-              </CardDescription>
+              </P.CardDescription>
             </div>
-          </CardHeader>
+          </P.CardHeader>
 
-          <CardContent>
+          <P.CardContent>
             <div className="w-full flex flex-col justify-center items-stretch my-012-3">
               {isError && (
                   <P.Button
@@ -145,12 +144,12 @@ export default function DonateResultsClient({ lang, status }: DonateResultsClien
                   </Link>
                 </P.Button>
             </div>
-          </CardContent>
+          </P.CardContent>
 
-          <CardFooter className="text-Mid flex items-center justify-center py-018-4">
+          <P.CardFooter className="text-Mid flex items-center justify-center py-018-4">
             <span className="text-center">{t.results.footer.transaction}</span>
-          </CardFooter>
-        </Card>
+          </P.CardFooter>
+        </P.Card>
       </div>
     </main>
   )

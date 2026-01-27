@@ -57,11 +57,11 @@ export default function StatsNumbers({ lang }: StatsNumbersProps) {
     <section className="bg-Background py-034-7">
       <div className="max-w-6xl mx-auto px-012-3 lg:px-018-4 space-y-024-5 lg:space-y-034-7">
         <P.Card className="border-Border/70 shadow-sm">
-          <P.CardHeader className="p-6 lg:p-8 pb-4 text-right space-y-2">
-            <P.CardTitle className="text-base md:text-lg">
+          <P.CardHeader>
+            <P.CardTitle>
               {t.stats.title}
             </P.CardTitle>
-            <P.CardDescription className="text-xs md:text-sm">
+            <P.CardDescription>
               {t.stats.description}
             </P.CardDescription>
           </P.CardHeader>

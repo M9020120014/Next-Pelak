@@ -8,7 +8,8 @@ const categories = [
   "Form",
   "Display",
   "Overlay",
-  "Feedback"
+  "Feedback",
+  "MOCK"
 ] as const
 
 const components: {
@@ -113,6 +114,12 @@ const components: {
       href: "/pelakincorecomponentsui/aspect-ratio",
       category: "Layout"
     },
+    {
+      name: "mision",
+      description: "کامپوننت AspectRatio برای حفظ نسبت ابعاد المان‌ها استفاده می‌شود.",
+      href: "/pelakincorecomponentsui/mock",
+      category: "MOCK"
+    },
   ]
 
 
@@ -141,28 +148,23 @@ export default function PelakUiPage() {
                 <h2 className="text-2xl font-bold text-Text">{category}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {categoryComponents.map((component) => (
-                    <Link
-                      key={component.name}
-                      href={component.href}
-                      className="group"
-                    >
-                      <P.Card className="h-full transition-all hover:shadow-md hover:border-Primary/50">
-                        <P.CardHeader>
-                          <P.CardTitle className="group-hover:text-Primary transition-colors">
-                            {component.name}
-                          </P.CardTitle>
-                          <P.CardDescription className="line-clamp-2">
-                            {component.description}
-                          </P.CardDescription>
-                        </P.CardHeader>
-                        <P.CardFooter>
-                          <P.Button ThemeProps="ghost" Theme="primary" Size="sm" className="w-full">
+
+                    <P.Card key={component.name}>
+                      <P.CardHeader>
+                        <P.CardTitle>{component.name}</P.CardTitle>
+                        <P.CardDescription>{component.description}</P.CardDescription>
+                      </P.CardHeader>
+                      <P.CardContent>
+                        <Link
+                          href={component.href}
+                        >
+                          <P.Button className="w-full">
                             مشاهده مستندات
-                            <P.Icon Icon="back" Stroke="sm" className="size-4 rotate-180" />
+                            <P.Icon Icon="back" className="size-4 rotate-180" />
                           </P.Button>
-                        </P.CardFooter>
-                      </P.Card>
-                    </Link>
+                        </Link>
+                      </P.CardContent>
+                    </P.Card>
                   ))}
                 </div>
               </section>

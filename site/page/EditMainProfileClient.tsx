@@ -229,7 +229,7 @@ export default function EditMainProfileClient({ iDevice, lang }: EditMainProfile
           <P.Skeleton className="h-9 w-48 mb-2" />
           <P.Skeleton className="h-1 w-20 rounded-full" />
         </div>
-        <P.Card className="p-6 lg:p-8 shadow-md border-Border/50">
+        <P.Card >
           <div className="space-y-6">
             {[...Array(2)].map((_, i) => (
               <div key={i} className="space-y-2">
@@ -293,7 +293,7 @@ export default function EditMainProfileClient({ iDevice, lang }: EditMainProfile
           </div>
         )}
 
-        <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
+        <P.Card >
           <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
             {/* First Name */}
             <div className="space-y-2">

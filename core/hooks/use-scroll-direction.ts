@@ -1,5 +1,6 @@
 "use client"
 
+import { usePathname } from 'next/navigation';
 /* --- Base ------------------------------------------------------------------------------------- */
 import { useState, useEffect, useRef } from 'react';
 
@@ -9,11 +10,12 @@ export function useScrollDirection() {
   const [scrollDirection, setScrollDirection] = useState<'up' | 'down' | null>(null);
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const updateScrollDirection = () => {
       const scrollY = window.scrollY;
-      
+
       if (Math.abs(scrollY - lastScrollY.current) < 14) {
         ticking.current = false;
         return;
@@ -37,6 +39,14 @@ export function useScrollDirection() {
       window.removeEventListener('scroll', onScroll);
     };
   }, []);
+
+  useEffect(() => {
+
+    window.scrollTo({
+      top: 58,
+      behavior: 'smooth'
+    })
+  }, [pathname])
 
   return scrollDirection;
 }

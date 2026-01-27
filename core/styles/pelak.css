@@ -120,9 +120,10 @@
   --radius-xl: calc(var(--Radius) + calc(var(--Unit) * 2));
   /* --- Border Width --------------- */
   --border-width-0: calc(var(--Unit) * 0) /* 0px */;
-  --border-width-sm: calc(var(--Unit) * 0.25) /* 1px */;
-  --border-width-md: calc(var(--Unit) * 0.5) /* 2px */;
-  --border-width-lg: calc(var(--Unit) * 1) /* 4px */;
+  --border-width-1: calc(var(--Unit) * 0.25) /* 1px */;
+  --border-width-2: calc(var(--Unit) * 0.5) /* 2px */;
+  --border-width-3: calc(var(--Unit) * 0.75) /* 3px */;
+  --border-width-4: calc(var(--Unit) * 1) /* 4px */;
   /* --- Shadow --------------------- */
   --shadow-0: 0 0 0 0;
   --shadow-1: 0 2px 1px 0;

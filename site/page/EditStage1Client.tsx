@@ -240,7 +240,7 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
           <P.Skeleton className="h-9 w-48 mb-2" />
           <P.Skeleton className="h-1 w-20 rounded-full" />
         </div>
-        <P.Card className="p-6 lg:p-8 shadow-md border-Border/50">
+        <P.Card className="p-3 shadow-md border-Border/50">
           <div className="space-y-6">
             {[...Array(7)].map((_, i) => (
               <div key={i} className="space-y-2">
@@ -313,7 +313,7 @@ export default function EditStage1Client({ iDevice, lang }: EditStage1ClientProp
           </div>
         )}
 
-        <P.Card className="p-6 lg:p-8 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
+        <P.Card className="p-3 shadow-md border-Border/50 hover:shadow-lg transition-shadow duration-300">
           <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
             {/* National Code */}
             <FormField
