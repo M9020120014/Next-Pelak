@@ -71,30 +71,30 @@ export async function GET(
     }
 
     // Validate environment variables
-    if (!ENV.EXAM_API_BASE_URL) {
+    if (!ENV.AYAR_API_BASE_URL) {
       logError(
         'Exam API base URL not configured',
-        new Error('EXAM_API_BASE_URL is not set in environment variables'),
+        new Error('AYAR_API_BASE_URL is not set in environment variables'),
         routeEndpoint
       )
       return serverError('پیکربندی API آزمون ناقص است.')
     }
 
-    if (!ENV.EXAM_CLIENT_TOKEN_UUID) {
+    if (!ENV.AYAR_COMPANY_TOKEN) {
       logError(
         'Exam client token not configured',
-        new Error('EXAM_CLIENT_TOKEN_UUID is not set in environment variables'),
+        new Error('AYAR_COMPANY_TOKEN is not set in environment variables'),
         routeEndpoint
       )
       return serverError('پیکربندی API آزمون ناقص است.')
     }
 
     // SSRF protection: validate Exam API URL
-    const urlValidation = validateURL(ENV.EXAM_API_BASE_URL)
+    const urlValidation = validateURL(ENV.AYAR_API_BASE_URL)
     if (!urlValidation.valid) {
       logError(
         'Invalid Exam API URL configuration',
-        new Error(`EXAM_API_BASE_URL validation failed: ${urlValidation.reason}`),
+        new Error(`AYAR_API_BASE_URL validation failed: ${urlValidation.reason}`),
         routeEndpoint
       )
       return serverError('پیکربندی API آزمون نامعتبر است.')
@@ -102,7 +102,7 @@ export async function GET(
 
     try {
       // Construct the API URL
-      const apiUrl = `${ENV.EXAM_API_BASE_URL}/api/integration/exams/${eurlNumber}/`
+      const apiUrl = `${ENV.AYAR_API_BASE_URL}/api/integration/exams/${eurlNumber}/`
 
       // Create AbortController for timeout
       const controller = new AbortController()
@@ -114,7 +114,7 @@ export async function GET(
           method: 'GET',
           headers: {
             'accept': 'application/json',
-            'X-Client-Token': ENV.EXAM_CLIENT_TOKEN_UUID,
+            'X-Client-Token': ENV.AYAR_COMPANY_TOKEN,
           },
           cache: 'no-store',
           signal: controller.signal,

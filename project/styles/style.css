@@ -198,8 +198,8 @@
     @apply transition-all disabled:pointer-events-none [&_svg]:pointer-events-none cursor-pointer;
     @apply aria-invalid:ring-Error/40 aria-invalid:border-Error;
     @apply shrink-0 [&_svg]:shrink-0 text-H2;
-    @apply bg-Primary border border-PrimaryDark text-PrimaryForeground hover:bg-PrimaryDark hover:border-PrimaryDark active:bg-PrimaryLight;
-    @apply outline-none focus-visible:ring-2;
+    @apply bg-Primary border border-PrimaryDark text-PrimaryForeground! hover:bg-PrimaryDark hover:border-PrimaryDark active:bg-PrimaryLight;
+    @apply outline-none focus-visible:ring-2 no-underline!;
     @apply focus-visible:border-SecondaryDark focus-visible:ring-SecondaryDark/40;
     @apply rounded-sm;
     @apply h-034-7 px-014-Z has-[>svg]:px-010-D [&_svg:not([class*='size-'])]:size-018-4;

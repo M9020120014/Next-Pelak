@@ -11,6 +11,7 @@ import { callRpc } from "@/core/lib/rest/rpc";
 import { SITE_DATA_URL } from '@/core/config/site'
 import { LANGUAGE_TYPE } from '@/core/config/lang'
 import { pageDetailTranslator } from '@/site/translations/pageDetail'
+import { getAyar } from '@/project/lib/ayar/get'
 
 
 type missionType = {
@@ -122,33 +123,29 @@ export default async function PageDetailClient({ page, lang, iDevice, imageUrl }
     const missions = missionResult.data as missionType[]
 
     const missionPromises = missions.map(async (mission) => {
-      console.log("--- ----- mission:", mission) // DEBUG
       try {
-        const response = await fetch(`/api/missions/${mission.missionid}`, {
-          method: 'GET',
-          headers: {
-            accept: 'application/json',
-          },
-          cache: 'no-store',
-        })
-
-        if (!response.ok) {
-          console.error('Failed to fetch mission details', mission.missionid, response.status)
+        const missionData = await getAyar("missions/" + mission.missionid)
+        if (missionData.success === false || missionData.is_active === false) {
           return null
         }
-
-        const result = await response.json() as Mission
-
-        if (
-          typeof result.id !== 'number' ||
-          typeof result.title !== 'string' ||
-          typeof result.is_active !== 'boolean'
-        ) {
-          console.error('Invalid mission response structure', result)
-          return null
+        return {
+          id: mission.id,
+          missionid: mission.missionid,
+          user: missionData.user,
+          typeid: missionData.typeid,
+          typetitle: missionData.typetitle,
+          title: missionData.title,
+          content: missionData.content,
+          mo: missionData.mo,
+          point: missionData.point,
+          create_at: missionData.create_at,
+          modified_at: missionData.modified_at,
+          expier_at: missionData.expier_at,
+          is_active: missionData.is_active,
+          at_least_point: missionData.at_least_point,
+          ctatext: "شروع",
+          eurl: missionData.eurl
         }
-
-        return result
       } catch (error) {
         console.error('Error fetching mission details', mission.missionid, error)
         return null
@@ -156,8 +153,7 @@ export default async function PageDetailClient({ page, lang, iDevice, imageUrl }
     })
 
     const resolvedMissions = await Promise.all(missionPromises)
-    missionData = resolvedMissions.filter((mission): mission is Mission => mission !== null)
-    console.log("--- ----- missionData:", missionData) // DEBUG
+    missionData = resolvedMissions.filter((mission) => mission !== null) as unknown as Mission[]
   }
 
   return (
@@ -268,7 +264,7 @@ export default async function PageDetailClient({ page, lang, iDevice, imageUrl }
             <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
               <div className="p-024-5 lg:p-028-6">
                 <article
-                  className="prose prose-invert max-w-none text-Text leading-relaxed text-justify prose-headings:font-bold prose-p:mb-4 prose-a:text-Primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-md prose-img:max-w-full prose-img:h-auto page-content-article HTML"
+                  className="prose prose-invert max-w-none text-Text leading-relaxed text-justify prose-headings:font-bold prose-p:mb-4 prose-a:text-Primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-md prose-img:max-w-full prose-img:h-auto page-content-article HTMLCLASS"
                   dir={lang === 'fa' ? 'rtl' : 'ltr'}
                   dangerouslySetInnerHTML={{ __html: page.content }}
                 />
@@ -348,7 +344,7 @@ export default async function PageDetailClient({ page, lang, iDevice, imageUrl }
         )}
 
         {/* --- Related Categories Card --------- */}
-        {tags && tags.length > 0 && (
+        {/* {tags && tags.length > 0 && (
           <P.Container>
             <div className="bg-White rounded-lg border border-Border shadow-sm overflow-hidden">
               <div className="px-018-4 py-012-3 border-b border-Border bg-linear-to-br from-PrimaryLight/20 to-Primary/10">
@@ -372,10 +368,10 @@ export default async function PageDetailClient({ page, lang, iDevice, imageUrl }
               </div>
             </div>
           </P.Container>
-        )}
+        )} */}
 
         {/* --- No Content Message ---- */}
-        {!page.content && (
+        {/* {!page.content && (
           <P.Container>
             <div className="bg-White rounded-lg border border-Border shadow-sm p-028-6">
               <div className="flex flex-col items-center gap-012-3 text-center">
@@ -386,7 +382,7 @@ export default async function PageDetailClient({ page, lang, iDevice, imageUrl }
               </div>
             </div>
           </P.Container>
-        )}
+        )} */}
 
         {/* --- Comments Card --------- */}
         {page.id && (

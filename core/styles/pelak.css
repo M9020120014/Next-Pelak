@@ -218,7 +218,7 @@
       @apply list-disc list-inside;
     }
     a{
-      @apply hover:opacity-80 transition-all duration-200 cursor-pointer;
+      @apply hover:opacity-90 transition-all duration-200 cursor-pointer text-PrimaryDark underline underline-offset-4 hover:underline-offset-2;
     }
     li{
       @apply list-disc list-inside py-002-T;

@@ -12,9 +12,9 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  if (!ENV.EXAM_CLIENT_TOKEN_UUID) {
+  if (!ENV.AYAR_COMPANY_TOKEN) {
     return NextResponse.json(
-      { success: false, message: 'EXAM_CLIENT_TOKEN_UUID is not configured' },
+      { success: false, message: 'AYAR_COMPANY_TOKEN is not configured' },
       { status: 500 }
     )
   }
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
           fetch('${examUrl}', {
             method: 'GET',
             headers: {
-              'X-Client-Token': 'Token ${ENV.EXAM_CLIENT_TOKEN_UUID}',
+              'X-Client-Token': 'Token ${ENV.AYAR_COMPANY_TOKEN}',
             },
             redirect: 'follow',
           })
