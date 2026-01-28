@@ -30,7 +30,7 @@ export async function getAyar(functionName: string): Promise<AyarResponseType> {
     // Create AbortController for timeout
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT)
-
+    // console.log("--- ----- 1:", functionName) // DEBUG
     try {
       const response = await fetch(`${AYAR_API_BASE_URL}/api/${functionName}`, {
         method: 'GET',
@@ -43,44 +43,25 @@ export async function getAyar(functionName: string): Promise<AyarResponseType> {
       });
 
       clearTimeout(timeoutId)
+      // console.log("--- ----- 2:", await response.json()) // DEBUG
+      const responseData = await response.json()
+      // console.log("--- ----- 3:", responseData) // DEBUG
 
-      // Read response body once
-      let responseData: unknown
-      try {
-        responseData = await response.json()
-      } catch {
-        // If we can't parse the response, return parse error
-        return {
-          success: false,
-          title: ERROR_MESSAGES.PARSE_ERROR.title,
-          message: ERROR_MESSAGES.PARSE_ERROR.message,
-        } as AyarResponseType
-      }
 
       if (!response.ok) {
         // Try to get error details from response
-        let errorMessage: string = ERROR_MESSAGES.SERVER_CONNECTION_ERROR.message
-        if (responseData && typeof responseData === 'object') {
-          const errorData = responseData as Record<string, unknown>
-          if (typeof errorData.message === 'string') {
-            errorMessage = errorData.message
-          } else if (typeof errorData.error === 'string') {
-            errorMessage = errorData.error
-          } else if (typeof errorData.hint === 'string') {
-            errorMessage = errorData.hint
-          }
-        }
-        
-        return { 
-          success: false, 
-          title: ERROR_MESSAGES.SERVER_CONNECTION_ERROR.title, 
+        const errorMessage: string = ERROR_MESSAGES.SERVER_CONNECTION_ERROR.message
+
+        return {
+          success: false,
+          title: ERROR_MESSAGES.SERVER_CONNECTION_ERROR.title,
           message: errorMessage
         } as AyarResponseType;
       }
 
       try {
         const data = responseData as AyarResponseType;
-
+        // console.log("--- ----- 4:", data) // DEBUG
         return data as AyarResponseType;
 
       } catch {
@@ -92,7 +73,7 @@ export async function getAyar(functionName: string): Promise<AyarResponseType> {
       }
     } catch (error) {
       clearTimeout(timeoutId)
-      
+
       // Check if it's a timeout error
       if (error instanceof Error && error.name === 'AbortError') {
         return {
@@ -101,24 +82,24 @@ export async function getAyar(functionName: string): Promise<AyarResponseType> {
           message: ERROR_MESSAGES.REQUEST_TIMEOUT.message,
         } as AyarResponseType;
       }
-      
+
       throw error
     }
 
   } catch (error) {
     // Handle timeout or other errors
     if (error instanceof Error && error.name === 'AbortError') {
-      return { 
-        success: false, 
-        title: ERROR_MESSAGES.REQUEST_TIMEOUT.title, 
-        message: ERROR_MESSAGES.REQUEST_TIMEOUT.message 
+      return {
+        success: false,
+        title: ERROR_MESSAGES.REQUEST_TIMEOUT.title,
+        message: ERROR_MESSAGES.REQUEST_TIMEOUT.message
       } as AyarResponseType;
     }
-    
-    return { 
-      success: false, 
-      title: ERROR_MESSAGES.ERROR_OCCURRED.title, 
-      message: ERROR_MESSAGES.ERROR_OCCURRED.message 
+
+    return {
+      success: false,
+      title: ERROR_MESSAGES.ERROR_OCCURRED.title,
+      message: ERROR_MESSAGES.ERROR_OCCURRED.message
     } as AyarResponseType;
   }
 }

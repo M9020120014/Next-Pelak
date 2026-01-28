@@ -124,7 +124,9 @@ export default async function PageDetailClient({ page, lang, iDevice, imageUrl }
 
     const missionPromises = missions.map(async (mission) => {
       try {
+        // console.log("--- ----- a:", mission.missionid) // DEBUG
         const missionData = await getAyar("missions/" + mission.missionid)
+        // console.log("--- ----- b:", missionData) // DEBUG
         if (missionData.success === false || missionData.is_active === false) {
           return null
         }
@@ -153,9 +155,10 @@ export default async function PageDetailClient({ page, lang, iDevice, imageUrl }
     })
 
     const resolvedMissions = await Promise.all(missionPromises)
-    missionData = resolvedMissions.filter((mission) => mission !== null) as unknown as Mission[]
-  }
+    missionData = resolvedMissions.filter((mission) => mission !== null && mission.eurl !== null) as unknown as Mission[]
 
+  }
+  // console.log("--- ----- c:", missionData) // DEBUG
   return (
     <>
       <main className=" bg-Background lg:pt-040-8">
@@ -317,7 +320,7 @@ export default async function PageDetailClient({ page, lang, iDevice, imageUrl }
             </div>
           </div> */}
         {/* --- Mission Card --------- */}
-        {missionData && missionData.length > 0 && (
+        {missionData.length > 0 && (
           <P.Container>
             <P.Card>
               <P.CardHeader className="flex flex-row items-center gap-012-3 bg-Primary/10">

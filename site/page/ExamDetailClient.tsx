@@ -42,6 +42,13 @@ interface LaunchResponse {
   }
 }
 
+interface ReportResponse {
+  success: boolean
+  title?: string
+  message?: string
+  report?: unknown
+}
+
 export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: ExamDetailClientProps) {
   const { csrfToken } = useSecurity()
   const [isMounted, setIsMounted] = useState(false)
@@ -51,6 +58,9 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
   const [error, setError] = useState<string | null>(null)
   const [launching, setLaunching] = useState(false)
   const [launchError, setLaunchError] = useState<string | null>(null)
+  const [reportData, setReportData] = useState<unknown | null>(null)
+  const [reportLoading, setReportLoading] = useState(false)
+  const [reportError, setReportError] = useState<string | null>(null)
 
   useEffect(() => {
     setIsMounted(true)
@@ -83,7 +93,7 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
 
         const json: ExamResponse = await res.json()
         if (!res.ok || !json?.success) {
-          setError(json?.message || 'خطا در دریافت اطلاعات آزمون')
+          setError(json?.message || 'خطا در دریافت اطلاعات')
           setExamData(null)
           return
         }
@@ -91,7 +101,7 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
         if (json.exam) {
           setExamData(json.exam)
         } else {
-          setError('اطلاعات آزمون یافت نشد')
+          setError('اطلاعات یافت نشد')
         }
       } catch (err) {
         setError('خطا در ارتباط با سرور')
@@ -103,6 +113,58 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
 
     fetchExamData()
   }, [isMounted, token, eurl])
+
+  useEffect(() => {
+    const fetchReport = async () => {
+      if (!isMounted || !token || !examData) {
+        return
+      }
+
+      const payload = decodeTokenPayload(token)
+      if (!payload || !payload.mobile) {
+        return
+      }
+
+      try {
+        setReportLoading(true)
+        setReportError(null)
+
+        const res = await fetch('/api/integration/exams/report', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken,
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            mobile: "09376226180",
+            mission_id: "1",
+            eurl: "8",
+          }),
+        })
+
+        const json: ReportResponse = await res.json()
+        if (!res.ok || !json?.success) {
+          setReportError(json?.message || 'خطا در دریافت کارنامه')
+          setReportData(null)
+          return
+        }
+
+        if (json.report) {
+          setReportData(json.report)
+        } else {
+          setReportError('کارنامه یافت نشد')
+        }
+      } catch (err) {
+        setReportError('خطا در ارتباط با سرور')
+        setReportData(null)
+      } finally {
+        setReportLoading(false)
+      }
+    }
+
+    fetchReport()
+  }, [isMounted, token, examData, csrfToken])
 
   const handleLaunchExam = async () => {
     if (!token || !examData) {
@@ -138,7 +200,7 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
       const json: LaunchResponse = await res.json()
 
       if (!res.ok || !json?.success) {
-        setLaunchError(json?.message || 'خطا در شروع آزمون')
+        setLaunchError(json?.message || 'خطا در شروع')
         return
       }
 
@@ -146,7 +208,7 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
         // Redirect to exam URL (external URL)
         window.location.href = `https://app.ayareto.ir/quiz/${json.launch.quiz_id}?token=${json.launch.launch_id}`
       } else {
-        setLaunchError('آدرس آزمون دریافت نشد')
+        setLaunchError('آدرس دریافت نشد')
       }
     } catch (err) {
       setLaunchError('خطا در ارتباط با سرور')
@@ -161,7 +223,7 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
       <main className="bg-Background lg:pt-034-7 min-h-[calc(100svh-var(--spacing-144-D))]">
         <P.Container className="space-y-018-4 lg:space-y-024-6">
           <div className="bg-Panel/80 border border-Border/60 rounded-xl shadow-md p-6 text-center text-Mid">
-            صبر کنید تا به آزمون منتقل شوید
+            صبر کنید تا منتقل شوید
           </div>
         </P.Container>
       </main>
@@ -173,7 +235,7 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
       <main className="bg-Background lg:pt-034-7 min-h-[calc(100svh-var(--spacing-144-D))]">
         <P.Container className="space-y-018-4 lg:space-y-024-6">
           <div className="bg-Error/5 border border-Error/60 rounded-xl shadow-md p-4 text-Error text-sm lg:text-base">
-            برای مشاهده آزمون نیاز به ورود دارید
+            برای مشاهده نیاز به ورود دارید
           </div>
         </P.Container>
       </main>
@@ -198,7 +260,7 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
       <main className="bg-Background lg:pt-034-7 min-h-[calc(100svh-var(--spacing-144-D))]">
         <P.Container className="space-y-018-4 lg:space-y-024-6">
           <div className="bg-Panel/80 border border-Border/60 rounded-xl shadow-md p-6 text-center text-Mid">
-            در حال دریافت اطلاعات آزمون...
+            در حال دریافت اطلاعات  ...
           </div>
         </P.Container>
       </main>
@@ -222,12 +284,18 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
       <main className="bg-Background lg:pt-034-7 min-h-[calc(100svh-var(--spacing-144-D))]">
         <P.Container className="space-y-018-4 lg:space-y-024-6">
           <div className="bg-Panel/80 border border-Border/60 rounded-xl shadow-md p-6 text-center text-Mid text-sm lg:text-base">
-            اطلاعات آزمون یافت نشد
+            اطلاعات یافت نشد
           </div>
         </P.Container>
       </main>
     )
   }
+
+
+
+
+
+
 
   // Display exam information with mission card styling
   return (
@@ -242,13 +310,12 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
               </div>
               <P.CardTitle className="text-xl lg:text-2xl font-bold text-Primary">{examData.title}</P.CardTitle>
             </div>
-            <P.CardDescription className="text-sm text-Mid">
-              جزئیات و اطلاعات آزمون را در زیر مشاهده کنید
-            </P.CardDescription>
+            {/* <P.CardDescription className="text-sm text-Mid">
+              برای انجام روی دکمه شروع کلیک کنید
+            </P.CardDescription> */}
           </P.CardHeader>
           <P.CardContent >
-            <div className="space-y-4">
-              {/* Exam Details Grid */}
+            {/* <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-lg bg-PrimaryLight/10 border border-PrimaryLight/30">
                   <div className="text-Mid text-sm mb-1">تعداد سوالات</div>
@@ -270,9 +337,8 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
                 </div>
               </div>
 
-              {/* Status Badge */}
               <div className="flex items-center justify-between p-4 rounded-lg bg-PrimaryLight/10 border border-PrimaryLight/30">
-                <span className="text-sm text-Mid">وضعیت آزمون</span>
+                <span className="text-sm text-Mid">وضعیت</span>
                 <span className={`px-3 py-1 rounded-md text-sm font-medium ${examData.is_active
                   ? 'bg-Success/10 text-Success border border-Success/20'
                   : 'bg-Error/10 text-Error border border-Error/20'
@@ -280,13 +346,10 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
                   {examData.is_active ? 'فعال' : 'غیرفعال'}
                 </span>
               </div>
-            </div>
+            </div> */}
 
-          </P.CardContent>
-          <P.CardFooter>
-
-            {/* Launch Button Section */}
-            <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-lg bg-PrimaryLight/10 border border-PrimaryLight/30">
+                        {/* Launch Button Section */}
+                        <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-lg bg-PrimaryLight/10 border border-PrimaryLight/30">
               <div className="flex-1">
                 {launchError && (
                   <div className="mb-2 text-sm text-Error bg-Error/10 border border-Error/30 rounded-lg p-2">
@@ -295,8 +358,8 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
                 )}
                 <p className="text-sm text-Mid">
                   {examData.is_active
-                    ? 'برای شروع آزمون روی دکمه زیر کلیک کنید'
-                    : 'این آزمون در حال حاضر غیرفعال است'}
+                    ? 'برای شروع  روی دکمه کلیک کنید'
+                    : 'این بخش در حال حاضر غیرفعال است'}
                 </p>
               </div>
               <P.Button
@@ -327,19 +390,55 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    در حال شروع آزمون...
+                    در حال شروع...
                   </span>
                 ) : !examData.is_active ? (
-                  'آزمون غیرفعال است'
+                  'غیرفعال است'
                 ) : (
-                  'شروع آزمون'
+                  'شروع'
                 )}
               </P.Button>
             </div>
 
-          </P.CardFooter>
+          </P.CardContent>
+          {/* <P.CardFooter>
+
+
+
+          </P.CardFooter> */}
         </P.Card>
       </P.Container>
+
+      {/* Report Card */}
+      {/* <P.Container>
+        <P.Card>
+          <P.CardHeader className="flex flex-row items-center gap-012-3 bg-Primary/10">
+            <P.Icon Icon="dashboard" className="text-Primary" />
+            <h2>کارنامه</h2>
+          </P.CardHeader>
+          <P.CardContent>
+            {reportLoading ? (
+              <div className="text-center text-Mid py-4">
+                در حال دریافت کارنامه...
+              </div>
+            ) : reportError ? (
+              <div className="bg-Error/5 border border-Error/30 rounded-lg p-4 text-Error text-sm">
+                {reportError}
+              </div>
+            ) : reportData ? (
+              <div className="space-y-4">
+                <pre className="bg-Panel/50 border border-Border rounded-lg p-4 overflow-auto text-sm">
+                  {JSON.stringify(reportData, null, 2)}
+                </pre>
+              </div>
+            ) : (
+              <div className="text-center text-Mid py-4">
+                کارنامه‌ای یافت نشد
+              </div>
+            )}
+          </P.CardContent>
+        </P.Card>
+      </P.Container> */}
     </main>
   )
 }

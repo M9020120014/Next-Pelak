@@ -94,8 +94,7 @@ export default function DonationImpact({ lang }: DonationImpactProps) {
           </div>
         </div>
 
-        {/* نمونه دستاوردها */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-018-4 lg:gap-024-5">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-018-4 lg:gap-024-5">
           <P.Card className="border-PrimaryLight/40 bg-Background">
             <P.CardHeader className="p-6 lg:p-8 pb-4">
               <P.CardTitle className="text-F font-title text-Text">
@@ -111,7 +110,6 @@ export default function DonationImpact({ lang }: DonationImpactProps) {
             </P.CardContent>
           </P.Card>
 
-          {/* پروژه‌های در حال انجام */}
           <P.Card className="border-PrimaryLight/40 bg-Background">
             <P.CardHeader className="p-6 lg:p-8 pb-4">
               <P.CardTitle className="text-F font-title text-Text">
@@ -137,7 +135,7 @@ export default function DonationImpact({ lang }: DonationImpactProps) {
               )}
             </P.CardContent>
           </P.Card>
-        </div>
+        </div> */}
       </div>
     </section>
   )

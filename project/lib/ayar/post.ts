@@ -33,13 +33,6 @@ export type AyarParamsObject = Record<string, AyarParamValue>
 export type AyarResponseType = AyarParams & Record<string, AyarParamValue>
 
 /**
- * Type guard to check if value is a valid AYAR parameter
- */
-export function isAyarParamValue(value: unknown): value is AyarParamValue {
-  return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
-}
-
-/**
  * Call a PostgREST AYAR function
  * 
  * @param functionName - Name of the AYAR function to call
@@ -54,8 +47,8 @@ export async function postAyar(functionName: string, params: AyarParamsObject = 
     const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT)
 
     try {
-      console.log(`${POSTGREST_URL}/rpc/${functionName}`)
-      const response = await fetch(`${POSTGREST_URL}/rpc/${functionName}`, {
+      // console.log(`--- ----- 1: ${POSTGREST_URL}/api/${functionName}: ${JSON.stringify(params)}`)// DEBUG
+      const response = await fetch(`${POSTGREST_URL}/api/${functionName}`, {
         method: "POST",
         headers: {
           accept: "application/json",
@@ -73,6 +66,7 @@ export async function postAyar(functionName: string, params: AyarParamsObject = 
       let responseData: unknown
       try {
         responseData = await response.json()
+        // console.log("--- ----- 2:", responseData) // DEBUG
       } catch {
         // If we can't parse the response, return parse error
         return {

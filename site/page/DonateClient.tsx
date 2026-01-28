@@ -41,9 +41,9 @@ export default function DonateClient({ lang, iDevice }: DonateClientProps) {
 
       {/* Impact Section with smooth transition */}
       <DonationImpact lang={lang} />
-
+      <div className="h-10" />
       {/* Stats Section */}
-      <StatsNumbers lang={lang} />
+      {/* <StatsNumbers lang={lang} /> */}
     </main>
   )
 }

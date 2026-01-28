@@ -134,7 +134,7 @@ export async function callRpc(functionName: string, params: RpcParamsObject = {}
     const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT)
 
     try {
-      console.log(`${POSTGREST_URL}/rpc/${functionName}`)
+      // console.log(`${POSTGREST_URL}/rpc/${functionName}`)// DEBUG
       const response = await fetch(`${POSTGREST_URL}/rpc/${functionName}`, {
         method: "POST",
         headers: {
