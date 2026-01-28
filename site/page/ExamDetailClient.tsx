@@ -206,7 +206,7 @@ export default function ExamDetailClient({ eurl, callBack, iDevice, lang }: Exam
 
       if (json.launch?.exam_url) {
         // Redirect to exam URL (external URL)
-        window.location.href = `https://app.ayareto.ir/quiz/${json.launch.quiz_id}?token=${json.launch.launch_id}`
+        window.location.href = `https://app.ayareto.ir/quiz/${json.launch.quiz_id}?launch=${json.launch.launch_id}`
       } else {
         setLaunchError('آدرس دریافت نشد')
       }
