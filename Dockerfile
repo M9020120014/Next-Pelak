@@ -1,6 +1,6 @@
 # Stage 1: Build
 # استفاده از deps image که قبلاً ساخته شده
-FROM r.htni.ir/next-pelak/deps:latest AS builder
+FROM registry.hamdocker.ir/ayareto/base-htni:v0.0.0 AS builder
 WORKDIR /app
 
 # کپی فایل‌های پروژه
@@ -10,7 +10,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production (سبک‌ترین حالت)
-FROM r.htni.ir/node:20-alpine AS runner
+FROM registry.hamdocker.ir/ayareto/base-node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

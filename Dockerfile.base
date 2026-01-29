@@ -1,5 +1,5 @@
 # Dependencies image - برای استفاده در محیط‌های آفلاین
-FROM r.htni.ir/node:20-alpine
+FROM registry.hamdocker.ir/ayareto/base-node:20-alpine
 
 WORKDIR /app
 
